@@ -105,15 +105,15 @@ PROBE = r"""
 
   /* ── 정합성 ①: 국면 스트레스가 목록/대시보드까지 전파 ── */
   setRegime(0); var d0 = _deal(PRESETS[0]);
-  setRegime(3); var d3 = _deal(PRESETS[0]);          // 2022 킹달러(σ 0.164, EWI 91)
+  setRegime(3); var d3 = _deal(PRESETS[0]);          // 2022 달러 강세(σ 0.164, EWI 91)
   ok("국면 전파 · BBP", d3.bbp > d0.bbp,
-     "평시=" + d0.bbp.toFixed(1) + "% → 킹달러=" + d3.bbp.toFixed(1) + "%");
-  ok("국면 전파 · 경보", d3.alert === true, "킹달러 EWI=91 → alert=true");
+     "평시=" + d0.bbp.toFixed(1) + "% → 달러 강세=" + d3.bbp.toFixed(1) + "%");
+  ok("국면 전파 · 경보", d3.alert === true, "달러 강세 EWI=91 → alert=true");
   setRegime(3); renderDashboard();
   var king = document.querySelector("#view-dashboard .tiles").textContent;
   setRegime(0); renderDashboard();
   ok("대시보드 타일 국면 반영",
-     king !== document.querySelector("#view-dashboard .tiles").textContent, "킹달러 ≠ 평시");
+     king !== document.querySelector("#view-dashboard .tiles").textContent, "달러 강세 ≠ 평시");
   setRegime(0); showView("copilot");
 
   /* ── 정합성 ②: 민감도 표와 본 카드가 같은 헤지 규율(옛 b>=50 게이트 잔존 금지) ── */
@@ -1152,7 +1152,7 @@ PROBE = r"""
   /* 핵심: σ 는 통화별 실측이지 USD 배수가 아니다. 배수였다면 국면별 비율이 통화 간 같다. */
   ok("국면 σ = 통화별 실측(배수 아님)",
      Math.abs((REG.EUR[3].sigAnn / REG.EUR[0].sigAnn) - (REG.USD[3].sigAnn / REG.USD[0].sigAnn)) > 0.05,
-     "킹달러/현재 비율 USD=" + (REG.USD[3].sigAnn / REG.USD[0].sigAnn).toFixed(2)
+     "달러 강세/현재 비율 USD=" + (REG.USD[3].sigAnn / REG.USD[0].sigAnn).toFixed(2)
      + " vs EUR=" + (REG.EUR[3].sigAnn / REG.EUR[0].sigAnn).toFixed(2));
   ok("USD 스냅샷 불변", CUR.USD.sig === 0.098 && CUR.USD.spot === 1528.8,
      "문서·BBP 64.3% 가 이 상수에 걸려 있다");

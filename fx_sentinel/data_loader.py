@@ -91,6 +91,6 @@ if __name__ == "__main__":
     print(df.tail())
     print("\n[로그수익률 통계]")
     print(df["r"].describe())
-    # 2022 킹달러 구간 최고 종가
+    # 2022 달러 강세 구간 최고 종가
     k2022 = df.loc["2022-01-01":"2022-12-31", "Close"]
-    print(f"\n[2022 킹달러] 최고 종가 {k2022.max():.1f}원 ({k2022.idxmax().date()})")
+    print(f"\n[2022 달러 강세] 최고 종가 {k2022.max():.1f}원 ({k2022.idxmax().date()})")

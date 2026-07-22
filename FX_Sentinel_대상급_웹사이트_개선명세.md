@@ -62,7 +62,7 @@ C:\Users\user\OneDrive\바탕 화면\용선우\AI\temp\KB\FX_Sentinel_demo_ui.ht
 | `hedgeRatio()` | 460 | LossAlert 기준 0/50/100 | 너무 단순. 실제 업무용으론 설명/예외 필요 |
 | `triage()` | 462-467 | 확실성/여신/현금 기반 상품 추천 | 좋은 뼈대. 하지만 결제방식/L/C/정책자금/외화상품 미반영 |
 | `MARKET` | 470 | 현재 시장 스냅샷 | 고정값. 기준일/출처를 더 전면화해야 함 |
-| `REGIMES` | 473-479 | 스트레스 국면 | 좋음. 하지만 킬러 서사로 승격 필요 |
+| `REGIMES` | 473-479 | 스트레스 국면 | 좋음. 하지만 핵심 서사로 승격 필요 |
 | `CUR` | 482-488 | 다통화 대표 스냅샷 | 좋음. 외화상품 추천과 연결 필요 |
 | `COUNTRY` | 491-497 | 거래국 매크로 하드코딩 | 너무 얕음. 품목/HS코드/무역통계 없음 |
 | `PRESETS` | 519-524 | 4개 회사 시나리오 | 좋음. 단, 결제방식/품목/기업규모가 없음 |
@@ -80,7 +80,7 @@ C:\Users\user\OneDrive\바탕 화면\용선우\AI\temp\KB\FX_Sentinel_demo_ui.ht
 | `fx_sentinel/agents.py` | Sentinel / Analyst / Advisor / Hedge 4-agent 구조 | 화면을 4-agent 결과 리포트처럼 재구성 |
 | `fx_sentinel/knowledge_base.py` | Advisor RAG-lite, D4/D5 중심 KB | Advisor를 카드 안내가 아니라 검색/근거 추천으로 보이게 확장 |
 | `fx_sentinel/state/validation_p2.json` | PBO, DSR, WF OOS 결과 | 신뢰 배지/검증 패널로 상단 노출 |
-| `fx_sentinel/state/honest_killer.png` | 부분헤지 프론티어 | 대상급 킬러 슬라이드/패널로 사용 |
+| `fx_sentinel/state/honest_killer.png` | 부분헤지 프론티어 | 대상급 핵심 슬라이드/패널로 사용 |
 
 ---
 
@@ -2611,7 +2611,7 @@ const sigStep = m.sigAnn * Math.sqrt(tau) * m.spot;  // 민감도 막대에는 �
 
 - BBP/ES는 국면 배수 반영 `sigEff`.
 - “예산환율 이격” 막대 분모 `sigStep`은 `m.sigAnn`(국면 적용 전·또는 국면 갱신 후 MARKET.sigAnn과 혼재) 경로와 **BBP 엔진과 불일치**할 수 있다.
-- 킹달러 국면으로 바꿔 BBP가 치솟아도, 이격 막대 스케일이 BBP와 **다른 변동성**을 쓰면 XAI가 모순된다.
+- 달러 강세 국면으로 바꿔 BBP가 치솟아도, 이격 막대 스케일이 BBP와 **다른 변동성**을 쓰면 XAI가 모순된다.
 
 **수정 지시:**
 
@@ -2941,7 +2941,7 @@ LossAlert = (FX-EWI/100) × BBP
 ```text
 ?preset=narae&regime=kingdollar
 또는 로컬스토리지 시나리오 키
-+ 「발표 모드」 버튼: 나래 → 킹달러 → 티켓 생성 순 하이라이트
++ 「발표 모드」 버튼: 나래 → 달러 강세 → 티켓 생성 순 하이라이트
 ```
 
 ---

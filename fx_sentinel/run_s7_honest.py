@@ -1,5 +1,5 @@
 """
-FX Sentinel — S7: 경제성 킬러슬라이드 (정직 재작성)
+FX Sentinel — S7: 경제성 핵심 슬라이드 (정직 재작성)
 ===================================================
 정직 원칙(F 재정렬 + validate_p2 결과):
  - 폐기: "AI 동적 타이밍이 상시헤지를 이긴다"(walk-forward OOS 반증됨).
@@ -74,7 +74,7 @@ def main():
     im_rows, im_best, im_dyn = table(fx, "import", "수입 SME (달러 숏)")
 
     print("\n" + "─" * 70)
-    print("[정직 결론 — 킬러 메시지]")
+    print("[정직 결론 — 핵심 메시지]")
     print(f"  1) 체계적 부분헤지(수출 {ex_best['ratio']:.0%}·수입 {im_best['ratio']:.0%})가 하방분산 최소 —")
     print(f"     무헤지(리스크 최대)와 상시헤지(비용 최대) 양극단을 모두 이긴다.")
     print(f"  2) 상시헤지(P1)는 비용이 부분헤지의 ~2배인데 하방분산은 더 나쁘다(수출 571 vs {ex_best['downvar']:.0f}).")

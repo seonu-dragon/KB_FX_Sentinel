@@ -137,7 +137,7 @@ def test_sigma_steps_match(html):
 def test_ui_states_adverse_direction_per_position(html):
     """포지션마다 아픈 방향이 다르다는 사실이 화면 문구에 있어야 한다.
 
-    "킹달러 = 위험"처럼 방향을 고정해 말하면 수입기업에게 거짓말이 된다.
+    "달러 강세 = 위험"처럼 방향을 고정해 말하면 수입기업에게 거짓말이 된다.
     """
     assert "원화 약세(환율 상승)" in html and "원화 강세(환율 하락)" in html
     assert "매수 선물환은 계약환율에 사야 하므로" in html

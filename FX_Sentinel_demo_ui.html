@@ -2265,14 +2265,14 @@ function limitFallback(exceeds,pos){
    서버 대응: server/app/mtm.py (동일 수식·트리거)
 
    ■ 왜 필요한가 (부장 갭리뷰 GAP-2)
-   이 화면의 국면 스트레스(킹달러 등)는 지금까지 **계약 전 BBP** 에만 걸렸다. 그런데
+   이 화면의 국면 스트레스(달러 강세 등)는 지금까지 **계약 전 BBP** 에만 걸렸다. 그런데
    실무 사고는 계약 뒤에 난다 — KIKO 가 그랬다. 계약 시점엔 문제가 없었고, 환율이 급변하자
    평가손 폭증 → 추가담보 요구 → 기업 자금경색 → 은행 여신 부실로 이어졌다.
    소비자보호 이슈이자 동시에 은행 신용리스크 이슈다.
 
    ■ 방향을 가정하지 않는다 (설계 중 잡은 오류)
-   초안 시나리오는 "킹달러 → 체결 선물환 평가손"이었다. 그런데 데모의 체결 건(나래상사)은
-   **수입·매수 선물환**이라 킹달러에서는 **평가익**이 난다 — 헤지가 제 역할을 한 것이다.
+   초안 시나리오는 "달러 강세 → 체결 선물환 평가손"이었다. 그런데 데모의 체결 건(나래상사)은
+   **수입·매수 선물환**이라 달러 강세에서는 **평가익**이 난다 — 헤지가 제 역할을 한 것이다.
    수입기업이 아픈 방향은 반대(원화 강세)다. 그래서 양방향(±1σ·±2σ)을 다 계산하고
    포지션별로 불리한 쪽을 지목한다. 방향 예측이 아니라 '어느 쪽이 아픈가'의 규명이다.
 
@@ -2406,9 +2406,9 @@ const HIST_JPY={from:"2025-07-06", to:"2026-07-06", n:260,
 const HIST={USD:HIST_USD, EUR:HIST_EUR, JPY:HIST_JPY};
 /* 과거 실측 국면 — σ·EWI·성분·개입을 현재 포지션에 스트레스로 적용.
    ★ 통화별로 분리(2026-07-17). 예전엔 USD 한 벌만 두고 다른 통화엔 배수를 곱하려 했는데,
-     "2022 킹달러 배수를 다른 통화에 곱할 근거가 없다"는 이유로 아예 USD 전용이었다.
+     "2022 달러 강세 배수를 다른 통화에 곱할 근거가 없다"는 이유로 아예 USD 전용이었다.
      이제 통화마다 **같은 날짜에서 자기 시계열의 σ̂·EWI를 직접 재서** 넣는다 → 배수가 사라졌다.
-   ※ 국면 이름(평온·킹달러…)은 USD/KRW 기준 사건명이다. 같은 날짜라도 통화마다 국면이 다르다
+   ※ 국면 이름(평온·달러 강세…)은 USD/KRW 기준 사건명이다. 같은 날짜라도 통화마다 국면이 다르다
      — 예: 2019-07-25 는 USD엔 평온(EWI 12)이지만 EUR엔 경계(EWI 79)였다. EWI가 자기 과거
      252일 대비 z-점수라 그렇고, 그게 사실이므로 이름에 맞춰 숫자를 고치지 않는다.
    USD 는 기존 스냅샷을 그대로 둔다 — 문서·테스트·BBP 64.3% 가 이 값에 걸려 있다.
@@ -2418,21 +2418,21 @@ const REG={
     {key:"현재",     date:"2026-07-06", sigAnn:0.098, ewi:38, iz:0, shares:{V:79,J:0, C:21}, note:"실측 기준일 · 평시"},
     {key:"평온",     date:"2019-07-25", sigAnn:0.058, ewi:12, iz:0, shares:{V:61,J:0, C:39}, note:"저변동성 안정 국면"},
     {key:"COVID 쇼크", date:"2020-03-25", sigAnn:0.124, ewi:87, iz:0, shares:{V:48,J:10,C:42}, note:"팬데믹 급락 · 점프 동반"},
-    {key:"2022 킹달러", date:"2022-11-15", sigAnn:0.164, ewi:91, iz:0, shares:{V:44,J:8, C:48}, note:"최고 변동성 · 군집 심화"},
+    {key:"2022 달러 강세", date:"2022-11-15", sigAnn:0.164, ewi:91, iz:0, shares:{V:44,J:8, C:48}, note:"최고 변동성 · 군집 심화"},
     {key:"점프 급변",  date:"2021-03-03", sigAnn:0.099, ewi:98, iz:0, shares:{V:42,J:19,C:39}, note:"금리 발작 급변 · 점프 집중"}
   ],
   EUR:[
     {key:"현재",     date:"2026-07-06", sigAnn:0.1598, ewi:13, iz:0, shares:{V:65,J:5, C:30}, note:"실측 기준일 · 고변동 지속(군집)"},
     {key:"평온",     date:"2019-07-25", sigAnn:0.0504, ewi:79, iz:0, shares:{V:79,J:0, C:21}, note:"σ는 최저였으나 자기 과거 대비 급등 국면"},
     {key:"COVID 쇼크", date:"2020-03-25", sigAnn:0.1916, ewi:83, iz:0, shares:{V:49,J:1, C:50}, note:"팬데믹 급락 · 군집 주도"},
-    {key:"2022 킹달러", date:"2022-11-15", sigAnn:0.1593, ewi:85, iz:0, shares:{V:47,J:5, C:48}, note:"달러 강세기 · 군집 심화"},
+    {key:"2022 달러 강세", date:"2022-11-15", sigAnn:0.1593, ewi:85, iz:0, shares:{V:47,J:5, C:48}, note:"달러 강세기 · 군집 심화"},
     {key:"점프 급변",  date:"2021-03-03", sigAnn:0.1123, ewi:96, iz:0, shares:{V:49,J:11,C:39}, note:"금리 발작 급변 · 점프 집중"}
   ],
   JPY:[
     {key:"현재",     date:"2026-07-06", sigAnn:0.0861, ewi:31, iz:0, shares:{V:91,J:0, C:9},  note:"실측 기준일 · 평시"},
     {key:"평온",     date:"2019-07-25", sigAnn:0.0625, ewi:24, iz:0, shares:{V:43,J:0, C:57}, note:"저변동성 안정 국면"},
     {key:"COVID 쇼크", date:"2020-03-25", sigAnn:0.2132, ewi:52, iz:0, shares:{V:51,J:0, C:49}, note:"팬데믹 급락 · 엔 변동 최대"},
-    {key:"2022 킹달러", date:"2022-11-15", sigAnn:0.1184, ewi:83, iz:0, shares:{V:58,J:0, C:42}, note:"엔 약세기 · 군집 심화"},
+    {key:"2022 달러 강세", date:"2022-11-15", sigAnn:0.1184, ewi:83, iz:0, shares:{V:58,J:0, C:42}, note:"엔 약세기 · 군집 심화"},
     {key:"점프 급변",  date:"2021-03-03", sigAnn:0.1104, ewi:97, iz:0, shares:{V:50,J:13,C:36}, note:"금리 발작 급변 · 점프 집중"}
   ]
 };
@@ -3172,7 +3172,7 @@ function compute(){
   // ⑤ Advisor — KB 수출입금융 상품 라우팅(카테고리 세그먼트 + 구조화 카드 + 자격/서류/차단)
   // spot·sigAnn 을 ctx 에 넣는 이유: 손실 시나리오(F1)가 σ 이동폭을 계산해야 하는데,
   // 그 값을 recommendPackage 안에서 MARKET 전역으로 다시 읽으면 국면 전환(REG)이 반영되지 않는다.
-  // 화면이 보고 있는 국면과 시나리오가 어긋나면 킹달러를 눌러도 시나리오만 평시로 남는다.
+  // 화면이 보고 있는 국면과 시나리오가 어긋나면 달러 강세를 눌러도 시나리오만 평시로 남는다.
   const recs=recommendPackage(f,{bbp:bbp,alert:alert,badBudget:badBudget,macroGrade:ms.grade,gate:gate,
                                  spot:m.spot, sigAnn:m.sigAnn});
   const propose=recs.filter(x=>["추천","상담후보","RM확인"].includes(x.st));
@@ -3191,7 +3191,7 @@ function compute(){
 
   // 진행 타임라인 · Before/After · KB 내부 KPI
   // sigAnn·regimeName 추가: 체결 후 MTM 스트레스(F2)가 **현재 선택된 국면**으로 돌아야 한다.
-  // 이걸 안 넘기면 킹달러를 눌러도 체결 건 스트레스만 평시로 남아 화면이 서로 다른 말을 한다.
+  // 이걸 안 넘기면 달러 강세를 눌러도 체결 건 스트레스만 평시로 남아 화면이 서로 다른 말을 한다.
   const _tlCtx={recs:recs, bbp:bbp, es:esTotal, inst:inst, ratio:ratio, spot:m.spot, propose:propose.length,
                 sigAnn:m.sigAnn, regimeName:(regimesOf(f.currency)[regimeIdx]||{}).key||"현재"};
   renderTimeline(f,_tlCtx); renderBeforeAfter(f,_tlCtx); renderKPI(f,_tlCtx); renderNextSteps(f,_tlCtx);
@@ -4526,9 +4526,9 @@ $("v-nu").innerHTML='<thead><tr><th scope="col">ν</th><th scope="col">3</th><th
   +'<tr><td>ECE</td><td>0.048</td><td class="best">0.034</td><td class="best">0.031</td><td>0.037</td></tr></tbody>';
 // 부가검증
 $("v-misc").innerHTML='<thead><tr><th scope="col">항목</th><th scope="col">결과</th><th scope="col">해석</th></tr></thead><tbody>'
-  +[["σ 정합(엔진 vs 실현)","편의 −0.001","거의 무편의"],["ES 꼬리(예측 vs 실제)","17.4 vs 9.4원/$","1.9× 보수적"],["실패사례(BBP&lt;20%)","10.6% 큰손실","전부 2022 킹달러"]]
+  +[["σ 정합(엔진 vs 실현)","편의 −0.001","거의 무편의"],["ES 꼬리(예측 vs 실제)","17.4 vs 9.4원/$","1.9× 보수적"],["실패사례(BBP&lt;20%)","10.6% 큰손실","전부 2022 달러 강세"]]
     .map(r=>'<tr><td>'+r[0]+'</td><td style="text-align:right">'+r[1]+'</td><td style="text-align:right;color:var(--ink-mut)">'+r[2]+'</td></tr>').join("")+'</tbody>';
-$("v-limit").innerHTML='<b>정직 한계:</b> 풀링 캘리브레이션은 정합(ECE 0.034)이나, 방향별로는 편의가 있습니다 — 2018–2026 원화 약세 추세로 <b>수입 이탈률 74.5%</b>. drift=0 가정 탓이며, 그래서 BBP를 <b>방향 예측이 아니라 리스크 번역</b>으로 씁니다. 6개월·regime break(킹달러)에선 꼬리 실패가 늘어 <b>부분헤지 규율</b>로 보완합니다.';
+$("v-limit").innerHTML='<b>정직 한계:</b> 풀링 캘리브레이션은 정합(ECE 0.034)이나, 방향별로는 편의가 있습니다 — 2018–2026 원화 약세 추세로 <b>수입 이탈률 74.5%</b>. drift=0 가정 탓이며, 그래서 BBP를 <b>방향 예측이 아니라 리스크 번역</b>으로 씁니다. 6개월·regime break(달러 강세)에선 꼬리 실패가 늘어 <b>부분헤지 규율</b>로 보완합니다.';
 
 // Walk-forward OOS 패배표 (validation_p2.json)
 $("v-oos").innerHTML='<thead><tr><th scope="col">정책</th><th scope="col">Sortino</th><th scope="col">하방분산</th></tr></thead><tbody>'
@@ -4568,7 +4568,7 @@ $("themebtn").addEventListener("click",()=>{
 /* 초기 = 현재 국면 + 나래상사(수입·이탈압력) — 첫 화면에서 리스크 상태를 보여준다(2.2) */
 setRegime(0);
 fillPreset(PRESETS[3]);
-// 첫 화면 AI 요약 자동 생성(1회) — 심사위원이 버튼 안 눌러도 킬러 기능이 바로 보이게.
+// 첫 화면 AI 요약 자동 생성(1회) — 심사위원이 버튼 안 눌러도 핵심 기능이 바로 보이게.
 // 워커 미설정·장애 시에도 로컬 폴백 요약이 뜨므로 항상 실행(발표 중 빈 화면·오류문구 방지).
 setTimeout(function(){ if(typeof generateAdvisorBrief==="function") generateAdvisorBrief(); },1200);
 </script>

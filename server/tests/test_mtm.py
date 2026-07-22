@@ -2,7 +2,7 @@
 
 이 테스트가 지키는 불변식:
   · **방향을 틀리지 않는다.** 수출(매도)은 환율 상승에서, 수입(매수)은 하락에서 아프다.
-    화면이 "킹달러 = 위험"으로 고정해 말하면 수입기업에게 거짓말이 된다.
+    화면이 "달러 강세 = 위험"으로 고정해 말하면 수입기업에게 거짓말이 된다.
   · 평가익은 담보 요구 대상이 아니다.
   · 감내 가능 '손실'(F1)과 즉시 동원 '현금'(F2)은 다른 값이다 — KIKO 가 난 지점이 이 차이다.
   · 할인·스왑포인트를 지어내지 않는다(근사임을 응답이 밝힌다).
@@ -36,7 +36,7 @@ SPOT = 1528.8
 # 데모의 체결 건 — 나래상사(수입) 선물환 매수 300,000 @ 1526.4
 NARAE = {"pos": "import", "notional": 300_000, "contract_rate": 1526.4,
          "horizon_bd": 63, "currency": "USD"}
-KINGDOLLAR_SIGMA = 0.164        # 2022 킹달러 국면 실측 σ (REG.USD 와 같은 값)
+KINGDOLLAR_SIGMA = 0.164        # 2022 달러 강세 국면 실측 σ (REG.USD 와 같은 값)
 
 
 def hdr(role: str = "rm", sub: str = "mtm-user") -> dict:
@@ -73,9 +73,9 @@ def test_adverse_direction_differs_by_position():
 
 
 def test_kingdollar_is_a_gain_for_importer():
-    """데모 체결 건은 수입이다 — 킹달러(원화 약세)에서 평가익이 난다.
+    """데모 체결 건은 수입이다 — 달러 강세(원화 약세)에서 평가익이 난다.
 
-    초안 데모 시나리오가 '킹달러 → 체결 선물환 평가손'이었는데, 수입 매수 선물환에는
+    초안 데모 시나리오가 '달러 강세 → 체결 선물환 평가손'이었는데, 수입 매수 선물환에는
     틀린 서술이다. 헤지가 제 역할을 한 것이고, 이 회사가 아픈 방향은 반대다.
     """
     c = M.Contract(**NARAE)
@@ -181,11 +181,11 @@ def test_mtm_endpoint_requires_auth():
 
 def test_mtm_endpoint_returns_stress_table():
     r = client.post("/v1/mtm", json=dict(NARAE, sigma_ann=KINGDOLLAR_SIGMA,
-                                         regime_name="2022 킹달러",
+                                         regime_name="2022 달러 강세",
                                          cash_buffer_krw=1_000_000), headers=hdr())
     assert r.status_code == 200
     b = r.json()
-    assert b["regime"] == "2022 킹달러"
+    assert b["regime"] == "2022 달러 강세"
     assert len(b["rows"]) == 4
     assert b["adverse"]["direction"] == "down"
     assert b["verdict"] == "감당 불가 구간 있음"

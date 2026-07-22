@@ -80,7 +80,7 @@ def _demo():
         print(f"{name:8}{r['score']:>6.1f} {r['grade']:>6}  {comp}")
     print("─" * 66)
     print("\n[결합 표시] 환율 변동성 축(FX-EWI) × 거래국 구조 축(매크로) — 베트남 예시")
-    for ewi, label in [(38, "현재 정상"), (91, "2022 킹달러")]:
+    for ewi, label in [(38, "현재 정상"), (91, "2022 달러 강세")]:
         m = macro_score("베트남")["score"]
         cb = combine(ewi, m)
         print(f"  FX-EWI {ewi:>3}({label}) + 거래국 {m} → 결합 {cb['combined']} [{cb['grade']}]")
