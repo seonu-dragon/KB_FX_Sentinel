@@ -1207,6 +1207,18 @@
   .hn-more>summary::before{content:"▸ "}
   .hn-more[open]>summary::before{content:"▾ "}
   .hn-more .hn-sub{margin-top:4px}
+  /* 값 숫자 앰버 절제 — 위험 신호는 게이지(빨강) 한 곳으로, 값은 중립 잉크 */
+  .es .v{color:var(--ink)!important}
+  .dir{color:var(--ink)!important}
+  /* 차트 설명 — 무예측 캡션만 상시, 긴 해설은 접기(박스 평평화) */
+  #track-note.vnote{background:transparent!important;border:0!important;padding:0!important;margin-top:8px}
+  .vnote-cap{font-size:var(--fs-1);color:var(--ink-faint)}
+  .vnote-more{margin-top:4px}
+  .vnote-more>summary{font-size:var(--fs-1);color:var(--ink-faint);cursor:pointer;list-style:none;padding:2px 0}
+  .vnote-more>summary::-webkit-details-marker{display:none}
+  .vnote-more>summary::before{content:"▸ "}
+  .vnote-more[open]>summary::before{content:"▾ "}
+  .vnote-more .vnote-body{margin-top:4px;line-height:1.6;color:var(--ink-mut)}
 </style>
 </head>
 <body>
@@ -2539,13 +2551,16 @@ function renderTrack(f){
   const dirWord = exp ? "낮아" : "높아";
   /* 과거 빈도와 BBP 가 어긋나 보일 때(소망전자: 83% 불리했는데 BBP 33%) 모순으로 읽히지 않게
      "지금 시세가 K 대비 어디인가"를 숫자로 붙인다 — 그 위치가 BBP 를 가르는 실제 이유다. */
-  $("track-note").innerHTML='지난 12개월 <b>'+n+'영업일</b> 중 <b>'+bad+'일('+pct.toFixed(0)+'%)</b>이 '
+  /* 무예측 캡션은 상시 노출(오독 방지), 긴 해설은 접어 밀도 완화. 삭제 아님 — 스모크가 잠금. */
+  const _trackLong='지난 12개월 <b>'+n+'영업일</b> 중 <b>'+bad+'일('+pct.toFixed(0)+'%)</b>이 '
     + '예산환율 '+fmtRate(K)+'원보다 불리했습니다.'
     + (nowBad
         ? ' 현재 시세 '+fmtRate(now)+'원은 예산환율을 '+gap+'원 <b>넘어선 불리한 구간</b>입니다 — 그래서 만기 초과 가능성이 과거 빈도보다 높게 나옵니다.'
-        : ' 현재 시세 '+fmtRate(now)+'원은 예산환율보다 <b>'+gap+'원 여유</b> 구간입니다 — 만기 초과 가능성은 이 위치에서 출발해 계산합니다.')
-    /* 이 고지는 지우지 말 것: 12개월 꺾은선은 추세·예측으로 오독되기 쉽다(무예측 원칙 · 스모크 테스트가 잠금) */
-    + ' <span style="color:var(--ink-faint)">과거 실측 · 예측하지 않습니다 · '+HS.from+'~'+HS.to+'</span>';
+        : ' 현재 시세 '+fmtRate(now)+'원은 예산환율보다 <b>'+gap+'원 여유</b> 구간입니다 — 만기 초과 가능성은 이 위치에서 출발해 계산합니다.');
+  $("track-note").innerHTML=
+    '<div class="vnote-cap">과거 실측 · 예측하지 않습니다 · '+HS.from+'~'+HS.to+'</div>'
+    + '<details class="vnote-more"><summary>차트 읽는 법 · 불리했던 날 비중</summary>'
+    + '<div class="vnote-body">'+_trackLong+'</div></details>';
   $("track-alt").textContent=(CUR[f.currency||"USD"]||CUR.USD).label+' 12개월 추이 꺾은선과 예산환율 '+fmtRate(K)+'원 기준선. '
     +n+'영업일 중 '+bad+'일이 예산환율보다 '+dirWord+' 불리했습니다. 현재 '+fmtRate(C[n-1])+'원.';
 }
