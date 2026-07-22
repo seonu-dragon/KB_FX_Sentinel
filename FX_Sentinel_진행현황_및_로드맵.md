@@ -48,7 +48,7 @@
 | `FX_Sentinel_B_Advisor_지식베이스설계.md` | Advisor RAG 7도메인·소스·가드레일 | ✅ |
 | `FX_Sentinel_C_검증_경제성설계.md` | 헤지비용(CIP·GK·K-SURE)+P0/P1/P2/P3 P&L | ✅(패치) |
 | `FX_Sentinel_D_설계리뷰.md` | 적대적 재검토 10건 + 외부조언 5건 반영 | ✅ |
-| `FX_Sentinel_E_KB연계_기능증강.md` | KB Star FX 실사·갭분석·증강매핑·상생필살기 | ✅ |
+| `FX_Sentinel_E_KB연계_기능증강.md` | KB Star FX 실사·갭분석·증강매핑·상생 핵심 강점 | ✅ |
 | `FX_Sentinel_F_전략재정렬_v2.md` | **v2 최상위 포지셔닝**(예측알파 폐기, BBP 히어로) | ✅ |
 
 ### 2.2 코드 (temp/KB/fx_sentinel/)
@@ -143,7 +143,7 @@
 - 돌아가는 코드 파이프라인 + 실데이터 + 자체지표(BBP) 실물.
 - 개인화 리스크 번역이 데모로 증명됨(4프로필).
 - 과최적화까지 정직하게 검증한 신뢰성(대부분 팀이 못 하는 것).
-- KB Star FX 실사 기반 실배포 논리 + K-SURE 여신창출 상생 필살기.
+- KB Star FX 실사 기반 실배포 논리 + K-SURE 여신창출 상생 핵심 강점.
 - #6 블루오션(경쟁 최소).
 
 **리스크(정직)**
