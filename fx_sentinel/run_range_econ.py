@@ -97,6 +97,47 @@ def main():
     with open(os.path.join(STATE, "range_econ.json"), "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
     print("\n[저장] state/range_econ.json")
+    _plot(ex, "export")
+    print("[저장] state/range_frontier.png")
+
+
+def _plot(ex, position):
+    """리스크–비용 프론티어에 범위선물환을 얹는다(수출 기준). 예측 아님 — 구조 위치 비교."""
+    import matplotlib; matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots(1, 2, figsize=(13, 5.2), gridspec_kw={"width_ratios": [1.3, 1]})
+
+    base = [("No hedge", ex["무헤지"]), ("Fwd 50%", ex["부분선물환 50%"]), ("Fwd 100%", ex["상시선물환 100%"])]
+    rng = [("Range ±1%", ex["범위선물환 ±1%"]), ("Range ±2%", ex["범위선물환 ±2%"]), ("Range ±3%", ex["범위선물환 ±3%"])]
+
+    # 좌: 리스크(하방분산)–비용 프론티어. 파랑=선물환 계열, 주황=범위형.
+    for lbl, m in base:
+        c = "#c0392b" if "100%" in lbl else "#2c3e50"
+        ax[0].scatter(m["cost_eok"], m["downvar"], s=70, color=c, zorder=3)
+        ax[0].annotate(lbl, (m["cost_eok"], m["downvar"]), textcoords="offset points", xytext=(8, 6), fontsize=9, color=c)
+    for lbl, m in rng:
+        big = "±2%" in lbl
+        ax[0].scatter(m["cost_eok"], m["downvar"], s=110 if big else 60, color="#d97b29",
+                      edgecolor="#8a4b12" if big else "none", zorder=4, marker="D")
+        ax[0].annotate(lbl, (m["cost_eok"], m["downvar"]), textcoords="offset points", xytext=(8, -12), fontsize=9,
+                       color="#8a4b12", fontweight="bold" if big else "normal")
+    ax[0].set_xlabel("Total hedge cost (100M KRW) → more expensive")
+    ax[0].set_ylabel("Downside variance → more risk")
+    ax[0].set_title("Range forward on the risk–cost frontier (export)\nlower-left is better; band width is an assumption", fontsize=11)
+    ax[0].grid(alpha=.15)
+
+    # 우: 상단 참여(평균초과) — 범위형이 상시선물환이 포기하는 상단을 유지함을 보인다.
+    names = ["No\nhedge", "Fwd\n50%", "Fwd\n100%", "Range\n±2%"]
+    vals = [ex["무헤지"]["mean_krw"], ex["부분선물환 50%"]["mean_krw"], ex["상시선물환 100%"]["mean_krw"], ex["범위선물환 ±2%"]["mean_krw"]]
+    cols = ["#95a5a6", "#95a5a6", "#c0392b", "#d97b29"]
+    ax[1].bar(names, vals, color=cols)
+    ax[1].set_ylabel("Mean surplus per USD (KRW) → upside kept")
+    ax[1].set_title("Upside participation — range keeps what\nalways-forward gives up", fontsize=11)
+    for i, v in enumerate(vals):
+        ax[1].text(i, v + (0.4 if v >= 0 else -0.9), f"{v:.1f}", ha="center", fontsize=9)
+    ax[1].axhline(0, color="#ccc", lw=.8)
+    plt.tight_layout()
+    plt.savefig(os.path.join(STATE, "range_frontier.png"), dpi=110)
 
 
 if __name__ == "__main__":
