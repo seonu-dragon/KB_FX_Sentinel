@@ -1199,6 +1199,14 @@
   .ab-cta{background:transparent!important;color:var(--brand)!important;border:1px solid var(--brand)!important}
   /* #7 숫자 정렬 — 값은 등폭(tabular)으로 흔들림 제거 */
   .hd-v,.tv,.sr-v,.tk-v,.bv,.nv,.crk .num{font-variant-numeric:tabular-nums}
+  /* #3 밀도 — 부가 고지는 점진적 공개(핵심 상한 고지는 상시), 고지 박스는 가볍게 */
+  .honesty .hn{border-left-width:1px!important;border-left-color:var(--line-solid)!important;padding:6px 10px}
+  .hn-more{margin-top:6px}
+  .hn-more>summary{font-size:var(--fs-1);color:var(--ink-faint);cursor:pointer;list-style:none;padding:2px 0}
+  .hn-more>summary::-webkit-details-marker{display:none}
+  .hn-more>summary::before{content:"▸ "}
+  .hn-more[open]>summary::before{content:"▾ "}
+  .hn-more .hn-sub{margin-top:4px}
 </style>
 </head>
 <body>
@@ -2605,14 +2613,15 @@ function compute(){
   // 모델 한계를 숫자 옆에서 고지 — ①상한이라는 사실 ②방향별 오차(수입이 큼)
   const impK=f.pos==="import";
   // 사실만 남긴다: ①상한이라는 것과 배수 ②방향별 오차. 부장 지적(부풀린 손실로 헤지 유도)의 방어라 삭제 불가.
+  // 핵심 고지(상한)는 상시 노출, 방향별 오차 등 부가 유의는 점진적 공개(밀도 완화). 삭제는 하지 않는다.
   $("bbp-honesty").innerHTML=
-    '<div class="hn"><b>부담액은 보수적 상한입니다</b> — 실측상 실제 평균의 약 <b>'+ES_BIAS.ratio.toFixed(1)
-      +'배</b>. 실제 부담은 이보다 작을 수 있습니다.</div>'
-    +'<div class="hn">'+(impK
+    '<div class="hn"><b>부담액은 보수적 상한</b> — 실측 실제 평균의 약 <b>'+ES_BIAS.ratio.toFixed(1)
+      +'배</b>(실제는 이보다 작을 수 있음).</div>'
+    +'<details class="hn-more"><summary>방향별 오차 · 참고 유의</summary><div class="hn hn-sub">'+(impK
       ? '<b>수입 건은 오차가 큽니다</b> — 원화 약세 추세로 실제 초과 빈도 <b>'+(CALIB_DIR.importRate*100).toFixed(1)
         +'%</b>(수입·수출을 나눠 보면 오차가 평균의 4배). 참고 지표로만 보십시오.'
       : '수출 기준 실제 초과 빈도 <b>'+(CALIB_DIR.exportRate*100).toFixed(1)+'%</b>(수입·수출을 나눠 보면 오차가 평균의 4배).')
-    +'</div>';
+    +'</div></details>';
 
   renderTrack(f);
   renderHedgeCompare(f);
