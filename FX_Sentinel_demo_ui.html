@@ -1176,6 +1176,29 @@
     a[href^="http"]::after{content:" (" attr(href) ")";font-size:0.625rem;color:#555}
   }
 
+  /* ═══════════ 디자인 정제 패스 (2026-07-22) ═══════════
+     원칙: 골드 = 주행동·KB 브랜드 전용 / 위험 = 빨강 전용 / 구조 = 중립 그레이.
+     여백·타이포 위계 강화, 카드 언어 통일, 경보 톤 완화. 정직성 문구는 유지(색만 조정). */
+  /* #2 골드 남용 제거 — 배지·스텝번호를 중립으로(브랜드·주행동에만 골드를 남긴다) */
+  .beta{color:var(--ink-faint)!important;border-color:var(--line-solid)!important;background:var(--panel-2)}
+  .bn{background:#3a4a66!important;color:#f5f7fb!important;border:0!important;font-weight:700}
+  .wk .n{border-color:var(--line-solid)!important;color:var(--ink)!important;background:var(--panel-2)}
+  /* #6 카드 언어 통일 — 제각각인 좌측 컬러 스트라이프를 한 겹 중립 테두리로 */
+  .hero-decision,.whykb,.aibrief,.foot,.tk-prod,.calib,.calib-lite,.compliance,
+  .pilot-plan,.judgecard,.ticket,.nextsteps,.vnote,.aibrief{border-left-width:1px!important;border-left-color:var(--line-solid)!important}
+  .tk-prod{border-color:var(--line-solid)!important;background:var(--panel-2)}
+  /* #3 여백 — 카드에 숨통 */
+  .card{padding:18px 20px}
+  /* #5 타이포 — 컬럼 제목 또렷이(납작한 위계 완화) */
+  .colhead h2{font-size:var(--fs-5)!important;letter-spacing:-.01em}
+  /* #8 경보 톤 — 배너는 '주의'(앰버·차분). 위험 게이지의 빨강은 그대로 둔다(메시지=주의). */
+  .verdict.warn{border-left-color:var(--warn)!important;background:color-mix(in srgb,var(--warn) 4%,var(--panel))!important}
+  .verdict .v-act{color:var(--ink-mut)!important}
+  /* #1 CTA 위계 — 주행동(채운 골드)은 폼 제출·상담예약만. 보조는 고스트(테두리). */
+  .ai-gen{background:transparent!important;color:var(--gold-ink)!important;border:1px solid var(--gold-dim)!important}
+  .ab-cta{background:transparent!important;color:var(--brand)!important;border:1px solid var(--brand)!important}
+  /* #7 숫자 정렬 — 값은 등폭(tabular)으로 흔들림 제거 */
+  .hd-v,.tv,.sr-v,.tk-v,.bv,.nv,.crk .num{font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
