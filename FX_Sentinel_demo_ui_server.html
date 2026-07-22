@@ -2482,16 +2482,18 @@ function renderHedgeCompare(f){
     +'<polyline fill="none" stroke="var(--brand)" stroke-width="2" points="'+x0+','+yAt(0.34)+' '+lo+','+yAt(0.34)+' '+hi+','+yAt(0.7)+' '+x1+','+yAt(0.7)+'"/>'
     +'</svg>';
   let h='<h3><span class="agent-n">▤</span> 헤지수단 비교 <span class="dbadge" title="요율·행사가·밴드가는 만들지 않습니다 — 구조·조건만 비교(자격은 ELIG 단일 소스)">구조·조건 비교 · 요율은 RM 견적</span></h3>';
-  h+='<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;margin-top:8px">';
-  h+='<div style="flex:1 1 250px;min-width:230px">'+svg
+  // 밴드 개념도는 상단 전체폭(최대 460px), 비교표는 그 아래 전체폭 — 좌우 분할 시 표 컬럼이 잘렸다.
+  h+='<div style="max-width:460px;margin-top:8px">'+svg
     +'<div style="font-size:var(--fs-1);color:var(--ink-faint);line-height:1.7;margin-top:2px"><span style="color:var(--ink-mut)">- - -</span> 무헤지 · <span style="color:var(--gold-ink)">▬</span> 선물환 고정 · <span style="color:var(--brand)">▬</span> 범위선물환(밴드 안은 시장 따라 상단 이익 일부 유지)</div></div>';
-  h+='<div class="dwrap" style="flex:2 1 340px"><table class="spectable"><thead><tr><th scope="col">수단</th><th scope="col">선납비용</th><th scope="col">상단이익</th><th scope="col">여신</th><th scope="col">언제</th></tr></thead><tbody>';
+  // 컬럼 4개(수단·선납비용·상단이익·여신). '언제/사유'는 이름 아래 줄로 내려 첫 컬럼이 가로로 부풀지 않게.
+  h+='<div class="dwrap" style="margin-top:10px"><table class="spectable"><thead><tr><th scope="col">수단</th><th scope="col">선납비용</th><th scope="col">상단이익</th><th scope="col">여신</th></tr></thead><tbody>';
   rows.forEach(r=>{
-    const off=r.elig===false;
-    h+='<tr style="'+(off?"opacity:.5":"")+'"><td class="k">'+esc(r.t)+(r.note?' <span style="color:var(--ink-faint);font-weight:400">· '+esc(r.note)+'</span>':"")+'</td>'
-      +'<td>'+esc(r.cost)+'</td><td>'+esc(r.up)+'</td><td>'+esc(r.credit)+'</td><td>'+esc(r.when)+'</td></tr>';
+    const off=r.elig===false, sub=r.note||r.when;
+    h+='<tr style="'+(off?"opacity:.55":"")+'"><td class="k"><b>'+esc(r.t)+'</b>'
+      +(sub?'<div style="color:var(--ink-faint);font-weight:400;font-size:var(--fs-1);line-height:1.5;margin-top:2px">'+esc(sub)+'</div>':"")+'</td>'
+      +'<td>'+esc(r.cost)+'</td><td>'+esc(r.up)+'</td><td>'+esc(r.credit)+'</td></tr>';
   });
-  h+='</tbody></table></div></div>';
+  h+='</tbody></table></div>';
   h+='<div class="guard">※ 상단 이익 "일부 유지"는 범위형·칼라의 구조 설명입니다. 실제 밴드가·행사가·요율은 RM 견적이며, 이 표는 예측이 아니라 상품 구조 비교입니다.</div>';
   // 공정가 투명성(TCA-lite) — 참고 중간환율만 표시. 대고객 스프레드는 지어내지 않고 RM 고시값을 체결 시 대조.
   h+='<div class="metaline" style="max-width:48em"><b>공정가 안내</b> — 참고 중간환율 <b>'+fmtRate(spot)+'원</b>('+(f.currency||"USD")+'/KRW). 대고객 적용환율 = 중간환율 ± <b>KB 고시 스프레드</b>이며, 실제 스프레드는 <b>체결 시 이 화면에서 대조</b>합니다. 스프레드를 임의로 만들지 않습니다(요율 미연동).</div>';
