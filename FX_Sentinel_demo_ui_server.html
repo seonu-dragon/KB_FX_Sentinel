@@ -678,7 +678,6 @@
 
   /* 드롭존 시연 고지 — 배지(제목 옆)는 hover 툴팁이라 모바일·키보드에서 안 보인다.
      "파일을 읽지 않는다"는 사실은 상시 노출이어야 한다. */
-  .drop-sim{display:inline-block;margin-top:4px;color:var(--ink-faint);font-size:var(--fs-1);line-height:1.4}
 
   /* ── Windows 고대비 모드 (forced-colors) ──────────────────────────
      이 화면은 위험도를 색(--good/--warn/--crit)과 color-mix 반투명 배경으로 많이 전달한다.
@@ -1388,9 +1387,8 @@
 
       <section class="card">
         <h3><span class="agent-n">✎</span> 기업 · 거래 정보</h3>
-        <div class="f-hint" style="margin-bottom:8px">둘러보기용 <b>예시 거래</b> — 골라서 눌러 보거나, 값을 내 거래로 바꾸세요.</div>
+        <div class="f-hint" style="margin-bottom:8px"><b>예시 거래</b> — 눌러서 불러오거나 값을 바꾸세요.</div>
         <div class="presets" id="presets"></div>
-        <div class="f-hint">서류를 올리면 금액·만기·거래국이 자동으로 채워집니다.</div>
         <div class="form">
           <div class="f"><label for="in-name">기업명</label><input id="in-name" value="한빛정밀"></div>
           <div class="f"><label for="in-pos">수입 / 수출</label><select id="in-pos"><option value="export">수출 (달러 받음)</option><option value="import">수입 (달러 지급)</option></select></div>
@@ -1571,7 +1569,7 @@
 
        여기 있던 4-스텝 플로우 스트립은 삭제했다: 컬럼 헤드(1 거래 정보 입력 / 2 리스크 진단 /
        3 금융지원 추천)와 §4 KB 상담 연결을 이름·번호까지 그대로 복창하던 중복이었다. -->
-  <div class="sec-h" style="margin-top:8px"><span class="bn bn-mut">▦</span><div><h2>거래국 · 품목 참고 정보</h2><p>이 거래의 배경 정보입니다 — 진단 결과와 별개로 확인하세요.</p></div></div>
+  <div class="sec-h" style="margin-top:8px"><span class="bn bn-mut">▦</span><div><h2>거래국 · 품목 참고 정보</h2></div></div>
   <div class="refrow">
     <section class="card">
       <h3><span class="agent-n">⊕</span> 거래국 리스크</h3>
