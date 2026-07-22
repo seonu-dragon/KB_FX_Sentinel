@@ -234,7 +234,7 @@ Tokyo Precision KK       → (미탐)
 ## 5. 테스트
 
 ```bash
-python -m pytest tests/ -q          # 142개
+python -m pytest tests/ -q          # 247개
 ```
 
 | 파일 | 무엇을 지키는가 |
