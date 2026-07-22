@@ -166,8 +166,11 @@
      .dwrap 의 overflow-x:auto 는 부모가 줄어들 수 있을 때만 작동한다 → 항목에 min-width:0. */
   .grid2>*,.grid3>*,.refrow>*{min-width:0}
   .card{background:var(--panel);border:1px solid var(--line-solid);border-radius:var(--radius);padding:16px}
+  /* flex-wrap: 저시력 사용자가 기본 글꼴을 키우면(예: 모바일 390px·24px) 제목+배지가 한 줄을
+     넘겨 배지가 뷰포트 밖으로 2px 삐져나가 가로스크롤이 생겼다. 넘칠 때만 배지를 아래 줄로
+     내린다 — 데스크톱 기본 글꼴에선 한 줄에 들어가 변화 없음(WCAG 1.4.10 리플로우). */
   .card h3{margin:0 0 2px;font-size:var(--fs-1);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);
-    display:flex;align-items:center;gap:8px;font-weight:700}
+    display:flex;align-items:center;gap:8px;font-weight:700;flex-wrap:wrap}
   .agent-n{width:19px;height:19px;border-radius:var(--r-sm);background:var(--panel-2);border:1px solid var(--line-solid);
     display:grid;place-items:center;font-size:var(--fs-1);color:var(--gold-ink);font-weight:800}
 
