@@ -343,7 +343,9 @@
   .fitbar i{display:block;height:100%;background:var(--gold);border-radius:var(--r-pill)}
   .fitrow .fs{font-size:var(--fs-1);font-weight:800;font-family:var(--mono);color:var(--ink)}
   .fitrow .fu{font-size:var(--fs-1);color:var(--elev);font-weight:700}
-  .metaline{font-size:var(--fs-1);color:var(--ink-mut);margin-top:4px;line-height:1.5}
+  /* 전체폭 심화 패널(dp-c 등)에서 한 줄이 화면폭까지 늘어나 읽기 어려워지지 않게 measure 상한.
+     좁은 컬럼 카드에선 컬럼폭이 이미 이 값 이하라 영향 없다(참고: regime-note 도 44em). */
+  .metaline{font-size:var(--fs-1);color:var(--ink-mut);margin-top:4px;line-height:1.5;max-width:44em}
   .metaline b{color:var(--ink-mut);font-weight:800}
   .blockbox{margin-top:8px;padding:8px 8px;border-radius:var(--r-sm);border:1px solid color-mix(in srgb,var(--crit) 30%,transparent);
     background:color-mix(in srgb,var(--crit) 7%,transparent);font-size:var(--fs-1);line-height:1.5}
@@ -1512,18 +1514,20 @@
         </details>
       </section>
 
-    </section>
-
-    <!-- ───── COLUMN 3 · 금융지원 추천 ───── -->
-    <section class="appcol">
-      <div class="colhead"><span class="bn">3</span><div><h2>금융지원 추천</h2><p>거래에 맞는 KB 금융지원을 찾아 드립니다.</p></div></div>
-
+      <!-- AI 맞춤 요약 — 진단(BBP·의사결정) 다음에 둔다. col3 는 게이팅·추천으로 무게가 쏠려
+           참고 카드를 아래로 내리고, 요약은 진단 흐름 끝에 배치해 3컬럼 높이를 고르게 한다. -->
       <section class="card aibrief">
         <h3><span class="agent-n">✦</span> AI 맞춤 요약 <span class="ai-tag">행내 생성 · 외부 미전송</span>
           <button type="button" class="ai-gen" id="ai-gen">AI 요약 보기</button></h3>
         <div class="ai-out" id="ai-out"><div class="ai-empty">위 진단 결과와 추천 상품을 <b>이해하기 쉬운 요약</b>으로 정리해 드립니다. 분석 시작 시 자동 생성됩니다.</div></div>
         <div class="guard">※ 위 <b>계산값만</b> 근거로 하며 예측·투자자문이 아닙니다.</div>
       </section>
+
+    </section>
+
+    <!-- ───── COLUMN 3 · 금융지원 추천 ───── -->
+    <section class="appcol">
+      <div class="colhead"><span class="bn">3</span><div><h2>금융지원 추천</h2><p>거래에 맞는 KB 금융지원을 찾아 드립니다.</p></div></div>
 
       <!-- 금소법 적정성 (F1) — 상품 카드 '위'에 둔다.
            상품을 먼저 보여주고 나중에 "사실 권유 못 합니다"라고 하면 이미 기대가 생긴 뒤다.
@@ -1548,26 +1552,6 @@
         <div class="info" id="advisor"></div>
 
         <div class="guard" id="guard"></div>
-      </section>
-
-      <section class="card locked" id="hedge-card">
-        <div class="lockmask" id="lockmask"><div><div class="li">🔒</div><div class="lm">환리스크 관리 상담 잠금</div><div class="ls">서류 확인 후 열립니다 — 왼쪽 <b>서류 확인</b> 카드 참조</div></div></div>
-        <h3><span class="agent-n">⚖</span> 환리스크 관리 참고 정보</h3>
-        <div class="rec">
-          <div class="inst" id="h-inst">–</div>
-          <div class="prod" id="h-prod">–</div>
-          <div class="hedge-kv">
-            <div class="box"><div class="k">참고 관리비율</div><div class="v" id="h-ratio">–</div></div>
-            <div class="box"><div class="k">관리 금액</div><div class="v" id="h-notional">–</div></div>
-            <!-- 선물환율·스왑포인트는 KB 고시가 아니라 CIP 이론가(내부 금리 상수 기반) → 고객 노출 금지.
-                 화면에 뜬 숫자는 고객에게 '우리 고시'로 읽히고, 영업점 실제 조건과 다르면 창구 분쟁이 된다. -->
-            <div class="box internal-only"><div class="k">선물환율 <span class="theo">이론가</span></div><div class="v" id="h-fwd">–</div></div>
-            <div class="box internal-only"><div class="k">스왑포인트 <span class="theo">이론가</span></div><div class="v" id="h-swap">–</div></div>
-          </div>
-          <div class="why" id="h-why"></div>
-        </div>
-        <div class="guard internal-only">※ <b>선물환율·스왑포인트는 CIP 이론가</b>(원화 3M 금리 상수 기반 산출)이며 <b>KB 고시가 아닙니다</b>. 고객 화면에는 노출하지 않습니다 — 실제 적용 환율은 고시 스왑포인트·대고객 스프레드로 RM이 확인합니다.</div>
-        <div class="guard">※ 관리 금액은 결제 금액 범위 안에서 안내됩니다. <b>적용 환율은 상담 시점의 KB 고시환율로 확정</b>되며 이 화면에서는 안내하지 않습니다.</div>
       </section>
 
       <button type="button" class="colcta" id="book">영업점 상담 예약 요청 · RM 티켓 생성</button>
@@ -1614,6 +1598,28 @@
 
 
 
+
+  <!-- 환리스크 관리 참고 — col3(게이팅·추천)로 무게가 쏠려, 참고 성격의 이 카드를 전체폭으로 내렸다.
+       바로 아래 헤지수단 비교와 함께 두어 헤지 정보를 한 곳에 묶는다(거래국·품목 참고와 같은 패턴). -->
+  <section class="card locked" id="hedge-card" style="margin-top:16px">
+    <div class="lockmask" id="lockmask"><div><div class="li">🔒</div><div class="lm">환리스크 관리 상담 잠금</div><div class="ls">서류 확인 후 열립니다 — 왼쪽 <b>서류 확인</b> 카드 참조</div></div></div>
+    <h3><span class="agent-n">⚖</span> 환리스크 관리 참고 정보</h3>
+    <div class="rec">
+      <div class="inst" id="h-inst">–</div>
+      <div class="prod" id="h-prod">–</div>
+      <div class="hedge-kv">
+        <div class="box"><div class="k">참고 관리비율</div><div class="v" id="h-ratio">–</div></div>
+        <div class="box"><div class="k">관리 금액</div><div class="v" id="h-notional">–</div></div>
+        <!-- 선물환율·스왑포인트는 KB 고시가 아니라 CIP 이론가(내부 금리 상수 기반) → 고객 노출 금지.
+             화면에 뜬 숫자는 고객에게 '우리 고시'로 읽히고, 영업점 실제 조건과 다르면 창구 분쟁이 된다. -->
+        <div class="box internal-only"><div class="k">선물환율 <span class="theo">이론가</span></div><div class="v" id="h-fwd">–</div></div>
+        <div class="box internal-only"><div class="k">스왑포인트 <span class="theo">이론가</span></div><div class="v" id="h-swap">–</div></div>
+      </div>
+      <div class="why" id="h-why"></div>
+    </div>
+    <div class="guard internal-only">※ <b>선물환율·스왑포인트는 CIP 이론가</b>(원화 3M 금리 상수 기반 산출)이며 <b>KB 고시가 아닙니다</b>. 고객 화면에는 노출하지 않습니다 — 실제 적용 환율은 고시 스왑포인트·대고객 스프레드로 RM이 확인합니다.</div>
+    <div class="guard">※ 관리 금액은 결제 금액 범위 안에서 안내됩니다. <b>적용 환율은 상담 시점의 KB 고시환율로 확정</b>되며 이 화면에서는 안내하지 않습니다.</div>
+  </section>
 
   <!-- 헤지수단 비교 — 고객·RM 공통(내부 전용 아님). 상품 선택 근거는 고객에게도 유용하다. -->
   <section class="card" id="hedge-compare" style="margin-top:16px"></section>
