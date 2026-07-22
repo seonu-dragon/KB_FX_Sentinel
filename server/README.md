@@ -82,7 +82,7 @@ python scripts/build_server_demo.py --check    # V2 가 최신인지 검사 (테
 ```
 
 **V2 도 서버 없이 단독 동작합니다** — 서버가 없으면 이 패널만 "연결하지 못했습니다"로 남고
-나머지 화면은 V1 과 똑같습니다. V1·V2 모두 UI 스모크 328개를 통과합니다.
+나머지 화면은 V1 과 똑같습니다. V1·V2 모두 UI 스모크 339개를 통과합니다.
 
 ```bash
 FXS_TARGET=FX_Sentinel_demo_ui_server.html python ../tests/ui_smoke_test.py
@@ -234,7 +234,7 @@ Tokyo Precision KK       → (미탐)
 ## 5. 테스트
 
 ```bash
-python -m pytest tests/ -q          # 138개
+python -m pytest tests/ -q          # 142개
 ```
 
 | 파일 | 무엇을 지키는가 |

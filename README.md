@@ -1,7 +1,7 @@
 # FX Sentinel — KB Star FX 수출입 금융 AI 코파일럿
 
 > **제8회 KB AI Challenge (2026) · 현직자 Pick #6 「수출입 금융 지원 에이전트」**
-> 데모 본체: **`FX_Sentinel_demo_ui.html`** (단일 파일 · 4,275행 · 973KB · 외부 의존성 없음 — 용량 대부분은 임베드 폰트)
+> 데모 본체: **`FX_Sentinel_demo_ui.html`** (단일 파일 · 4,457행 · 992KB · 외부 의존성 없음 — 용량 대부분은 임베드 폰트)
 
 ---
 
@@ -138,8 +138,8 @@ temp/KB/
 │   ├── catalog/products.yaml         ← KB 상품 마스터(요율·한도 없음 — RM 견적)
 │   ├── scripts/sync_demo_products.py ← YAML ↔ 데모 KB_PRODUCTS 동기화(--check/--write)
 │   ├── scripts/build_server_demo.py  ← V1 데모 → 서버연동 V2(demo_ui_server.html) 생성
-│   └── tests/                        ← pytest 138개 (ELIG 파리티 256조합 실브라우저 대조 포함)
-├── tests/ui_smoke_test.py           ← 데모 UI 스모크 테스트 (328개)
+│   └── tests/                        ← pytest 142개 (ELIG 파리티 256조합 실브라우저 대조 포함)
+├── tests/ui_smoke_test.py           ← 데모 UI 스모크 테스트 (339개)
 └── _archive/                        ← 구버전 백업·스크린샷 (제출물 아님)
 ```
 
@@ -163,9 +163,9 @@ temp/KB/
 python tests/ui_smoke_test.py     # 헤드리스 Chrome, 표준 라이브러리만 사용
 ```
 
-328개 검증: 재현성(스냅샷 고정) · 정보보호(고객정보 외부 미전송을 **실제 네트워크 요청으로** 확인) · 정합성(뷰 간 BBP·1순위 일치, 자격규칙 전 조합 전수) · 정직성(보수적 상한·방향별 오차 고지) · 접근성(label·aria·명도대비 4.5:1) · 입력 검증(NaN 미노출).
+339개 검증: 재현성(스냅샷 고정) · 정보보호(고객정보 외부 미전송을 **실제 네트워크 요청으로** 확인) · 정합성(뷰 간 BBP·1순위 일치, 자격규칙 전 조합 전수) · 정직성(보수적 상한·방향별 오차 고지) · 접근성(label·aria·명도대비 4.5:1) · 입력 검증(NaN 미노출).
 
-> 서버 계층(`server/`)은 별도로 **pytest 138개**로 검증합니다 — 서버 권위판정·RBAC(403)·감사로그·포트폴리오 네팅과, 데모 JS `ELIG` ↔ 서버 `elig.py` 를 **전 조합(256) 실브라우저 대조**하는 파리티 테스트를 포함합니다.
+> 서버 계층(`server/`)은 별도로 **pytest 142개**로 검증합니다 — 서버 권위판정·RBAC(403)·감사로그·포트폴리오 네팅과, 데모 JS `ELIG` ↔ 서버 `elig.py` 를 **전 조합(256) 실브라우저 대조**하는 파리티 테스트를 포함합니다.
 
 > **주의:** BBP 게이지(`#bbp`)는 `animNum()`이 600ms 트윈하므로, DOM 값을 읽는 테스트는
 > `--force-prefers-reduced-motion` 플래그가 필요합니다(없으면 애니메이션 중간값이 잡힘).
