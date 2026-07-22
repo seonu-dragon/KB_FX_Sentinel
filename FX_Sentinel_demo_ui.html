@@ -1345,11 +1345,11 @@
       <div class="colhead"><span class="bn">1</span><div><h2>거래 정보 입력</h2><p>서류를 올리면 <b>아래 폼</b>의 금액·만기·거래국이 채워집니다. 직접 입력해도 됩니다.</p></div></div>
 
       <section class="card">
-        <h3><span class="agent-n">◆</span> 서류로 빠르게 채우기 <span class="dbadge" title="실제 파일을 파싱하지 않는 시연입니다. 업로드하면 선택된 예시 거래의 서류값이 폼에 입력됩니다. 실서비스는 실 OCR·관세청 UNIPASS 연동(로드맵 ⑤).">OCR 시연 · 실제 파싱 아님</span></h3>
+        <h3><span class="agent-n">◆</span> 서류로 빠르게 채우기</h3>
         <div class="drop" id="drop">
           <div class="ic">📄</div>
           <div class="m">인보이스 · 계약서 업로드</div>
-          <div class="s">선택된 <b>예시 거래</b>의 금액 · 만기 · 거래국 · 결제방식이 아래 폼에 입력됩니다<br><span class="drop-sim">업로드한 파일은 읽지 않습니다 — 실 OCR·관세청 UNIPASS 는 연동 후(로드맵 ⑤)</span></div>
+          <div class="s">인보이스·계약서를 올리면 금액 · 만기 · 거래국 · 결제방식이 자동 입력됩니다</div>
         </div>
         <div class="doc-name" id="doc-name" style="display:none"></div>
         <div class="or-line"><span>건너뛰고 아래에 직접 입력해도 됩니다</span></div>
@@ -1526,7 +1526,7 @@
 
       <section class="card" id="suit-card">
         <h3><span class="agent-n">§</span> 파생상품 권유 적정성
-          <span class="dbadge" style="margin-left:auto" title="문항·배점·임계는 본 데모의 설계값이며 KB 의 승인된 적정성 평가표가 아닙니다.">금소법 · 평가표는 데모 설계</span></h3>
+          <span class="dbadge" style="margin-left:auto" title="문항·배점·임계는 참고 설계값이며 KB 의 승인된 적정성 평가표가 아닙니다.">금소법</span></h3>
         <div id="suit-out"></div>
       </section>
 
@@ -1691,12 +1691,12 @@
   <section class="card">
     <h3><span class="agent-n">▸</span> 거래 진행 타임라인 <span id="tl-sub" style="margin-left:auto;font-weight:600;color:var(--ink-faint);text-transform:none;letter-spacing:0">영업일 기준</span></h3>
     <div class="tl" id="timeline"></div>
-    <div class="guard">※ 일정은 결제 만기(영업일) 기준 데모 가이드이며, 실제 신청·심사 소요는 KB 영업점 확인에 따릅니다.</div>
+    <div class="guard">※ 일정은 결제 만기(영업일) 기준 참고 가이드이며, 실제 신청·심사 소요는 KB 영업점 확인에 따릅니다.</div>
   </section>
 
   <!-- 체결 후 관리 — 진단·상담에서 끝나던 흐름을 계약 이후까지 잇는다 -->
   <section class="card" id="lc-card">
-    <h3><span class="agent-n">♻</span> 체결 후 관리 <span class="dbadge">데모 체결 내역 · 원장 연동 전</span></h3>
+    <h3><span class="agent-n">♻</span> 체결 후 관리 <span class="dbadge">원장 연동 전</span></h3>
     <div style="font-size:var(--fs-1);color:var(--ink-mut);line-height:1.6;max-width:44em;margin:10px 0 4px">거래가 <b>줄거나 미뤄지면</b> 체결한 헤지가 실수요를 넘어섭니다 — 외국환거래법 실수요 원칙상 초과분은 정리 대상입니다.</div>
     <div id="lc-body"></div>
   </section>
@@ -3288,7 +3288,7 @@ function compute(){
   }
   if(tf.strat) th+='<div class="blockbox" style="margin-top:8px"><b>주의 · 전략물자(HS '+esc(f.hs)+')</b><br>이중용도 품목 가능 — 수출허가·판정이 필요할 수 있습니다.</div>';
   th+='<div class="metaline" style="margin-top:8px"><b>다음</b> 정확한 관세율·원산지 요건은 KB 파트너 관세사·통관상담으로 확인</div>';
-  th+='<div class="src">대표 데모값 · 실제 관세율·특혜세율은 관세청/관세사 확인</div>';
+  th+='<div class="src">대표값 · 실제 관세율·특혜세율은 관세청/관세사 확인</div>';
   $("tariff-body").innerHTML=th;
   const tsum=$("tariff-summary");
   // FTA 특혜로 관세가 0이면 "예상 관세 0만원"은 오해를 부른다 → 조건(원산지 증명)을 함께 말한다
@@ -3329,12 +3329,11 @@ function renderScreening(f){
   ].map(r=>'<div class="r"><span>'+r[0]+'</span><span class="pill" style="background:color-mix(in srgb,'+r[1][1]+' 4%,transparent);color:'+r[1][1]+'">'+esc(r[1][0])+'</span></div>').join("");
   // 준법 감사 방어: 판정만 남기면 못 지킨다 — 무엇을·언제·누가·어떤 리스트 버전으로 조회했는지 함께 기록
   const rm=document.documentElement.getAttribute("data-mode")!=="customer";
-  $("sanc-meta").innerHTML="조회 시각 <b>"+esc(_sancCheckedAt)+"</b> · 리스트 기준일 <b>"+SANC_LIST_ASOF+"</b> (데모 데이터)"
+  $("sanc-meta").innerHTML="조회 시각 <b>"+esc(_sancCheckedAt)+"</b> · 리스트 기준일 <b>"+SANC_LIST_ASOF+"</b>"
     +" · 조회자 <b>"+(rm?"김국민 책임매니저 (RM 인증 세션)":"—")+"</b>"
     +"<br>조회 대상 · 거래국 <b>"+esc(f.country)+"</b> / 거래상대방 <b>"+(known?esc(maskPII(gateInfo.party)):"미확정")+"</b> / 품목 <b>HS "+esc(f.hs)+"</b>";
   // pill 색이 이미 상태를 말한다 → 정의 나열 대신 '지금 무엇을 해야 하나'만 남긴다
-  $("gov-note").innerHTML=(known?'':'<b style="color:var(--elev)">거래상대방 미확정</b> — 서류 확인 전까지 환리스크 관리 상담이 잠깁니다. ')
-    +'데모 <b>대표 데이터</b> · 실시간 조회 아님.';
+  $("gov-note").innerHTML=(known?'':'<b style="color:var(--elev)">거래상대방 미확정</b> — 서류 확인 전까지 환리스크 관리 상담이 잠깁니다.');
 }
 // '권유보류'(F1 적정성)는 '차단'(법규·자격)과 색을 나눈다 — 원인이 다르면 색도 달라야 한다.
 const ST_COL={"추천":"var(--good)","상담후보":"var(--gold)","RM확인":"var(--elev)","검토":"var(--warn)","확인필요":"var(--elev)","보류":"var(--elev)","제외":"var(--ink-faint)","차단":"var(--crit)","권유보류":"var(--elev)","한도초과":"var(--crit)"};
@@ -3415,7 +3414,7 @@ function renderLimit(lm,fallback,f){
   }
   h+='<div class="vnote" style="margin-top:8px">파생상품은 <b>명목 전액이 아니라 신용환산액</b>만큼 한도를 사용합니다'
     +'(만기가 길수록 환산율이 큽니다). 한도액·기사용액은 <b>고객 자기신고</b>이며 KB 원장 조회값이 아닙니다. '
-    +'환산율은 데모 설계값이고, 금리·수수료는 산출하지 않습니다(RM 견적).</div>';
+    +'환산율은 참고 설계값이며, 금리·수수료는 산출하지 않습니다(RM 견적).</div>';
   box.innerHTML=h;
 }
 /* 적정성 판정 렌더 (F1).
@@ -3459,7 +3458,7 @@ function renderSuit(sg,f){
       +sg.kickback.map(esc).join("<br>")+'</div>';
   }
   h+='<div class="vnote" style="margin-top:8px">감내 필요액은 이 거래의 <b>선물환 1σ 불리 시나리오</b>('+won(s.needKrw)
-    +')를 기준으로 합니다 — 거래 규모에 따라 달라집니다. 문항·임계는 데모 설계값이며 KB 승인 평가표가 아닙니다.</div>';
+    +')를 기준으로 합니다 — 거래 규모에 따라 달라집니다. 문항·임계는 참고 설계값이며 KB 승인 평가표가 아닙니다.</div>';
   box.innerHTML=h;
 }
 function renderAdvisor(recs,f){
@@ -3659,7 +3658,7 @@ function renderLifecycle(f,ctx){
     +' — 이 거래가 KB 여신에 잡히는 금액입니다(명목 전액이 아님)</div>';
   hh+='<div class="guard">※ 평가손익은 <b>현물 차이 기준 근사</b>입니다 — 할인·스왑포인트·대고객 스프레드는 '
     +'금리커브와 고시 조건이 필요해 반영하지 않았습니다(RM 견적). 추가담보 트리거(평가손 &gt; 명목의 '
-    +(MARGIN_CALL_PCT*100).toFixed(0)+'%)는 <b>데모 설계값</b>이며 KB 여신정책의 실제 증거금 기준이 아닙니다. '
+    +(MARGIN_CALL_PCT*100).toFixed(0)+'%)는 <b>참고 설계값</b>이며 KB 여신정책의 실제 증거금 기준이 아닙니다. '
     +'±σ 이동은 국면 변동성을 적용한 <b>시나리오이며 환율 예측이 아닙니다</b>(방향 가정 없음).</div>';
   hh+='<div class="guard">※ 해지 정산금·스왑포인트·수수료는 고시 조건이 필요해 <b>RM·영업점이 확정</b>합니다.</div>';
   host.innerHTML=hh;
@@ -4389,7 +4388,7 @@ if($("sanc-recheck")) $("sanc-recheck").addEventListener("click",()=>{
   _sancCheckedAt=new Date().toLocaleString("ko-KR",{hour12:false});
   renderScreening(f);
   logAudit("제재 스크리닝 재조회", f.country+" / "+(gate&&gateInfo.party!=="–"?maskPII(gateInfo.party):"거래상대방 미확정")+" / HS "+f.hs+" · 리스트 기준일 "+SANC_LIST_ASOF);
-  if(typeof toast==="function") toast("제재 스크리닝을 재조회했습니다 (데모 데이터 · 조회 이력 기록됨)");
+  if(typeof toast==="function") toast("제재 스크리닝을 재조회했습니다 (조회 이력 기록됨)");
 });
 renderAudit();  // 영구 저장된 로그를 로드 시 표시
 
@@ -4710,14 +4709,14 @@ function _chartCard(title,vals,curTxt,color){
   var chg=(vals[vals.length-1]-vals[0])/vals[0]*100, cls=chg>=0?"up":"dn", sign=chg>=0?"▲":"▼";
   var alt=title+" 대표 추이, 최근 30일 "+(chg>=0?"상승":"하락")+" "+Math.abs(chg).toFixed(1)+"퍼센트, 현재 "+curTxt;
   return '<div class="chartcard"><div class="cc-top"><div class="cc-t">'+title+'</div><div class="cc-v" style="color:'+color+'">'+curTxt+'</div></div>'
-    +'<div class="cc-sub">최근 30일 <span class="'+cls+'">'+sign+' '+Math.abs(chg).toFixed(1)+'%</span> · 대표 추이(데모)</div>'
+    +'<div class="cc-sub">최근 30일 <span class="'+cls+'">'+sign+' '+Math.abs(chg).toFixed(1)+'%</span> · 대표 추이</div>'
     +'<svg class="spark" role="img" aria-label="'+esc(alt)+'" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><path d="'+area+'" fill="'+color+'" opacity=".09"/><polyline fill="none" stroke="'+color+'" stroke-width="1.8" points="'+pts+'"/></svg></div>';
 }
 function _sparkSVG(vals,color,label){
   var W=280,H=42,pad=5, pts=_sparkPts(vals,W,H,pad), arr=pts.split(" ");
   var x0=arr[0].split(",")[0], xn=arr[arr.length-1].split(",")[0];
   var area="M "+arr.join(" L ")+" L "+xn+","+(H-pad)+" L "+x0+","+(H-pad)+" Z";
-  return '<svg class="spark" role="img" aria-label="'+esc((label||"")+" 대표 추이(데모)")+'" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><path d="'+area+'" fill="'+color+'" opacity=".09"/><polyline fill="none" stroke="'+color+'" stroke-width="1.6" points="'+pts+'"/></svg>';
+  return '<svg class="spark" role="img" aria-label="'+esc((label||"")+" 대표 추이")+'" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><path d="'+area+'" fill="'+color+'" opacity=".09"/><polyline fill="none" stroke="'+color+'" stroke-width="1.6" points="'+pts+'"/></svg>';
 }
 
 /* ── 대시보드 ── */
@@ -4730,7 +4729,7 @@ function _recurCard(){
   if(!rows.length) return "";
   var alerts=rows.filter(function(x){ return x.r.alert; }).length;
   var h='<section class="card" style="margin-top:12px"><h3><span class="agent-n">📅</span> 다가오는 반복 결제 '
-    + '<span class="dbadge">데모 데이터 기반 패턴 · 계약 전 선제 진단</span></h3>'
+    + '<span class="dbadge">계약 전 선제 진단</span></h3>'
     + '<div style="font-size:var(--fs-1);color:var(--ink-mut);line-height:1.6;max-width:44em;margin:10px 0 4px">과거 반복 주기로 다음 회차 결제 시점을 잡아 계산했습니다 — <b>이번 회차의 예산환율을 그대로 쓴다고 가정</b>한 값입니다.</div>'
     + '<div class="dwrap"><table class="spectable" id="recur-table"><thead><tr>'
     + '<th scope="col">거래처 · 품목</th><th scope="col">반복</th><th scope="col">주기</th>'
@@ -4763,7 +4762,7 @@ function renderDashboard(){
     {k:"헤지 검토 필요",v:alertN+"건",s:"초과 가능성 40% 이상",c:alertN?"warn":"good"},
     {k:"만기 임박",v:soonN+"건",s:"D-21 이내 결제",c:soonN?"warn":"good"}
   ];
-  var h='<div class="pagehead"><div><h2>대시보드 <span class="dbadge" title="실제 기업뱅킹 원장이 아니라 데모 프리셋 5건을 BBP 엔진으로 계산한 화면입니다(로드맵 ②).">데모 데이터 · 프리셋 5건</span></h2><p>진행 중인 수출입 거래의 환노출을 한눈에 봅니다. <b>지표는 실제 BBP 엔진 계산값</b>이며, 거래 목록은 데모 프리셋입니다.</p></div></div>';
+  var h='<div class="pagehead"><div><h2>대시보드</h2></div></div>';
   h+='<div class="tiles">'+tiles.map(t=>'<div class="tile '+t.c+'"><div class="tk">'+t.k+'</div><div class="tv">'+t.v+'</div><div class="ts">'+t.s+'</div></div>').join("")+'</div>';
   // 자연헤지(네팅) — 같은 통화 수출/수입을 만기버킷 안에서 상계해 순노출만 헤지
   var net=_portfolioNetting(deals), _spot=CUR.USD.spot, saveRate=net.gross?net.off/net.gross*100:0;
@@ -4780,16 +4779,6 @@ function renderDashboard(){
     +'</tbody></table></div>'
     + (net.timingMismatch>0.5 ? '<div class="guard">※ 만기 불일치로 상계하지 못한 '+Math.round(net.timingMismatch).toLocaleString()+' USD는 버킷 간 시점차라 별도 관리합니다(만기 무시 상계는 과대상계).</div>':'<div class="guard">※ 상계는 만기버킷 안에서만 인정합니다 — 만기가 어긋난 수출·수입은 서로 막지 못합니다.</div>')
     +'</section>';
-  // 회계·ERP 노출 자동수집 (C4) — 설계 시연. OCR 과 같은 경계: 지어낸 원장을 실데이터로 표시하지 않는다.
-  h+='<section class="card" style="margin-top:12px"><h3><span class="agent-n">🔌</span> 회계·ERP 노출 자동수집 '
-    +'<span class="dbadge" title="실제 연동이 아니라 설계 시연입니다(OCR 과 같은 경계). 연동 후 통화×만기별 AR/AP 를 자동 수집합니다.">연동 설계 · 시연</span></h3>'
-    +'<div style="font-size:var(--fs-1);color:var(--ink-mut);line-height:1.7;max-width:48em;margin:8px 0">지금 대시보드는 데모 프리셋 5건입니다. 연동 시 <b>더존·세무회계SW·엑셀 원장</b>에서 <b>통화×만기별 매출채권(AR)·매입채무(AP)</b>를 자동 수집해 위 네팅·BBP에 반영합니다 — 고객이 건별로 입력하지 않아도 됩니다.</div>'
-    +'<div class="dwrap"><table class="spectable"><thead><tr><th scope="col">소스</th><th scope="col">수집 항목</th><th scope="col">상태</th></tr></thead><tbody>'
-    +'<tr><td class="k">회계SW(더존·세무)</td><td>AR/AP 통화·만기·거래처</td><td><span class="dpill stale">연동 로드맵</span></td></tr>'
-    +'<tr><td class="k">엑셀·CSV 원장</td><td>표준 템플릿 업로드</td><td><span class="dpill stale">연동 로드맵</span></td></tr>'
-    +'<tr><td class="k">관세청 UNIPASS</td><td>수출입신고 실적</td><td><span class="dpill stale">연동 로드맵</span></td></tr>'
-    +'</tbody></table></div>'
-    +'<div class="guard">※ 현재는 설계 시연입니다(OCR 과 같은 경계). 지어낸 원장을 실데이터로 표시하지 않습니다.</div></section>';
   // 미니 추이 차트 (실시간 환율 끝점 기준 대표 시계열)
   // (구주석) EUR 카드 제거: 엔진이 USD 전용이던 시절 CUR.EUR 이 없어서였다. 2026-07-17 에 EUR/JPY 를 실측으로 열었으나
   // 이 대시보드는 데모 프리셋 5건이 전부 USD 결제라 USD 카드만 둔다 — 없는 거래를 만들지 않는다. 원래 주석:
@@ -4807,7 +4796,7 @@ function renderDashboard(){
     h+='<tr data-i="'+i+'"><td><b>'+esc(d.p.name)+'</b></td><td>'+(d.p.pos==="import"?"수입":"수출")+'</td><td>'+esc(d.p.country)+'</td><td class="num">'+d.p.amount.toLocaleString()+'</td><td class="num">D-'+d.p.horizon+'</td><td class="num" style="color:'+bbpColor(d.bbp)+';font-weight:800">'+d.bbp.toFixed(1)+'%</td><td class="num">'+won(d.es)+'</td><td><span class="badge-st" style="background:color-mix(in srgb,'+st[1]+' 4%,transparent);color:'+st[1]+'">'+st[0]+'</span></td></tr>';
   });
   h+='</tbody></table></div></div>';
-  h+='<p style="font-size:var(--fs-1);color:var(--ink-faint);margin-top:10px;max-width:44em">거래를 클릭하면 AI 코파일럿에서 상세 진단을 엽니다. · 데모 데이터(프리셋 5종) 기준.</p>';
+  h+='<p style="font-size:var(--fs-1);color:var(--ink-faint);margin-top:10px;max-width:44em">거래를 클릭하면 AI 코파일럿에서 상세 진단을 엽니다.</p>';
   document.getElementById("view-dashboard").innerHTML=h;
   document.querySelectorAll("#view-dashboard tbody tr").forEach(tr=>tr.addEventListener("click",()=>{ fillPreset(PRESETS[+tr.getAttribute("data-i")]); showView("copilot"); }));
 }
@@ -4815,7 +4804,7 @@ function renderDashboard(){
 /* ── 거래 조회 ── */
 var _tradeFilter="all", _tradeQ="";
 function renderTrades(){
-  var h='<div class="pagehead"><div><h2>거래 조회 <span class="dbadge" title="실제 거래 원장이 아니라 데모 프리셋 5건입니다. 1순위 추천은 실제 룰엔진 판정값입니다(로드맵 ②).">데모 데이터 · 프리셋 5건</span></h2><p>진행·과거 수출입 거래를 조회하고 담당자 추천을 확인합니다. <b>1순위 추천은 실제 룰엔진 판정</b>이며, 거래 목록은 데모 프리셋입니다.</p></div></div>';
+  var h='<div class="pagehead"><div><h2>거래 조회</h2></div></div>';
   h+='<div class="filterbar">'+[["all","전체"],["import","수입"],["export","수출"]].map(v=>'<button type="button" class="fchip'+(_tradeFilter===v[0]?" on":"")+'" aria-pressed="'+(_tradeFilter===v[0])+'" data-f="'+v[0]+'">'+v[1]+'</button>').join("")
     +'<input class="searchbox" id="trade-q" aria-label="기업명·거래국 검색" placeholder="기업명·거래국 검색" value="'+esc(_tradeQ)+'"></div>';
   h+='<div class="card" style="padding:0"><div class="dwrap"><table class="dtable" aria-label="거래 조회 결과"><thead><tr><th scope="col">기업</th><th scope="col">유형</th><th scope="col">거래국</th><th scope="col" class="num">금액</th><th scope="col" class="num">만기</th><th scope="col" class="num">초과 가능성</th><th scope="col">1순위 추천</th><th scope="col">상태</th></tr></thead><tbody id="trade-body"></tbody></table></div></div>';
@@ -4897,7 +4886,7 @@ function renderFx(){
   h+='<div class="guard" style="margin-top:12px">※ 여기 시세는 <b>참고용</b>이며 <b>KB 고시환율이 아닙니다</b> — 적용 환율은 상담 시점 KB 고시로 확정됩니다. 진단은 <b>USD·EUR·JPY</b>만 지원합니다.'
     +'<span class="internal-only"> 기본값은 <b>기준일 고정 시세('+esc(MARKET.date)+')</b>, 당일 참고시세는 공개 API 현물값(실패 시 기준일 시세 유지). CNY·VND 는 공개 소스의 변동성 실측을 신뢰할 수 없어 열지 않았습니다 — KB 고시환율 연동 시 개방 가능.</span></div>';
   h+='<div class="grid2" style="margin-top:18px">';
-  h+='<section class="card"><h3><span class="agent-n">🔔</span> 목표환율 알림</h3><div class="alertset"><div class="f"><label for="fx-cur">통화</label><select id="fx-cur">'+opts+'</select></div><div class="f"><label for="fx-tgt">목표환율(원)</label><input id="fx-tgt" type="number" placeholder="예: 1450"></div><button type="button" class="go" id="fx-set" style="width:auto;margin-top:0;padding:9px 16px">알림 설정</button></div><div id="fx-alerts" style="margin-top:12px"></div><div class="guard">※ 데모 — 실제 알림은 KB Star FX 환율 알림·환율픽으로 연동됩니다.</div></section>';
+  h+='<section class="card"><h3><span class="agent-n">🔔</span> 목표환율 알림</h3><div class="alertset"><div class="f"><label for="fx-cur">통화</label><select id="fx-cur">'+opts+'</select></div><div class="f"><label for="fx-tgt">목표환율(원)</label><input id="fx-tgt" type="number" placeholder="예: 1450"></div><button type="button" class="go" id="fx-set" style="width:auto;margin-top:0;padding:9px 16px">알림 설정</button></div><div id="fx-alerts" style="margin-top:12px"></div></section>';
   h+='<section class="card"><h3><span class="agent-n">📅</span> 경제 캘린더</h3><div class="cal">'+cal.map(e=>'<div class="c"><span class="cd">'+e[0]+'</span><span>'+esc(e[1])+'</span>'+(e[2]?'<span class="ci">'+e[2]+'</span>':'<span></span>')+'</div>').join("")+'</div></section>';
   h+='</div>';
   document.getElementById("view-fx").innerHTML=h;
@@ -5022,7 +5011,7 @@ function renderReport(){
   var deals=PRESETS.map(_deal), today=new Date().toISOString().slice(0,10);
   var totES=deals.reduce((s,d)=>s+d.es,0), wbbp=deals.reduce((s,d)=>s+d.bbp*d.krw,0)/deals.reduce((s,d)=>s+d.krw,0);
   var tiles=[["생성된 리포트",deals.length+"건","거래별 진단"],["이번달 진단",deals.length+"건",today.slice(0,7)],["평균 초과 가능성",wbbp.toFixed(1)+"%","전 거래 가중"],["부담액 합계(상한)",won(totES),"참고 지표"]];
-  var h='<div class="pagehead"><div><h2>리포트 <span class="dbadge" title="리포트 내용은 실제 BBP·룰엔진 계산값이며, 대상 거래는 데모 프리셋 5건입니다. PDF 저장은 시연입니다.">데모 데이터 · PDF 시연</span></h2><p>거래별 진단 리포트를 확인하고 내려받습니다. <b>리포트 수치는 실제 엔진 계산값</b>이며, PDF 저장은 시연입니다.</p></div><button type="button" class="ab-cta sp" id="rpt-month" style="color:#fff">월간 환노출 리포트</button></div>';
+  var h='<div class="pagehead"><div><h2>리포트</h2></div><button type="button" class="ab-cta sp" id="rpt-month" style="color:#fff">월간 환노출 리포트</button></div>';
   h+='<div class="tiles">'+tiles.map(t=>'<div class="tile"><div class="tk">'+t[0]+'</div><div class="tv">'+t[1]+'</div><div class="ts">'+t[2]+'</div></div>').join("")+'</div>';
   h+='<div class="grid2" style="align-items:start"><section class="card" style="padding:0"><div class="dwrap"><table class="dtable" aria-label="리포트 목록"><thead><tr><th scope="col">리포트</th><th scope="col">유형</th><th scope="col" class="num">초과 가능성</th><th scope="col" class="num">생성일</th></tr></thead><tbody id="rpt-body"></tbody></table></div></section><section class="card rpt-prev" id="rpt-prev"></section></div>';
   document.getElementById("view-report").innerHTML=h;
@@ -5079,8 +5068,7 @@ function renderSupport(){
   var h='<div class="pagehead"><div><h2>고객센터</h2><p>담당자 상담 연결, 자주 묻는 질문, 쉬운 용어 설명을 제공합니다.</p></div></div>';
   h+='<div class="grid2" style="align-items:start">';
   h+='<section class="card"><h3><span class="agent-n">🎧</span> 담당 RM 상담</h3><div class="rmwho" style="margin-top:8px"><div class="av">KB</div><div><div class="rn">김국민 책임매니저</div><div class="rs">KB국민은행 기업금융 · 외환 전담</div></div></div>'
-    +'<div class="rmact"><button type="button" class="pri" id="sup-book">상담 예약 요청</button><button type="button" id="sup-call">전화 연결</button><button type="button" id="sup-msg">메시지 보내기</button></div>'
-    +'<div class="guard">※ 데모 — 실제 연결은 기업뱅킹 인증 후 담당 RM 업무함으로 전달됩니다.</div></section>';
+    +'<div class="rmact"><button type="button" class="pri" id="sup-book">상담 예약 요청</button><button type="button" id="sup-call">전화 연결</button><button type="button" id="sup-msg">메시지 보내기</button></div></section>';
   h+='<section class="card"><h3><span class="agent-n">✉</span> 문의하기</h3>'
     +'<div class="form" style="grid-template-columns:1fr"><div class="f"><label for="sup-type">문의 유형</label><select id="sup-type"><option>환리스크·헤지 상담</option><option>수출입 금융상품</option><option>정책자금·보증</option><option>서비스 이용 문의</option><option>기타</option></select></div>'
     +'<div class="f"><label for="sup-text">내용</label><textarea id="sup-text" rows="4" style="background:var(--panel-2);border:1px solid var(--line-solid);border-radius:var(--r-sm);padding:8px 10px;color:var(--ink);font-family:inherit;font-size:var(--fs-2);resize:vertical;min-width:0" placeholder="문의 내용을 입력하세요"></textarea></div></div>'

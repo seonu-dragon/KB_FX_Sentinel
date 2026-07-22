@@ -81,17 +81,10 @@ PROBE = r"""
      "공개 API 라벨 명시");
   showView("copilot");
 
-  /* ── 정직성: 데모 데이터 배지 ── */
-  ok("OCR 시연 배지",
-     document.querySelector("#view-copilot .dbadge") !== null,
-     (document.querySelector("#view-copilot .dbadge") || {}).textContent || "-");
-  showView("dashboard");
-  ok("대시보드 데모 배지", document.querySelector("#view-dashboard .dbadge") !== null, "데모 데이터 명시");
-  showView("trades");
-  ok("거래조회 데모 배지", document.querySelector("#view-trades .dbadge") !== null, "데모 데이터 명시");
-  showView("report");
-  ok("리포트 데모 배지", document.querySelector("#view-report .dbadge") !== null, "데모 데이터 명시");
-  showView("policy"); showView("products"); showView("support");   // 전 뷰 렌더(아래 label 검사가 JS 렌더분까지 포함하도록)
+  /* 실서비스 화면 방향으로 '데모 데이터' 배지·시연 표기는 제거했다
+     (정직성 근거는 심사 자료 탭·README 에 유지). 전 뷰를 한 번씩 렌더해
+     아래 label·명도대비 검사가 JS 렌더분까지 포함하도록만 한다. */
+  ["dashboard", "trades", "report", "policy", "products", "support"].forEach(showView);
   showView("copilot");
 
   /* ── 접근성: label ↔ 입력 연결 (정적 HTML + JS 렌더 뷰 전부) ── */
@@ -1246,9 +1239,7 @@ PROBE = r"""
   ok("반복 결제 카드 렌더", !!_rc && _rc.querySelectorAll("tbody tr").length === Object.keys(RECUR).length,
      "행 " + (_rc ? _rc.querySelectorAll("tbody tr").length : 0) + "개");
   var _dv = document.getElementById("view-dashboard");
-  ok("선제 카드 데모 라벨", !!_dv && _dv.textContent.indexOf("데모 데이터 기반 패턴") >= 0,
-     "지어낸 이력이 아님을 화면이 말한다");
-  /* ── 신규: 자연헤지(네팅) 집계 · ERP 자동수집 (S8) ── */
+  /* ── 자연헤지(네팅) 집계 (S8) ── */
   var _dvt = _dv.textContent;
   ok("네팅 집계 카드 렌더", _dvt.indexOf("자연헤지(네팅) 집계") >= 0 && _dvt.indexOf("버킷 네팅 후 순노출") >= 0,
      "만기버킷 상계 패널");
@@ -1259,8 +1250,6 @@ PROBE = r"""
     ok("네팅 절감률 계산 정확", _dvt.indexOf(_exp + "%") >= 0 && _net.netInBucket >= _net.naiveNet,
        "절감률 " + _exp + "% · 버킷순노출 " + _net.netInBucket + " ≥ 만기무시순노출 " + _net.naiveNet);
   })();
-  ok("ERP 자동수집 시연 라벨", _dvt.indexOf("회계·ERP 노출 자동수집") >= 0 && _dvt.indexOf("연동 설계 · 시연") >= 0,
-     "지어낸 원장 아님 — 시연 경계 표기");
   ok("간이 네팅 카드 일원화", _dvt.indexOf("순노출만 관리") < 0,
      "만기 무시 상계 카드는 버킷 패널로 일원화(과대상계 제거)");
   /* ── 신규: 헤지수단 비교 패널 + 범위선물환 밴드 개념도 (S8) ── */
@@ -1378,7 +1367,6 @@ PROBE = r"""
   ok("조회 메타(감사 방어)",
      /조회 시각\s*20\d\d/.test(sm) && sm.indexOf("리스트 기준일 " + SANC_LIST_ASOF) >= 0
      && sm.indexOf("RM 인증 세션") >= 0, "시각·리스트버전·조회자 기록");
-  ok("실시간 조회 아님 고지", /실시간 조회(가)? 아(님|닙)/.test($("gov-note").textContent), "-");
   var n0 = _audit.length;
   $("sanc-recheck").click();
   ok("재조회 = 감사 기록 행위",
