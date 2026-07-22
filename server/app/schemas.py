@@ -417,6 +417,50 @@ class AckResponse(BaseModel):
     note: str
 
 
+class MtmRequest(BaseModel):
+    """체결 후 평가손익·증거금 스트레스 (F2).
+
+    체결 약정은 원장에서 와야 하지만 미연동이므로 입력으로 받는다 — 그 사실을 응답에 적는다.
+    """
+    pos: Position = "import"
+    notional: float = Field(gt=0, le=1_000_000_000, description="체결 명목(거래 통화)")
+    contract_rate: float = Field(gt=0, le=100_000, description="체결 환율")
+    horizon_bd: int = Field(gt=0, le=3 * 252, description="잔존 만기(영업일)")
+    currency: str = Field(default="USD", max_length=3)
+    # 국면 σ — 화면이 선택한 국면의 실측 σ 를 그대로 보낸다(서버가 국면표를 또 갖지 않는다).
+    sigma_ann: Optional[float] = Field(default=None, gt=0, le=5)
+    regime_name: str = Field(default="현재", max_length=40)
+    # 감내 가능 '손실'(F1)과 다른 값이다 — 이건 당장 넣을 수 있는 '현금'이다.
+    cash_buffer_krw: float = Field(default=0.0, ge=0, le=1e14)
+
+
+class MtmResponse(BaseModel):
+    regime: str
+    sigma_ann: float
+    sigma_move_1: float
+    spot: float
+    contract_rate: float
+    notional: float
+    notional_krw: int
+    currency: str
+    pos: str
+    adverse: dict
+    now: dict
+    rows: list[dict]
+    worst: Optional[dict] = None
+    loss_count: int
+    verdict: str
+    advice: str
+    note: str
+    # 은행측 — 이 거래가 KB 여신에 계상되는 금액
+    bank_cee_notional: float
+    bank_cee_krw: int
+    # 감당 불가일 때 '얼마로 줄였어야 했나'
+    sizing: Optional[dict] = None
+    market_source: str
+    audit_id: str
+
+
 class ScreeningRequest(BaseModel):
     party: str = Field(min_length=1, max_length=200)
     country: str = Field(default="", max_length=60)

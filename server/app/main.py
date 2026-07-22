@@ -25,6 +25,7 @@ from . import engine as engine_mod
 from . import hedging
 from . import lifecycle
 from . import limits as limits_mod
+from . import mtm as mtm_mod
 from . import portfolio
 from . import screening as screening_mod
 from . import suitability as suit_mod
@@ -37,7 +38,7 @@ from .schemas import (AckRequest, AckResponse, AlertEvalRequest, AlertEvalRespon
                       AlertOut, AssessRequest, AssessResponse, ConsumerInput, DealCreate,
                       DealOut, DealTransition, EligDecision, HedgeOp, HedgeSchedule,
                       KeyFactsRequest, KeyFactsResponse, LimitInputModel, LimitOut,
-                      MarketResponse, PortfolioLeg,
+                      MarketResponse, MtmRequest, MtmResponse, PortfolioLeg,
                       PortfolioRequest, PortfolioResponse, ProductOut, ProductsResponse,
                       RuleCreate, RuleOut, SalesGateOut, ScreeningRequest,
                       ScreeningResponse, TicketRequest, TicketResponse)
@@ -316,6 +317,52 @@ def keyfacts_ack(req: AckRequest,
         recorded_at=_now(), audit_id=audit_id,
         note=("설명의무 이행 기록이 감사로그에 고정됐습니다. 계약 체결이 아니며, "
               "최종 조건·계약은 KB 영업점에서 확정됩니다."))
+
+
+# ── 체결 후 MTM·증거금 (F2) ─────────────────────────────────────────
+@app.post("/v1/mtm", response_model=MtmResponse)
+def mtm(req: MtmRequest, p: Principal = Depends(current_principal)) -> MtmResponse:
+    """체결된 헤지의 평가손익 + 국면 스트레스 + 추가담보 감당 가능성.
+
+    이 엔드포인트가 메우는 구간이 lifecycle 의 contracted → settled 사이다.
+    KIKO 사고는 계약 시점이 아니라 이 구간에서 났다.
+
+    방향을 예측하지 않는다 — 양방향(±1σ·±2σ)을 다 계산하고, 이 포지션에 불리한 쪽을
+    지목한다. 수출과 수입은 아픈 방향이 반대다.
+    """
+    m_state, source = engine_mod.market_state(None)
+    sigma = req.sigma_ann if req.sigma_ann is not None else m_state.sigma_ann
+
+    c = mtm_mod.Contract(pos=req.pos, notional=req.notional,
+                         contract_rate=req.contract_rate,
+                         horizon_bd=req.horizon_bd, currency=req.currency)
+    out = mtm_mod.stress(c, spot=m_state.spot, sigma_ann=sigma,
+                         cash_buffer_krw=req.cash_buffer_krw,
+                         regime_name=req.regime_name)
+    sizing = mtm_mod.sizing_advice(c, m_state.spot, sigma, req.cash_buffer_krw)
+
+    # 은행측 — 이 거래가 KB 여신에 계상되는 금액(F3 와 같은 환산 함수를 쓴다)
+    cee_n = limits_mod.credit_equivalent(req.notional, req.horizon_bd)
+
+    audit_id = get_log().append(
+        actor=p.subject, role=p.role, event="mtm.stress",
+        payload={"contract": {"pos": req.pos, "notional": req.notional,
+                              "contract_rate": req.contract_rate,
+                              "horizon_bd": req.horizon_bd},
+                 "regime": req.regime_name, "sigma_ann": sigma,
+                 "verdict": out["verdict"],
+                 "worst_mtm_krw": (out["worst"] or {}).get("mtm_krw"),
+                 "margin_called": [r["label"] for r in out["rows"]
+                                   if r["margin"]["triggered"]]},
+        engine_ver=settings.engine_version)
+
+    return MtmResponse(
+        **out,
+        bank_cee_notional=round(cee_n, 2),
+        bank_cee_krw=int(round(cee_n * m_state.spot)),
+        sizing=sizing,
+        market_source=source,
+        audit_id=audit_id)
 
 
 # ── 시세 ────────────────────────────────────────────────────────────

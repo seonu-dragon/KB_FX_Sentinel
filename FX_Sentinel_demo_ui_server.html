@@ -382,6 +382,17 @@
     color:var(--ink-mut);padding:2px 0}
   .limrow b{font-family:var(--mono);color:var(--ink);font-weight:800}
   .limrow.tot{border-top:1px solid var(--line-solid);margin-top:4px;padding-top:5px}
+  /* ── 체결 후 MTM 스트레스 (F2) ── */
+  .mtmhd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0 6px;
+    padding-top:12px;border-top:1px solid var(--line-solid);font-size:var(--fs-2)}
+  .mtmbadge{font-size:var(--fs-1);font-weight:800;padding:3px 9px;border-radius:var(--r-pill);
+    border:1px solid;margin-left:auto}
+  .mtmtab th{font-size:var(--fs-1);color:var(--ink-faint);font-weight:700;text-align:left;
+    letter-spacing:.03em;padding:4px 8px 4px 0}
+  .mtmtab td{font-family:var(--mono);font-size:var(--fs-1);padding:4px 8px 4px 0}
+  .mtmtab td.k{font-family:inherit;font-weight:800}
+  /* 감당 불가 행은 배경으로 표시한다 — 표에서 한 줄만 튀어야 눈이 간다 */
+  .mtmtab tr.bad{background:color-mix(in srgb,var(--crit) 8%,transparent)}
   /* 불리 시나리오 폴드 — 유리한 문구와 같은 카드 안에 둔다 */
   .scenfold{margin-top:8px;border-top:1px dotted var(--line-solid)}
   .scenfold>summary{padding:6px 0 4px;font-size:var(--fs-1);font-weight:800;color:var(--elev)}
@@ -1427,6 +1438,10 @@
             <div class="f"><label for="in-under">손익구조를 이해하십니까?</label><select id="in-under"><option value="no">아직 확인 안 됨</option><option value="yes">이해 확인</option></select></div>
             <div class="f"><label for="in-ploss">과거 파생 손실 경험</label><select id="in-ploss"><option value="no">없음</option><option value="yes">있음</option></select></div>
             <div class="f"><label for="in-tol">감내 가능 손실 (만원)</label><input id="in-tol" type="number" value="0" min="0" step="100" inputmode="numeric"></div>
+            <!-- 감내 가능 '손실'과 즉시 동원 '현금'은 다른 값이다(F2).
+                 장부상 감당 가능한 손실이어도 당장 넣을 현금이 없으면 무너진다 —
+                 KIKO 에서 기업들이 무너진 지점이 정확히 이 차이다. 그래서 따로 받는다. -->
+            <div class="f"><label for="in-cashbuf">추가담보 대응 현금 (만원)</label><input id="in-cashbuf" type="number" value="0" min="0" step="100" inputmode="numeric"></div>
             <div class="f"><label for="in-pro">전문금융소비자 전환</label><select id="in-pro"><option value="no">신청 안 함 (일반)</option><option value="yes">신청함</option></select></div>
             <div class="f"><label for="in-cexec">여신 실행일로부터</label><select id="in-cexec"><option value="">해당 없음 / 미상</option><option value="10">10일 경과</option><option value="-7">7일 뒤 실행 예정</option><option value="120">120일 경과</option></select></div>
           </div>
@@ -2294,6 +2309,82 @@ function limitFallback(exceeds,pos){
   if(!exceeds) return [];
   return pos==="export" ? ["환변동보험","범위선물환"] : [];
 }
+/* ══════════ 체결 후 평가손익·증거금 (MTM) — 단일 소스 ══════════
+   서버 대응: server/app/mtm.py (동일 수식·트리거)
+
+   ■ 왜 필요한가 (부장 갭리뷰 GAP-2)
+   이 화면의 국면 스트레스(킹달러 등)는 지금까지 **계약 전 BBP** 에만 걸렸다. 그런데
+   실무 사고는 계약 뒤에 난다 — KIKO 가 그랬다. 계약 시점엔 문제가 없었고, 환율이 급변하자
+   평가손 폭증 → 추가담보 요구 → 기업 자금경색 → 은행 여신 부실로 이어졌다.
+   소비자보호 이슈이자 동시에 은행 신용리스크 이슈다.
+
+   ■ 방향을 가정하지 않는다 (설계 중 잡은 오류)
+   초안 시나리오는 "킹달러 → 체결 선물환 평가손"이었다. 그런데 데모의 체결 건(나래상사)은
+   **수입·매수 선물환**이라 킹달러에서는 **평가익**이 난다 — 헤지가 제 역할을 한 것이다.
+   수입기업이 아픈 방향은 반대(원화 강세)다. 그래서 양방향(±1σ·±2σ)을 다 계산하고
+   포지션별로 불리한 쪽을 지목한다. 방향 예측이 아니라 '어느 쪽이 아픈가'의 규명이다.
+
+   ■ 감내 가능 '손실'(F1)과 즉시 동원 '현금'(F2)은 다른 값이다
+   장부상 감당 가능한 손실이어도 당장 넣을 현금이 없으면 무너진다 — KIKO 에서 기업들이
+   무너진 지점이 정확히 이 차이다. 두 값을 같은 것으로 뭉개면 그 위험이 안 보인다.
+
+   ■ 계산하지 않는 것
+   할인(현재가치화)·스왑포인트·대고객 스프레드는 금리커브와 고시 조건이 필요하다 →
+   현물 차이 기준 **근사**임을 화면에 적는다. 증거금 트리거도 데모 설계값이다. */
+const MARGIN_CALL_PCT=0.10;
+const SIGMA_STEPS=[-2,-1,1,2];
+function mtmValue(pos,contractRate,valRate,notional){
+  if(!(notional>0)) return 0;
+  return pos==="export" ? (contractRate-valRate)*notional : (valRate-contractRate)*notional;
+}
+function adverseDirection(pos){
+  return pos==="export"
+    ? {dir:"up",   label:"원화 약세(환율 상승)", why:"매도 선물환은 계약환율에 팔아야 하므로 시장이 오를수록 기회손실·평가손이 커집니다"}
+    : {dir:"down", label:"원화 강세(환율 하락)", why:"매수 선물환은 계약환율에 사야 하므로 시장이 내릴수록 평가손이 커집니다"};
+}
+function marginCall(mtmKrw,notionalKrw,cashBuf,triggerPct){
+  triggerPct=(triggerPct==null?MARGIN_CALL_PCT:triggerPct);
+  const loss=Math.max(0,-mtmKrw);                  // 평가익은 담보 요구 대상이 아니다
+  const threshold=Math.max(0,notionalKrw)*triggerPct;
+  const called=loss>threshold;
+  const required=called?Math.max(0,loss-threshold):0;
+  return {triggered:called, threshold:threshold, required:required,
+          cash:cashBuf||0, coverable:called?((cashBuf||0)>=required):true,
+          shortfall:called?Math.max(0,required-(cashBuf||0)):0};
+}
+function mtmStress(c,spot,sigAnn,cashBuf,regimeName){
+  const m1=sigmaMove(spot,sigAnn,c.horizonBd), notionalKrw=c.notional*spot;
+  const adv=adverseDirection(c.pos), rows=[];
+  SIGMA_STEPS.forEach(k=>{
+    const s=spot+k*m1; if(!(s>0)) return;
+    const v=mtmValue(c.pos,c.contractRate,s,c.notional);
+    rows.push({sigma:k, label:(k>0?"+":"")+k+"σ", rate:s, mtm:v, isLoss:v<0,
+               margin:marginCall(v,notionalKrw,cashBuf)});
+  });
+  const nowV=mtmValue(c.pos,c.contractRate,spot,c.notional);
+  const called=rows.filter(r=>r.margin.triggered);
+  const unc=called.filter(r=>!r.margin.coverable);
+  const worst=rows.length?rows.reduce((a,b)=>a.mtm<=b.mtm?a:b):null;
+  let verdict,advice;
+  if(unc.length){ verdict="감당 불가 구간 있음";
+    advice=unc[0].label+" 이동에서 추가담보 요구가 현금여유를 초과합니다. 체결 명목을 줄이거나, 추가담보가 없는 수단(옵션형·K-SURE)을 검토하십시오."; }
+  else if(called.length){ verdict="추가담보 요구 가능";
+    advice="스트레스 구간에서 추가담보 요구가 발생하지만 신고된 현금여유로 대응 가능합니다. 요구 시점에 실제 현금이 있는지 자금계획과 대조하십시오."; }
+  else { verdict="추가담보 요구선 미도달"; advice="이 스트레스 범위에서는 추가담보 요구선에 닿지 않습니다."; }
+  return {regime:regimeName, sigAnn:sigAnn, move1:m1, spot:spot, adv:adv, rows:rows,
+          worst:worst, now:{rate:spot, mtm:nowV, isLoss:nowV<0, margin:marginCall(nowV,notionalKrw,cashBuf)},
+          notionalKrw:notionalKrw, verdict:verdict, advice:advice};
+}
+/* 감당 불가일 때 '체결 시점에 명목을 얼마로 줄였어야 했나'를 역산한다.
+   막기만 하면 "그래서 어쩌라고"가 된다. 사후 분석이자 다음 체결의 사전 규율이다. */
+function mtmSizing(c,spot,sigAnn,cashBuf){
+  const m2=2*sigmaMove(spot,sigAnn,c.horizonBd);
+  const denom=m2-MARGIN_CALL_PCT*spot;
+  if(denom<=0) return null;                       // 트리거가 이동폭보다 크면 요구 자체가 없다
+  const maxN=(cashBuf||0)/denom;
+  if(maxN>=c.notional) return null;
+  return {maxNotional:maxN, current:c.notional, reduceBy:c.notional-maxN};
+}
 /* 통합 게이트 — ELIG 통과 목록을 받아 '권유 가능'까지 판정한다. */
 function salesGate(f,ctx){
   /* f.consumer 가 있으면 그걸 쓴다. 없을 때만 화면 폼을 읽는다.
@@ -2536,7 +2627,10 @@ const PRESETS=[
   {label:"소망전자 · 무여신",name:"소망전자",pos:"export",budget:1500,amount:200000,horizon:42,country:"중국",pay:"OA",hs:"8542",cert:"confirmed",credit:"no",cash:"ok",biz:"corp",size:"small",party:"Somang Semicon HK",unipass:"41029-26-7009914",
    suit:{dexp:"none",under:"no",ploss:"no",tol:0,pro:"no",cexec:"10"}},
   {label:"나래상사 · 수입",name:"나래상사",pos:"import",budget:1500,amount:400000,horizon:63,country:"베트남",pay:"TT",hs:"7408",cert:"confirmed",credit:"yes",cash:"ok",biz:"corp",size:"sme",party:"Narae Materials Import",unipass:"41055-26-7012036",
-   suit:{dexp:"limited",under:"yes",ploss:"no",tol:40000,pro:"no",cexec:""},
+   /* cash = 추가담보 대응 현금(만원). tol(감내 손실 4억)보다 훨씬 작다 —
+      "장부상 감당 가능하지만 당장 넣을 현금은 없다"는 KIKO 의 실제 구도를 재현한다.
+      체결 건(300k @1526.4)이 원화 강세 2σ 를 맞으면 이 현금으로는 부족해진다. */
+   suit:{dexp:"limited",under:"yes",ploss:"no",tol:40000,pro:"no",cexec:"",cash:1500},
    limit:{lim:800000, used:150000}},
   {label:"하늘샵 · 글로벌셀러",name:"하늘샵",pos:"export",budget:1420,amount:80000,horizon:14,country:"미국",pay:"OA",hs:"6109",cert:"confirmed",credit:"no",cash:"tight",biz:"sole",size:"micro",party:"Amazon Marketplace Settlement",unipass:"플랫폼 정산명세",
    suit:{dexp:"none",under:"no",ploss:"no",tol:0,pro:"no",cexec:""}}
@@ -3144,7 +3238,10 @@ function compute(){
   $("guard").textContent="※ 상품 자격·조건은 시점에 따라 달라질 수 있습니다.";
 
   // 진행 타임라인 · Before/After · KB 내부 KPI
-  const _tlCtx={recs:recs, bbp:bbp, es:esTotal, inst:inst, ratio:ratio, spot:m.spot, propose:propose.length};
+  // sigAnn·regimeName 추가: 체결 후 MTM 스트레스(F2)가 **현재 선택된 국면**으로 돌아야 한다.
+  // 이걸 안 넘기면 킹달러를 눌러도 체결 건 스트레스만 평시로 남아 화면이 서로 다른 말을 한다.
+  const _tlCtx={recs:recs, bbp:bbp, es:esTotal, inst:inst, ratio:ratio, spot:m.spot, propose:propose.length,
+                sigAnn:m.sigAnn, regimeName:(regimesOf(f.currency)[regimeIdx]||{}).key||"현재"};
   renderTimeline(f,_tlCtx); renderBeforeAfter(f,_tlCtx); renderKPI(f,_tlCtx); renderNextSteps(f,_tlCtx);
   renderLifecycle(f,_tlCtx);
 
@@ -3558,6 +3655,51 @@ function renderLifecycle(f,ctx){
     const col = a[0]==='차단' ? 'var(--crit)' : (a[0]==='주의' ? 'var(--elev)' : 'var(--ok)');
     return '<div class="metaline" style="max-width:44em"><b style="color:'+col+'">'+a[0]+' · '+a[1]+'</b><br>'+a[2]+'</div>';
   }).join("");
+  /* ── 체결 후 평가손익·증거금 스트레스 (F2) ──
+     여기가 KIKO 가 났던 구간이다. 계약 시점엔 문제가 없었고, 환율이 급변한 뒤에 터졌다.
+     현금여유는 '감내 가능 손실'(적정성 입력)과 다른 값이라 별도로 받는다. */
+  const cashBuf=(+(($("in-cashbuf")||{}).value)||0)*1e4;
+  const st=mtmStress({pos:f.pos, notional:h.amount, contractRate:h.rate, horizonBd:h.dueBd},
+                     ctx.spot, ctx.sigAnn, cashBuf, ctx.regimeName||"현재");
+  const sz=mtmSizing({pos:f.pos, notional:h.amount, contractRate:h.rate, horizonBd:h.dueBd},
+                     ctx.spot, ctx.sigAnn, cashBuf);
+  const vcol = st.verdict==="감당 불가 구간 있음" ? "var(--crit)"
+             : (st.verdict==="추가담보 요구 가능" ? "var(--elev)" : "var(--good)");
+  hh+='<div class="mtmhd"><b>체결 후 평가손익 · 추가담보 스트레스</b>'
+    +'<span class="mtmbadge" style="color:'+vcol+';border-color:color-mix(in srgb,'+vcol+' 45%,transparent)">'+esc(st.verdict)+'</span></div>';
+  hh+='<div class="metaline">국면 <b>'+esc(st.regime)+'</b> (σ '+(st.sigAnn*100).toFixed(1)+'%) · 1σ 이동 '+st.move1.toFixed(1)+'원 · '
+    +'이 포지션이 아픈 방향은 <b>'+esc(st.adv.label)+'</b> — '+esc(st.adv.why)+'</div>';
+  hh+='<div class="dwrap"><table class="spectable mtmtab"><thead><tr>'
+    +'<th>시나리오</th><th>환율</th><th>평가손익</th><th>추가담보</th><th>감당</th></tr></thead><tbody>'
+    + st.rows.map(r=>{
+        const mc=r.margin;
+        const mcol=r.mtm<0?"var(--crit)":"var(--good)";
+        return '<tr'+(mc.triggered&&!mc.coverable?' class="bad"':'')+'>'
+          +'<td class="k">'+esc(r.label)+'</td>'
+          +'<td>'+fmtRate(r.rate)+'</td>'
+          +'<td style="color:'+mcol+';font-weight:800">'+(r.mtm>=0?"+":"−")+won(Math.abs(r.mtm))+'</td>'
+          +'<td>'+(mc.triggered?won(mc.required)+' 요구':'—')+'</td>'
+          +'<td>'+(mc.triggered?(mc.coverable?'<span style="color:var(--good)">가능</span>'
+                 :'<span style="color:var(--crit)">불가 (부족 '+won(mc.shortfall)+')</span>'):'—')+'</td></tr>';
+      }).join("")
+    +'</tbody></table></div>';
+  hh+='<div class="metaline"><b>판정</b> '+esc(st.advice)+'</div>';
+  if(sz){
+    /* 막기만 하지 않고 숫자를 준다 — 다음 체결 때 쓰는 사전 규율이기도 하다. */
+    hh+='<div class="blockbox"><b>체결 명목이 과다했습니다</b><br>'
+      +'신고된 현금여유 '+won(cashBuf)+'로 불리 2σ 추가담보를 감당하려면 명목이 '
+      +'<b>'+Math.round(sz.maxNotional).toLocaleString()+' '+esc(h.ccy)+' 이하</b>여야 했습니다 '
+      +'(체결 '+sz.current.toLocaleString()+' → '+Math.round(sz.reduceBy).toLocaleString()+' 축소 필요).'
+      +'<br><span style="color:var(--ink-mut)">대안: 추가담보가 없는 수단(옵션형·K-SURE 환변동보험)으로 전환</span></div>';
+  }
+  hh+='<div class="metaline rm internal-only"><b>KB 여신 계상액(CEE)</b> '
+    +Math.round(creditEquivalent(h.amount,h.dueBd)).toLocaleString()+' '+esc(h.ccy)
+    +' · '+won(creditEquivalent(h.amount,h.dueBd)*ctx.spot)
+    +' — 이 거래가 KB 여신에 잡히는 금액입니다(명목 전액이 아님)</div>';
+  hh+='<div class="guard">※ 평가손익은 <b>현물 차이 기준 근사</b>입니다 — 할인·스왑포인트·대고객 스프레드는 '
+    +'금리커브와 고시 조건이 필요해 반영하지 않았습니다(RM 견적). 추가담보 트리거(평가손 &gt; 명목의 '
+    +(MARGIN_CALL_PCT*100).toFixed(0)+'%)는 <b>데모 설계값</b>이며 KB 여신정책의 실제 증거금 기준이 아닙니다. '
+    +'±σ 이동은 국면 변동성을 적용한 <b>시나리오이며 환율 예측이 아닙니다</b>(방향 가정 없음).</div>';
   hh+='<div class="guard">※ 해지 정산금·스왑포인트·수수료는 고시 조건이 필요해 <b>RM·영업점이 확정</b>합니다.</div>';
   host.innerHTML=hh;
 }
@@ -3983,6 +4125,7 @@ function fillPreset(p){
   if($("in-under")) $("in-under").value = s.under;
   if($("in-ploss")) $("in-ploss").value = s.ploss;
   if($("in-tol"))   $("in-tol").value   = s.tol;
+  if($("in-cashbuf")) $("in-cashbuf").value = (s.cash==null?0:s.cash);
   if($("in-pro"))   $("in-pro").value   = s.pro;
   if($("in-cexec")) $("in-cexec").value = s.cexec;
   // 한도(F3)도 프리셋마다 리셋 — 안 하면 앞 회사 한도로 다음 회사를 판정한다
@@ -4032,8 +4175,8 @@ let _dbT; function recompute(){ clearTimeout(_dbT); _dbT=setTimeout(compute,250)
 ["in-name","in-pos","in-biz","in-budget","in-amount","in-horizon","in-country","in-pay","in-hs","in-cert","in-credit","in-cash","in-margin",
  // 적정성 입력(F1) — 이걸 빼면 고객 정보를 바꿔도 권유 판정이 안 따라간다
  "in-dexp","in-under","in-ploss","in-tol","in-pro","in-cexec",
- // 한도 입력(F3)
- "in-limit","in-used"]
+ // 한도 입력(F3) · 현금여유(F2)
+ "in-limit","in-used","in-cashbuf"]
   .forEach(id=>{ const el=$(id); if(!el) return; el.addEventListener("input",recompute); el.addEventListener("change",recompute); });
 // 분할 회차 수를 바꾸면 스케줄을 기본값으로 다시 만든다(직전 회차 수와 안 맞는 값이 남지 않게)
 $("in-split").addEventListener("change",()=>{ renderSched(true); recompute(); });

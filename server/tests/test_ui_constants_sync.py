@@ -27,6 +27,7 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 from app import limits as LIM             # noqa: E402
+from app import mtm as MTM                # noqa: E402
 from app import suitability as S          # noqa: E402
 
 HTML_PATH = os.path.join(KB, "FX_Sentinel_demo_ui.html")
@@ -118,6 +119,37 @@ def test_ui_explains_notional_vs_cee(html):
 def test_ui_declares_limit_self_reported(html):
     """한도가 원장 조회값이 아님을 화면이 밝힌다."""
     assert "고객 자기신고" in html and "KB 원장 조회값이 아닙니다" in html
+
+
+# ── 체결 후 MTM (F2) ─────────────────────────────────────────────────
+def test_margin_call_pct_matches(html):
+    """트리거가 갈라지면 화면과 서버가 다른 담보 요구를 낸다."""
+    assert _js_num(html, "MARGIN_CALL_PCT") == MTM.MARGIN_CALL_PCT
+
+
+def test_sigma_steps_match(html):
+    m = re.search(r"const\s+SIGMA_STEPS\s*=\s*\[([^\]]+)\]", html)
+    assert m, "데모 HTML 에서 SIGMA_STEPS 를 찾지 못했습니다"
+    js = tuple(float(x) for x in m.group(1).split(","))
+    assert js == MTM.SIGMA_STEPS
+
+
+def test_ui_states_adverse_direction_per_position(html):
+    """포지션마다 아픈 방향이 다르다는 사실이 화면 문구에 있어야 한다.
+
+    "킹달러 = 위험"처럼 방향을 고정해 말하면 수입기업에게 거짓말이 된다.
+    """
+    assert "원화 약세(환율 상승)" in html and "원화 강세(환율 하락)" in html
+    assert "매수 선물환은 계약환율에 사야 하므로" in html
+
+
+def test_ui_separates_loss_tolerance_from_cash(html):
+    """감내 가능 '손실'과 즉시 동원 '현금'이 별도 입력이어야 한다 — KIKO 의 실제 구도."""
+    assert 'id="in-tol"' in html and 'id="in-cashbuf"' in html
+
+
+def test_ui_declares_mtm_is_approximation(html):
+    assert "현물 차이 기준 근사" in html
 
 
 # ── 정직성 문구 ──────────────────────────────────────────────────────
