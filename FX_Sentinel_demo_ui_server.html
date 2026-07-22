@@ -1219,6 +1219,8 @@
   .vnote-more>summary::before{content:"▸ "}
   .vnote-more[open]>summary::before{content:"▾ "}
   .vnote-more .vnote-body{margin-top:4px;line-height:1.6;color:var(--ink-mut)}
+  /* 권고 pill — 알람색 없이 중립 태그로(위험 신호는 게이지 하나) */
+  .statechip{border:1px solid var(--line-solid)}
 </style>
 
 <style id="srv-style">
@@ -2664,9 +2666,10 @@ function compute(){
   const band=bbp<20?"낮음":bbp<40?"보통":bbp<60?"높음":"매우 높음";
   $("bbp-cap").textContent="예산환율 초과 가능성 · "+band;
   $("bbp-gauge-wrap").setAttribute("aria-label","예산환율 초과 가능성 "+bbp.toFixed(1)+"퍼센트, "+band+(alert?", 헤지 검토 권장":", 안정"));
-  const sc=$("statechip"); sc.textContent=alert?"🔔 헤지 검토 권장":"안정적";
-  sc.style.background=alert?"color-mix(in srgb,var(--crit) 4%,transparent)":"var(--panel-2)";
-  sc.style.color=alert?"var(--crit)":"var(--ink-mut)";
+  // 권고 pill 은 '행동 안내'라 앰버/빨강 알람색을 쓰지 않는다 — 위험 신호는 게이지 하나로.
+  const sc=$("statechip"); sc.textContent=alert?"헤지 검토 권장":"안정적";
+  sc.style.background="var(--panel-2)";
+  sc.style.color=alert?"var(--ink)":"var(--ink-faint)";
   // 26.3: '현재 이미 불리' 상태를 '만기 이탈확률(BBP)'과 분리 표기
   // 유불리는 badBudget(포지션별 정의), 상회/미달은 부호 — 수출(불리=예산 미달)에서 문구가 뒤집히지 않게 분리
   const gapWon=m.spot-f.budget;  // +면 현재가가 예산 상회
