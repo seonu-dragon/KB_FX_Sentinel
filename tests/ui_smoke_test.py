@@ -1248,6 +1248,38 @@ PROBE = r"""
   var _dv = document.getElementById("view-dashboard");
   ok("선제 카드 데모 라벨", !!_dv && _dv.textContent.indexOf("데모 데이터 기반 패턴") >= 0,
      "지어낸 이력이 아님을 화면이 말한다");
+  /* ── 신규: 자연헤지(네팅) 집계 · ERP 자동수집 (S8) ── */
+  var _dvt = _dv.textContent;
+  ok("네팅 집계 카드 렌더", _dvt.indexOf("자연헤지(네팅) 집계") >= 0 && _dvt.indexOf("버킷 네팅 후 순노출") >= 0,
+     "만기버킷 상계 패널");
+  (function(){
+    var _deals = PRESETS.map(_deal), _net = _portfolioNetting(_deals);
+    var _exp = (_net.gross ? (_net.off/_net.gross*100) : 0).toFixed(0);
+    /* 버킷 네팅은 만기 무시 상계(과대상계)보다 순노출이 작을 수 없다 = 정직한 상계 */
+    ok("네팅 절감률 계산 정확", _dvt.indexOf(_exp + "%") >= 0 && _net.netInBucket >= _net.naiveNet,
+       "절감률 " + _exp + "% · 버킷순노출 " + _net.netInBucket + " ≥ 만기무시순노출 " + _net.naiveNet);
+  })();
+  ok("ERP 자동수집 시연 라벨", _dvt.indexOf("회계·ERP 노출 자동수집") >= 0 && _dvt.indexOf("연동 설계 · 시연") >= 0,
+     "지어낸 원장 아님 — 시연 경계 표기");
+  ok("간이 네팅 카드 일원화", _dvt.indexOf("순노출만 관리") < 0,
+     "만기 무시 상계 카드는 버킷 패널로 일원화(과대상계 제거)");
+  /* ── 신규: 헤지수단 비교 패널 + 범위선물환 밴드 개념도 (S8) ── */
+  setMode("customer"); showView("copilot"); fillPreset(PRESETS[3]); showDeep("dp-a");   // 나래상사(수입·확정·여신)
+  var _hc = document.getElementById("hedge-compare");
+  ok("헤지수단 비교 패널 렌더", !!_hc && _hc.textContent.indexOf("헤지수단 비교") >= 0 && !!_hc.querySelector("svg"),
+     "비교표 + 밴드 개념도");
+  ok("비교표에 범위·기간형 노출", !!_hc && _hc.textContent.indexOf("범위선물환") >= 0 && _hc.textContent.indexOf("기간형 선물환") >= 0,
+     "신상품이 비교에 포함");
+  ok("밴드 개념도 숫자 미표기(정직)", !!_hc && !/[0-9]{3,}/.test((_hc.querySelector("svg") || {}).textContent || ""),
+     "구조도에 요율/행사가 숫자 없음");
+  ok("공정가 TCA-lite 표기", !!_hc && _hc.textContent.indexOf("공정가 안내") >= 0 && _hc.textContent.indexOf("KB 고시 스프레드") >= 0,
+     "중간환율만 표시 · 스프레드는 RM 고시");
+  ok("위험회피회계 지정문서 초안", !!_hc && _hc.textContent.indexOf("위험회피회계") >= 0 && _hc.textContent.indexOf("현금흐름위험회피") >= 0,
+     "K-IFRS 초안 · 회계처리는 감사인 협의");
+  $("in-settle").value = "window"; compute();
+  ok("기간형 결제일 window 자격", eligible("기간형선물환", readForm()) === true, "확정·여신·기간 → 기간형 가능");
+  $("in-settle").value = "fixed"; compute();
+  ok("기간형 결제일 fixed 비자격", eligible("기간형선물환", readForm()) === false, "결제일 확정이면 고정 선물환이 저렴");
   showView("copilot");
 
   /* ── 체결 후 라이프사이클(2026-07-17) ──

@@ -47,6 +47,7 @@ def run_backtest(fx: pd.DataFrame, amount: float = 500_000, lead_bd: int = 63,
                  position: str = "export", spread_krw: float = 2.0,
                  budget: str = "roll1y", nu: float = 5.0,
                  ratio_thresholds=(0.15, 0.35), fixed_ratio: float | None = None,
+                 collar_band: float | None = None,
                  p_cancel: float = 0.0, seed: int = 7) -> pd.DataFrame:
     """월별 결제 시뮬. fx=compute_fx_ewi 출력(+ Close,r,IZ,FX_EWI,sigma_hat).
     반환: 결제별 정책 P&L 테이블.
@@ -86,6 +87,14 @@ def run_backtest(fx: pd.DataFrame, amount: float = 500_000, lead_bd: int = 63,
         eff_P1 = hedged_rate
         eff_P2 = h * hedged_rate + (1 - h) * S1
 
+        # 범위선물환(제로코스트 칼라): 밴드[F(1±band)] 안은 시장 참여, 밖은 밴드가로 정산.
+        # 밴드폭은 옵션가격에 좌우되므로 '가정'이다(요율 미연동) — 상단 이익 일부 유지 구조만 검증.
+        eff_PR = None
+        if collar_band is not None:
+            floor, cap = F * (1.0 - collar_band), F * (1.0 + collar_band)
+            base_R = min(max(S1, floor), cap)
+            eff_PR = (base_R - sp) if position == "export" else (base_R + sp)
+
         # 취소 이벤트(가결제) — 선물환 반대매매(유계 아님)
         cancelled = rng.random() < p_cancel
         unwind_P1 = unwind_P2 = 0.0
@@ -96,11 +105,14 @@ def run_backtest(fx: pd.DataFrame, amount: float = 500_000, lead_bd: int = 63,
             unwind_P1 = amount * ((F - Stc) - sp)      # P1 100% 헤지분
             unwind_P2 = amount * h * ((F - Stc) - sp)  # P2 h 헤지분
 
-        rows.append(dict(
+        row = dict(
             t0=t0, t1=t1, S0=S0, S1=S1, F=F, K=K, r_diff=r_d - r_f,
             FX_EWI=ewi, sigma=sig, IZ=iz, P_breach=pb, LossAlert=loss_alert, h=h,
             eff_P0=eff_P0, eff_P1=eff_P1, eff_P2=eff_P2, cancelled=int(cancelled),
-            unwind_P1=unwind_P1, unwind_P2=unwind_P2))
+            unwind_P1=unwind_P1, unwind_P2=unwind_P2)
+        if eff_PR is not None:
+            row["eff_PR"] = eff_PR
+        rows.append(row)
     bt = pd.DataFrame(rows).set_index("t1")
     # 결제별 예산 대비 P&L (KRW). 수출: amount×(eff−K), 수입: amount×(K−eff). 취소분은 반대매매 손익.
     sgn = 1.0 if position == "export" else -1.0
@@ -113,6 +125,11 @@ def run_backtest(fx: pd.DataFrame, amount: float = 500_000, lead_bd: int = 63,
     # 헤지비용(스프레드 지출, KRW)
     bt["cost_P1"] = amount * spread_krw
     bt["cost_P2"] = amount * spread_krw * bt["h"]
+    # 범위선물환(제로코스트 칼라) — 프리미엄 0, 실행 스프레드만(확정 거래 가정: 취소분 손익 0)
+    if "eff_PR" in bt.columns:
+        base_R = sgn * amount * (bt["eff_PR"] - bt["K"])
+        bt["pnl_PR"] = np.where(bt["cancelled"] == 1, 0.0, base_R)
+        bt["cost_PR"] = amount * spread_krw
     return bt
 
 

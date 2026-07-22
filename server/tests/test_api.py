@@ -385,3 +385,35 @@ def test_integrations_declares_what_is_missing():
     assert any("원장" in s for s in systems)
     assert any("SSO" in s for s in systems)
     assert any("제재" in s for s in d["connected"])
+
+
+# ── 범위·기간형 선물환 자격이 /v1/assess 응답에 흐르는가 (P1-4 e2e) ──
+def _elig_map(trade: dict) -> dict:
+    r = client.post("/v1/assess", json={"trade": trade}, headers=hdr("rm"))
+    assert r.status_code == 200, r.text
+    return {d["key"]: d for d in r.json()["eligibility"]}
+
+
+def test_window_forward_eligibility_flows_through_assess():
+    """서버 권위판정이 결제일(settle)을 반영해 기간형 선물환을 갈라주는가."""
+    win = {**TRADE, "pos": "import", "credit": "yes", "settle": "window"}
+    fix = {**TRADE, "pos": "import", "credit": "yes", "settle": "fixed"}
+    assert _elig_map(win)["기간형선물환"]["eligible"] is True
+    m = _elig_map(fix)
+    assert m["기간형선물환"]["eligible"] is False
+    assert m["기간형선물환"]["reason"], "비자격이면 사유가 있어야 한다"
+
+
+def test_range_forward_eligibility_flows_through_assess():
+    exp = {**TRADE, "pos": "export", "credit": "no", "cert": "confirmed"}
+    assert _elig_map(exp)["범위선물환"]["eligible"] is True   # 무여신 수출 → K-SURE 범위형
+    imp = {**TRADE, "pos": "import", "credit": "no", "cert": "confirmed"}
+    assert _elig_map(imp)["범위선물환"]["eligible"] is False  # 무여신 수입 → 불가
+
+
+def test_provisional_blocks_both_new_forwards_via_assess():
+    """실수요 미확정(가결제)이면 서버도 고정/기간형/범위형을 모두 막는다."""
+    prov = {**TRADE, "cert": "provisional", "credit": "yes", "settle": "window"}
+    m = _elig_map(prov)
+    assert m["기간형선물환"]["eligible"] is False
+    assert m["범위선물환"]["eligible"] is False

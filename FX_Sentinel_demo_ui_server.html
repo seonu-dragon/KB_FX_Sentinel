@@ -1816,7 +1816,7 @@
       <thead><tr><th scope="col">실무 현실</th><th scope="col">데모 현재</th><th scope="col">고도화</th></tr></thead>
       <tbody>
         <tr><td class="k">마진 잠식</td><td>거래별 예상 마진율(고급 설정) → 환율이 마진의 N% 위협 표시</td><td>ERP·수출입 원장 연동으로 실제 원가·마진 자동 반영</td></tr>
-        <tr><td class="k">양방향 자연헤지</td><td>대시보드 USD 수출·수입 상계 → 순노출만 헤지</td><td>통화·만기별 순노출 정밀 네팅 + 순노출 기준 헤지 제안</td></tr>
+        <tr><td class="k">양방향 자연헤지</td><td>통화×만기버킷 네팅 → 순노출만 헤지(서버 portfolio.py 규칙)</td><td>다통화 확장 + 순노출 기준 헤지비율 자동 제안</td></tr>
         <tr><td class="k">분할선적·부분결제</td><td>고급 설정에서 <b>2·3회 분할</b> 입력 → 회차별 만기로 BBP 금액가중 합산(구현)</td><td>부분결제별 만기 분산 + 원장 스케줄 자동 반영</td></tr>
 <tr><td class="k">체결 후 관리</td><td>실수요 초과·미헤지 잔량·만기 불일치(롤오버)를 <b>체결 후 관리</b> 카드가 판정(데모 약정 기반)</td><td>원장 실약정 연동 → 해지 정산금·스왑포인트 실시간 산출, 만기 자동 알림</td></tr>
         <tr><td class="k">반복 거래</td><td>거래처·품목별 반복 주기로 <b>다음 회차를 계약 전 선제 진단</b> + 알림(대시보드 · 데모 이력 기반)</td><td>원장·CRM 실이력에서 주기 자동 추출 → 프로필 자동화·예산환율 제안</td></tr>
@@ -4134,23 +4134,8 @@ function renderDashboard(){
     +_chartCard("시장 위험게이지(FX-EWI) 추이",_series(ewiNow,30,0.10,7),Math.round(ewiNow)+" / 100","var(--elev)")
     +'</div>';
   h+=_recurCard();
-  // 자연헤지(네팅) — 같은 통화 수출/수입 상계 → 순노출만 헤지 (데모: 전부 USD)
-  var expUSD=deals.filter(d=>d.p.pos==="export").reduce((s,d)=>s+d.p.amount,0);
-  var impUSD=deals.filter(d=>d.p.pos==="import").reduce((s,d)=>s+d.p.amount,0);
-  var grossUSD=expUSD+impUSD, netUSD=Math.abs(expUSD-impUSD), offsetUSD=grossUSD-netUSD;
-  var netDir=expUSD>=impUSD?"수출 우위 · USD 받음":"수입 우위 · USD 지급";
-  h+='<section class="card" style="border-left:3px solid var(--good);margin-bottom:18px">'
-    +'<h3><span class="agent-n">◎</span> 자연헤지(네팅) — 순노출만 관리 <span style="margin-left:auto;font-weight:600;color:var(--ink-faint);text-transform:none;letter-spacing:0">USD 수출·수입 상계</span></h3>'
-    +'<div class="netrow">'
-      +'<div class="netcol"><div class="nk">USD 수출(받음)</div><div class="nv up">+'+expUSD.toLocaleString()+'</div></div>'
-      +'<div class="netop">−</div>'
-      +'<div class="netcol"><div class="nk">USD 수입(지급)</div><div class="nv dn">'+impUSD.toLocaleString()+'</div></div>'
-      +'<div class="netop">=</div>'
-      +'<div class="netcol after"><div class="nk">순노출 (헤지 대상)</div><div class="nv">'+netUSD.toLocaleString()+' <span style="font-size:var(--fs-1);color:var(--ink-faint);font-family:var(--sans)">'+netDir+'</span></div></div>'
-    +'</div>'
-    +'<div class="guard">따로 헤지하면 <b>'+grossUSD.toLocaleString()+' USD</b> 전액이지만, 같은 통화라 <b>'+offsetUSD.toLocaleString()+' USD</b>가 자연히 상계됩니다 → <b>순노출 '+netUSD.toLocaleString()+' USD만</b> 헤지하면 되어 헤지 비용·여신 한도가 절감됩니다.</div>'
-    +'</section>';
-  h+='<div class="card" style="padding:0"><div class="dwrap"><table class="dtable" aria-label="대시보드 거래 목록"><thead><tr><th scope="col">기업</th><th scope="col">유형</th><th scope="col">거래국</th><th scope="col" class="num">금액(USD)</th><th scope="col" class="num">만기</th><th scope="col" class="num">초과 가능성</th><th scope="col" class="num">부담액(상한)</th><th scope="col">상태</th></tr></thead><tbody>';
+  // (구) 간이 네팅 카드는 상단 '자연헤지(네팅) 집계'(만기버킷 상계)로 일원화됨 — 만기 무시 상계는 과대상계라 제거.
+  h+='<div class="card" style="padding:0;margin-top:12px"><div class="dwrap"><table class="dtable" aria-label="대시보드 거래 목록"><thead><tr><th scope="col">기업</th><th scope="col">유형</th><th scope="col">거래국</th><th scope="col" class="num">금액(USD)</th><th scope="col" class="num">만기</th><th scope="col" class="num">초과 가능성</th><th scope="col" class="num">부담액(상한)</th><th scope="col">상태</th></tr></thead><tbody>';
   deals.forEach((d,i)=>{ var st=_statusOf(d.bbp);
     h+='<tr data-i="'+i+'"><td><b>'+esc(d.p.name)+'</b></td><td>'+(d.p.pos==="import"?"수입":"수출")+'</td><td>'+esc(d.p.country)+'</td><td class="num">'+d.p.amount.toLocaleString()+'</td><td class="num">D-'+d.p.horizon+'</td><td class="num" style="color:'+bbpColor(d.bbp)+';font-weight:800">'+d.bbp.toFixed(1)+'%</td><td class="num">'+won(d.es)+'</td><td><span class="badge-st" style="background:color-mix(in srgb,'+st[1]+' 4%,transparent);color:'+st[1]+'">'+st[0]+'</span></td></tr>';
   });
