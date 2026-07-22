@@ -370,6 +370,18 @@
   .suit-list .reqt{font-size:calc(var(--fs-1) - 1px);font-weight:800;color:var(--elev);margin-left:5px;
     border:1px solid color-mix(in srgb,var(--elev) 40%,transparent);border-radius:var(--r-pill);padding:0 5px}
   .suit-list .d{color:var(--ink-faint);font-family:var(--mono);font-size:calc(var(--fs-1) - 1px);text-align:right}
+  /* ── 여신 한도 소진 (F3) ── */
+  .limbar{position:relative;height:12px;border-radius:var(--r-pill);background:var(--panel);
+    border:1px solid var(--line-solid);overflow:hidden;margin:10px 0 8px}
+  .limbar i{position:absolute;top:0;height:100%;display:block}
+  .limbar .used{left:0;background:var(--ink-faint);opacity:.55}
+  /* 이 거래분을 기사용분과 다른 색으로 얹는다 — "이 건이 얼마나 더 먹는가"가 핵심 정보다 */
+  .limbar .add{opacity:.9}
+  .limbar .warnline{position:absolute;top:0;width:1px;height:100%;background:var(--elev);opacity:.7}
+  .limrow{display:flex;justify-content:space-between;gap:8px;font-size:var(--fs-1);
+    color:var(--ink-mut);padding:2px 0}
+  .limrow b{font-family:var(--mono);color:var(--ink);font-weight:800}
+  .limrow.tot{border-top:1px solid var(--line-solid);margin-top:4px;padding-top:5px}
   /* 불리 시나리오 폴드 — 유리한 문구와 같은 카드 안에 둔다 */
   .scenfold{margin-top:8px;border-top:1px dotted var(--line-solid)}
   .scenfold>summary{padding:6px 0 4px;font-size:var(--fs-1);font-weight:800;color:var(--elev)}
@@ -1361,6 +1373,11 @@
             <div class="f"><label for="in-cert">거래가 확정됐나요?</label><select id="in-cert"><option value="confirmed">확정 (인보이스 발행)</option><option value="provisional">가결제 (PO·취소가능)</option></select></div>
             <div class="f"><label for="in-settle">결제일이 정해졌나요?</label><select id="in-settle"><option value="fixed">특정일 확정</option><option value="window">기간(범위) 내</option></select></div>
             <div class="f"><label for="in-credit">여신 한도</label><select id="in-credit"><option value="yes">보유</option><option value="no">없음 (담보부족)</option></select></div>
+            <!-- F3: credit(yes/no) 이진값의 승격판. 한도액은 고객이 아는 값이라 입력받고,
+                 요율·스프레드는 은행 가격정책이라 끝까지 RM 견적으로 넘긴다.
+                 비워두면 '초과'가 아니라 '미확인'으로 다뤄진다(모르는 것 ≠ 없는 것). -->
+            <div class="f"><label for="in-limit">선물환 한도 약정 (명목) <span style="font-weight:400;color:var(--ink-faint)">(모르면 비워도 됨)</span></label><input id="in-limit" type="number" value="0" min="0" step="100000" inputmode="numeric"></div>
+            <div class="f"><label for="in-used">그중 기사용 (명목)</label><input id="in-used" type="number" value="0" min="0" step="100000" inputmode="numeric"></div>
             <div class="f"><label for="in-cash">옵션 비용 낼 여유</label><select id="in-cash"><option value="ok">여유 있음</option><option value="tight">부담 (현금제약)</option></select></div>
             <div class="f"><label for="in-margin">이 거래 예상 마진율 (%)</label><input id="in-margin" type="number" value="8" min="0" max="100" step="0.1" inputmode="decimal"></div>
             <div class="f"><label for="in-split">결제 방법</label><select id="in-split">
@@ -1476,6 +1493,15 @@
       <!-- 금소법 적정성 (F1) — 상품 카드 '위'에 둔다.
            상품을 먼저 보여주고 나중에 "사실 권유 못 합니다"라고 하면 이미 기대가 생긴 뒤다.
            권유 가능 여부를 먼저 말하고 그 다음에 상품을 보여주는 순서가 소비자보호의 순서다. -->
+      <!-- 여신 한도 (F3) — 적정성 위에 둔다.
+           "팔 수 있는가(한도)" → "팔아도 되는가(적정성)" → "무엇을 파는가(상품)" 순서.
+           한도가 없으면 적정성을 논할 필요도 없다. -->
+      <section class="card" id="limit-card">
+        <h3><span class="agent-n">₩</span> 파생 한도 소진
+          <span class="dbadge" style="margin-left:auto" title="한도액·기사용액은 고객 자기신고이며 KB 원장 조회값이 아닙니다. 신용환산율은 데모 설계값입니다.">자기신고 · 원장 미연동</span></h3>
+        <div id="limit-out"></div>
+      </section>
+
       <section class="card" id="suit-card">
         <h3><span class="agent-n">§</span> 파생상품 권유 적정성
           <span class="dbadge" style="margin-left:auto" title="문항·배점·임계는 본 데모의 설계값이며 KB 의 승인된 적정성 평가표가 아닙니다.">금소법 · 평가표는 데모 설계</span></h3>
@@ -2157,6 +2183,69 @@ function kickbackFlags(keys,execDays){
     out.push("여신 실행일 전후 "+KICKBACK_WINDOW_DAYS+"일 이내(D"+(execDays>=0?"+":"")+execDays+")의 파생 체결 — 구속성 판매 점검 대상입니다. 준법 확인 없이 진행하지 마십시오.");
   return out;
 }
+/* ══════════ 여신 한도 소진 (LIMIT) — 단일 소스 ══════════
+   서버 대응: server/app/limits.py (동일 환산율·임계)
+
+   ■ 왜 필요한가 (부장 갭리뷰 GAP-3)
+   ELIG 의 credit 은 yes/no 이진값이다. 그런데 RM 이 선물환 건을 받으면 제일 먼저 하는 일은
+   "이 회사 파생한도 잔액이 얼마고 이 건으로 얼마 소진되나"다. 한도 없이 '선물환 추천'을
+   띄우면 고객은 된다고 믿고 오는데 RM 이 조회해보니 안 되면 그때부터 실랑이 —
+   **도구가 기대를 만들고 뒷수습을 영업점이 하는** 구조가 된다.
+
+   ■ 숫자가 두 개다 (설계 중 정정)
+   초안은 한도를 원화 CEE 기준으로만 잡았다. 그러자 1년 이하 환산율 1% 때문에 5억 한도가
+   명목 3,200만 달러까지 받아줬다 — SME 현실과 동떨어지고 한도가 차는 장면 자체가 안 나온다.
+   실무를 다시 보면 숫자가 둘이다:
+     · **명목 한도** — 고객이 아는 방식("선물환 한도 100만불"). 소진 게이지는 이걸 따른다.
+     · **신용환산액(CEE)** — 은행 내부 여신 계상액. CEE = 명목 × 환산율(만기별).
+       파생은 명목 전액이 여신으로 잡히지 않는다는 사실이 여기 있다.
+   고객은 "내 한도가 얼마나 찼나"를 묻고 RM·여신부는 "이 건이 우리 여신을 얼마나 먹나"를
+   묻는다. 하나만 보여주면 한쪽은 답을 못 얻는다.
+
+   ■ 요율은 여전히 만들지 않는다
+   한도액은 고객이 아는 값(자기 여신 약정)이라 입력받고, 요율·스프레드는 은행 가격정책이라
+   끝까지 RM 견적으로 넘긴다. 환산율 자체도 데모 설계값임을 화면에 적는다. */
+const CCF_BANDS=[[0,252,0.01],[253,1260,0.05],[1261,10000,0.075]];
+const UTIL_WARN=0.80;
+function ccfFor(hbd){ for(const b of CCF_BANDS){ if(hbd>=b[0]&&hbd<=b[1]) return b[2]; } return CCF_BANDS[CCF_BANDS.length-1][2]; }
+function creditEquivalent(notionalKrw,hbd){
+  if(!(notionalKrw>0)||!(hbd>0)) return 0;
+  return notionalKrw*ccfFor(hbd);
+}
+/* 한도 미입력은 '초과'가 아니라 '미확인'이다 — 모르는 것과 없는 것은 다르다.
+   0 으로 두고 초과 판정하면 한도를 모르는 고객이 전원 차단된다. */
+function assessLimit(f,ctx){
+  const notional=f.amount||0, hbd=f.horizon||0, cur=f.currency||"USD";
+  const ceeN=creditEquivalent(notional,hbd), rate=ccfFor(hbd);
+  const ceeKrw=ceeN*(ctx.spot||0);
+  const fmtN=n=>Math.round(n).toLocaleString()+" "+cur;
+  /* f.limits 가 있으면 그걸 쓴다. 없을 때만 화면 폼을 읽는다 — 대시보드·리포트는
+     지금 폼에 없는 다른 회사를 계산하므로, 거기서 DOM 을 읽으면 남의 한도가 적용된다
+     (적정성에서 이미 같은 함정을 막았다). */
+  const src=f.limits||{lim:+(($("in-limit")||{}).value)||0, used:+(($("in-used")||{}).value)||0};
+  const lim=src.lim||0, used=src.used||0;     // 거래 통화 명목
+  if(!(lim>0)) return {known:false, cee:ceeN, ceeKrw:ceeKrw, ccf:rate, cur:cur, exceeds:false, status:"미확인",
+    msg:"파생 한도 미입력 — 소진 여부를 판정할 수 없습니다. 이 거래가 KB 여신에 계상되는 신용환산액은 "+fmtN(ceeN)+"(명목의 "+(rate*100).toFixed(1)+"%)이며, 한도 확인은 RM 원장 조회 사항입니다."};
+  const avail=Math.max(0,lim-used);
+  const before=used/lim, after=(used+notional)/lim;   // 소진은 명목 기준
+  const exceeds=(used+notional)>lim;
+  let status,msg;
+  if(exceeds){ status="초과";
+    msg="이 거래 명목 "+fmtN(notional)+"을 더하면 한도를 넘습니다(잔여 "+fmtN(avail)+"). 선물환 계열은 체결할 수 없습니다 — 명목 축소, 여신 증액 협의, 또는 여신 불요 수단(K-SURE)으로 전환이 필요합니다."; }
+  else if(after>=UTIL_WARN){ status="임박";
+    msg="체결 시 소진율 "+Math.round(after*100)+"% — 한도 임박입니다. 후속 거래 여력이 줄어드니 RM 과 증액 시점을 협의하십시오."; }
+  else { status="여유"; msg="체결 시 소진율 "+Math.round(after*100)+"% — 잔여 여력이 있습니다."; }
+  return {known:true, cee:ceeN, ceeKrw:ceeKrw, ccf:rate, cur:cur, notional:notional,
+          limit:lim, used:used, avail:avail,
+          before:before, after:after, exceeds:exceeds, status:status, msg:msg};
+}
+/* 한도가 막혔을 때 여신을 쓰지 않는 수단으로 넘긴다.
+   막기만 하고 끝내면 RM 일만 늘어난다. 수입은 K-SURE 가 수출 전용이라 대안이 없고,
+   없는 상품을 지어내지 않고 선행 과제(여신 협의)를 말한다. */
+function limitFallback(exceeds,pos){
+  if(!exceeds) return [];
+  return pos==="export" ? ["환변동보험","범위선물환"] : [];
+}
 /* 통합 게이트 — ELIG 통과 목록을 받아 '권유 가능'까지 판정한다. */
 function salesGate(f,ctx){
   /* f.consumer 가 있으면 그걸 쓴다. 없을 때만 화면 폼을 읽는다.
@@ -2388,13 +2477,19 @@ function combineRisk(fx,macro){ const cc=0.5*fx+0.5*macro;
      · 하늘샵   — 개인사업자·소액, 파생 대상 자체가 아님 */
 const PRESETS=[
   {label:"한빛정밀 · 수출확정",name:"한빛정밀",pos:"export",budget:1450,amount:500000,horizon:63,country:"미국",pay:"LC",hs:"8542",cert:"confirmed",credit:"yes",cash:"ok",biz:"corp",size:"sme",party:"Hanbit America LLC",unipass:"41029-26-7004821",
-   suit:{dexp:"experienced",under:"yes",ploss:"no",tol:50000,pro:"no",cexec:""}},
+   suit:{dexp:"experienced",under:"yes",ploss:"no",tol:50000,pro:"no",cexec:""},
+   /* 선물환 한도 100만불 중 32만불 기사용 — 데모 동선 2번의 출발점.
+      이 건 50만불을 더하면 82%(임박). 86만불로 올리면 118%(초과) → K-SURE 로 라우팅.
+      = "여신을 아는 도구"를 보여주는 장면. */
+   limit:{lim:1000000, used:320000}},
   {label:"대성무역 · 가결제",name:"대성무역",pos:"export",budget:1480,amount:300000,horizon:63,country:"베트남",pay:"TT",hs:"8483",cert:"provisional",credit:"yes",cash:"tight",biz:"corp",size:"sme",party:"Dae-sung Vina Co.",unipass:"—(PO 단계)",
-   suit:{dexp:"limited",under:"yes",ploss:"no",tol:20000,pro:"no",cexec:""}},
+   suit:{dexp:"limited",under:"yes",ploss:"no",tol:20000,pro:"no",cexec:""},
+   limit:{lim:500000, used:100000}},
   {label:"소망전자 · 무여신",name:"소망전자",pos:"export",budget:1500,amount:200000,horizon:42,country:"중국",pay:"OA",hs:"8542",cert:"confirmed",credit:"no",cash:"ok",biz:"corp",size:"small",party:"Somang Semicon HK",unipass:"41029-26-7009914",
    suit:{dexp:"none",under:"no",ploss:"no",tol:0,pro:"no",cexec:"10"}},
   {label:"나래상사 · 수입",name:"나래상사",pos:"import",budget:1500,amount:400000,horizon:63,country:"베트남",pay:"TT",hs:"7408",cert:"confirmed",credit:"yes",cash:"ok",biz:"corp",size:"sme",party:"Narae Materials Import",unipass:"41055-26-7012036",
-   suit:{dexp:"limited",under:"yes",ploss:"no",tol:40000,pro:"no",cexec:""}},
+   suit:{dexp:"limited",under:"yes",ploss:"no",tol:40000,pro:"no",cexec:""},
+   limit:{lim:800000, used:150000}},
   {label:"하늘샵 · 글로벌셀러",name:"하늘샵",pos:"export",budget:1420,amount:80000,horizon:14,country:"미국",pay:"OA",hs:"6109",cert:"confirmed",credit:"no",cash:"tight",biz:"sole",size:"micro",party:"Amazon Marketplace Settlement",unipass:"플랫폼 정산명세",
    suit:{dexp:"none",under:"no",ploss:"no",tol:0,pro:"no",cexec:""}}
 ];
@@ -2988,6 +3083,7 @@ function compute(){
                                  spot:m.spot, sigAnn:m.sigAnn});
   const propose=recs.filter(x=>["추천","상담후보","RM확인"].includes(x.st));
   renderSuit(recs._gate,f);
+  renderLimit(recs._limit,recs._limitFallback,f);
   const _bannerPrimary=primaryProduct(recs,f.biz);
   const kbFirst=propose.slice().sort((a,b)=>{
     if(a===_bannerPrimary)return -1; if(b===_bannerPrimary)return 1;
@@ -3135,7 +3231,7 @@ function renderScreening(f){
     +'데모 <b>대표 데이터</b> · 실시간 조회 아님.';
 }
 // '권유보류'(F1 적정성)는 '차단'(법규·자격)과 색을 나눈다 — 원인이 다르면 색도 달라야 한다.
-const ST_COL={"추천":"var(--good)","상담후보":"var(--gold)","RM확인":"var(--elev)","검토":"var(--warn)","확인필요":"var(--elev)","보류":"var(--elev)","제외":"var(--ink-faint)","차단":"var(--crit)","권유보류":"var(--elev)"};
+const ST_COL={"추천":"var(--good)","상담후보":"var(--gold)","RM확인":"var(--elev)","검토":"var(--warn)","확인필요":"var(--elev)","보류":"var(--elev)","제외":"var(--ink-faint)","차단":"var(--crit)","권유보류":"var(--elev)","한도초과":"var(--crit)"};
 const SRC_CLASS={"KB 공식상품":"official","KB 공식서비스":"service","KB 외환":"official","외부기관(K-SURE)":"ext","외부 정책자금":"ext","데모 가정":"assume","일반 외환 실무":"ext","외국환거래법 실수요 원칙":"ext"};
 // '외화상품' 세그먼트 신설 — 주제 #6이 "환헤지 전략과 외화 금융 상품 추천"을 나란히 요구한다.
 // 헤지(고정)와 외화상품(보유·조달)은 성격이 달라 같은 탭에 섞지 않는다.
@@ -3173,6 +3269,49 @@ function _fitBlock(f,passKeys,unknown){
   return {fit:{pass:_facts(f,passKeys), unknown:unk}, rmChecks:unk};
 }
 // KB 상품 라우팅 렌더 — 카테고리 세그먼트 탭 + 구조화 카드
+/* 여신 한도 소진 렌더 (F3).
+   RM 이 원장에서 확인하는 것과 같은 순서로 보여준다: 약정 → 기사용 → 이 건 → 체결 후.
+   명목이 아니라 신용환산액(CEE)이라는 점을 숫자 옆에 적는다 — 그게 이 화면의 핵심이다. */
+function renderLimit(lm,fallback,f){
+  const box=$("limit-out"); if(!box) return;
+  if(!lm){ box.innerHTML=""; return; }
+  const pct=Math.min(100,Math.round((lm.after||0)*100));
+  const rawPct=Math.round((lm.after||0)*100);
+  const col = lm.exceeds?"var(--crit)":(lm.status==="임박"?"var(--elev)":"var(--good)");
+  const fmtN=n=>Math.round(n).toLocaleString()+" "+(lm.cur||"USD");
+  let h='<div class="suit-hd"><span class="suit-badge" style="color:'+col+';border-color:color-mix(in srgb,'+col+' 45%,transparent)">'
+       +esc(lm.status)+(lm.known?" · "+rawPct+"%":"")+'</span>'
+       +'<span class="suit-ct">여신 계상 '+fmtN(lm.cee)+' ('+won(lm.ceeKrw)+') · 명목의 '+(lm.ccf*100).toFixed(1)+'%</span></div>';
+
+  if(lm.known){
+    const bp=Math.min(100,Math.round(lm.before*100));
+    h+='<div class="limbar" role="img" aria-label="한도 소진율 '+rawPct+'퍼센트">'
+      +'<i class="used" style="width:'+bp+'%"></i>'
+      +'<i class="add" style="left:'+bp+'%;width:'+Math.max(0,Math.min(100-bp,pct-bp))+'%;background:'+col+'"></i>'
+      +'<span class="warnline" style="left:'+(UTIL_WARN*100)+'%"></span></div>';
+    h+='<div class="limrow"><span>약정 한도 (명목)</span><b>'+fmtN(lm.limit)+'</b></div>'
+      +'<div class="limrow"><span>기사용</span><b>'+fmtN(lm.used)+' ('+Math.round(lm.before*100)+'%)</b></div>'
+      +'<div class="limrow"><span>이 거래 명목</span><b>+'+fmtN(lm.notional)+'</b></div>'
+      +'<div class="limrow tot"><span>체결 후 소진율</span><b style="color:'+col+'">'+rawPct+'%</b></div>'
+      /* 고객이 묻는 숫자(명목 소진)와 여신부가 묻는 숫자(CEE)를 나란히 둔다 */
+      +'<div class="limrow"><span>└ KB 여신 계상액 (CEE)</span><b>'+fmtN(lm.cee)+' · '+won(lm.ceeKrw)+'</b></div>';
+  }
+  h+='<div class="metaline'+(lm.exceeds?' ':'')+'">'+esc(lm.msg)+'</div>';
+  if(lm.exceeds){
+    h+='<div class="blockbox"><b>선물환 계열 체결 불가</b><br>'
+      +'파생 한도를 넘습니다. 명목을 줄이거나 여신 증액을 협의해야 합니다.'
+      +'<br><span style="color:var(--ink-mut)">해제조건: 여신 증액 · 명목 축소 · 여신 불요 수단 전환</span></div>';
+    if(fallback&&fallback.length)
+      h+='<div class="metaline"><b>여신을 쓰지 않는 대안</b> '+fallback.map(esc).join(" · ")
+        +' — K-SURE 는 공적보험이라 은행 여신·한도를 쓰지 않습니다</div>';
+    else
+      h+='<div class="metaline rm"><b>대안 없음</b> 수입 결제 건은 K-SURE(수출 전용) 대상이 아닙니다 — 여신 한도·담보 협의가 선행돼야 합니다</div>';
+  }
+  h+='<div class="vnote" style="margin-top:8px">파생상품은 <b>명목 전액이 아니라 신용환산액</b>만큼 한도를 사용합니다'
+    +'(만기가 길수록 환산율이 큽니다). 한도액·기사용액은 <b>고객 자기신고</b>이며 KB 원장 조회값이 아닙니다. '
+    +'환산율은 데모 설계값이고, 금리·수수료는 산출하지 않습니다(RM 견적).</div>';
+  box.innerHTML=h;
+}
 /* 적정성 판정 렌더 (F1).
    화면이 말해야 하는 것은 세 가지다:
      ① 이 고객이 일반인가 전문인가 (보호 수준이 갈린다)
@@ -3667,6 +3806,25 @@ function recommendPackage(f,ctx){
     if(SUIT_DERIV.indexOf(k)<0 && SUIT_INSUR.indexOf(k)<0) return;
     r.scen=lossScenario(k, f.amount, ctx.spot, ctx.sigAnn, f.horizon);
   });
+  /* ═══ 5) 여신 한도 게이트 (F3) ═══
+     한도가 넘으면 **여신을 쓰는 수단**만 막는다. K-SURE 는 공적보험이라 은행 여신을
+     쓰지 않으므로 살아남는다 — 그래서 무여신·한도초과 수출기업에게 길이 남는다.
+     적정성(F1)과 마찬가지로 이미 다른 사유로 막힌 카드는 덮어쓰지 않는다. */
+  const lm=assessLimit(f,ctx);
+  if(lm.exceeds){
+    R.forEach(r=>{
+      const k=cardSuitKey(r.t);
+      if(!k || SUIT_DERIV.indexOf(k)<0) return;             // 파생만 여신을 쓴다
+      if(/K-SURE/.test(r.t)) return;                        // K-SURE 범위형은 보험 — 여신 불요
+      if(r.st==="차단"||r.st==="제외"||r.st==="보류"||r.st==="권유보류") return;
+      r.st="한도초과";
+      r.block={reason:"파생 한도 초과", detail:lm.msg,
+               unlock:"여신 증액 협의, 명목 축소, 또는 여신 불요 수단(K-SURE)으로 전환"};
+      r.next="여신 증액 협의 또는 K-SURE 전환";
+    });
+  }
+  R._limit=lm;
+  R._limitFallback=limitFallback(lm.exceeds,f.pos);
   R._gate=sg;
   return R;
 }
@@ -3779,6 +3937,10 @@ function fillPreset(p){
   if($("in-tol"))   $("in-tol").value   = s.tol;
   if($("in-pro"))   $("in-pro").value   = s.pro;
   if($("in-cexec")) $("in-cexec").value = s.cexec;
+  // 한도(F3)도 프리셋마다 리셋 — 안 하면 앞 회사 한도로 다음 회사를 판정한다
+  const lm=p.limit||{lim:0,used:0};
+  if($("in-limit")) $("in-limit").value = lm.lim;
+  if($("in-used"))  $("in-used").value  = lm.used;
   $("in-cur").value="USD";  // 프리셋은 USD 결제 기준
   renderRegimeChips(); renderCurNote();   // 통화가 USD로 돌아왔으니 국면칩·통화노트도 USD 기준으로
   $("in-pay").value=p.pay||"TT"; $("in-hs").value=p.hs||"ETC";
@@ -3821,7 +3983,9 @@ $("in-cur").addEventListener("change",()=>{ const c=CUR[$("in-cur").value];
 let _dbT; function recompute(){ clearTimeout(_dbT); _dbT=setTimeout(compute,250); }
 ["in-name","in-pos","in-biz","in-budget","in-amount","in-horizon","in-country","in-pay","in-hs","in-cert","in-credit","in-cash","in-margin",
  // 적정성 입력(F1) — 이걸 빼면 고객 정보를 바꿔도 권유 판정이 안 따라간다
- "in-dexp","in-under","in-ploss","in-tol","in-pro","in-cexec"]
+ "in-dexp","in-under","in-ploss","in-tol","in-pro","in-cexec",
+ // 한도 입력(F3)
+ "in-limit","in-used"]
   .forEach(id=>{ const el=$(id); if(!el) return; el.addEventListener("input",recompute); el.addEventListener("change",recompute); });
 // 분할 회차 수를 바꾸면 스케줄을 기본값으로 다시 만든다(직전 회차 수와 안 맞는 값이 남지 않게)
 $("in-split").addEventListener("change",()=>{ renderSched(true); recompute(); });
@@ -4332,7 +4496,9 @@ function _recsOf(p,d){
     currency:"USD",pay:p.pay,hs:p.hs,cert:p.cert,credit:p.credit,cash:p.cash,biz:p.biz,party:p.party,
     consumer:{biz:p.biz, cash:p.cash, derivExp:s.dexp, understands:s.under, priorLoss:s.ploss,
               tolerance:(+s.tol||0)*1e4, proDeclared:s.pro==="yes",
-              execDays:(s.cexec===""||s.cexec==null)?null:+s.cexec}};
+              execDays:(s.cexec===""||s.cexec==null)?null:+s.cexec},
+    // 한도(F3)도 그 회사 자신의 값 — DOM 을 읽으면 화면에 로드된 회사 한도가 적용된다
+    limits:(p.limit||{lim:0,used:0})};
   var spot=CUR.USD.spot;
   var badBudget=(p.pos==="export")? spot<p.budget : spot>p.budget;
   var rgU=REG.USD[regimeIdx]||REG.USD[0];

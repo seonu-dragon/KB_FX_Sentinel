@@ -26,6 +26,7 @@ KB = os.path.abspath(os.path.join(ROOT, os.pardir))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
+from app import limits as LIM             # noqa: E402
 from app import suitability as S          # noqa: E402
 
 HTML_PATH = os.path.join(KB, "FX_Sentinel_demo_ui.html")
@@ -91,6 +92,32 @@ def test_suit_questions_present_in_ui(html):
     r = S.assess_suitability(S.ConsumerProfile(), 1_000_000)
     for item in r["items"]:
         assert item["question"] in html, f"UI 에 없는 문항: {item['question']}"
+
+
+# ── 여신 한도 (F3) ───────────────────────────────────────────────────
+def test_ccf_bands_match(html):
+    """신용환산율이 갈라지면 화면과 서버가 다른 여신 계상액을 낸다."""
+    m = re.search(r"const\s+CCF_BANDS\s*=\s*\[(.*?)\];", html, re.S)
+    assert m, "데모 HTML 에서 CCF_BANDS 를 찾지 못했습니다"
+    js = [tuple(float(x) for x in row.split(","))
+          for row in re.findall(r"\[([^\]]+)\]", m.group(1))]
+    py = [(float(a), float(b), float(c)) for a, b, c in LIM.CCF_BANDS]
+    assert js == py
+
+
+def test_util_warn_matches(html):
+    assert _js_num(html, "UTIL_WARN") == LIM.UTIL_WARN
+
+
+def test_ui_explains_notional_vs_cee(html):
+    """소진은 명목, 여신 계상은 CEE — 두 숫자의 구분이 화면에 있어야 한다."""
+    assert "명목 전액이 아니라 신용환산액" in html
+    assert "KB 여신 계상액" in html
+
+
+def test_ui_declares_limit_self_reported(html):
+    """한도가 원장 조회값이 아님을 화면이 밝힌다."""
+    assert "고객 자기신고" in html and "KB 원장 조회값이 아닙니다" in html
 
 
 # ── 정직성 문구 ──────────────────────────────────────────────────────

@@ -72,10 +72,25 @@ class ConsumerInput(BaseModel):
     credit_exec_days: Optional[int] = Field(default=None, ge=-365, le=365)
 
 
+class LimitInputModel(BaseModel):
+    """파생(선물환) 한도 — 고객 자기신고.
+
+    `credit: yes|no` 이진값의 승격판이다. 단위는 **거래 통화 명목**이다 — 실제 약정이
+    "선물환 한도 100만불" 처럼 나가기 때문이다(원화 환산액이 아니다).
+    미입력이면 '초과'가 아니라 '미확인'으로 다뤄진다 — 모르는 것과 없는 것은 다르고,
+    0 으로 두고 막으면 한도를 모르는 고객이 전부 차단된다.
+    """
+    limit_notional: float = Field(default=0.0, ge=0, le=1e12,
+                                  description="파생 한도 약정액(거래 통화 명목)")
+    used_notional: float = Field(default=0.0, ge=0, le=1e12,
+                                 description="기사용 명목(거래 통화)")
+
+
 class AssessRequest(BaseModel):
     trade: TradeInput
     market: Optional[MarketOverride] = None
     consumer: Optional[ConsumerInput] = None
+    limits: Optional[LimitInputModel] = None
 
 
 class EligDecision(BaseModel):
@@ -144,6 +159,30 @@ class SalesGateOut(BaseModel):
     disclaimer: str
 
 
+class LimitOut(BaseModel):
+    """한도 소진 프리뷰.
+
+    소진율은 **명목 기준**(고객이 아는 약정 방식), CEE 는 **은행 여신 계상액**.
+    두 숫자를 함께 낸다 — 고객과 여신부가 묻는 질문이 다르다.
+    """
+    known: bool
+    notional: float
+    cee_notional: float
+    cee_krw: int
+    ccf: float
+    limit_notional: float
+    used_notional: float
+    available_notional: float
+    util_before: float
+    util_after: float
+    exceeds: bool
+    status: str
+    message: str
+    note: str
+    # 한도 초과 시 여신을 쓰지 않는 대안
+    fallback_keys: list[str] = Field(default_factory=list)
+
+
 class AssessResponse(BaseModel):
     # 리스크 번역 (엔진 산출)
     bbp_pct: float
@@ -163,6 +202,8 @@ class AssessResponse(BaseModel):
 
     # 금소법 판매프로세스 (F1) — 자격(ELIG) 통과분에 대해 '권유해도 되는가'를 판정한다.
     sales_gate: Optional[SalesGateOut] = None
+    # 여신 한도 소진 (F3) — 명목이 아니라 신용환산액 기준.
+    limit: Optional[LimitOut] = None
 
     # 추적성
     engine_version: str

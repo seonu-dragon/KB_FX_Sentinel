@@ -24,6 +24,7 @@ from . import elig as elig_mod
 from . import engine as engine_mod
 from . import hedging
 from . import lifecycle
+from . import limits as limits_mod
 from . import portfolio
 from . import screening as screening_mod
 from . import suitability as suit_mod
@@ -35,7 +36,8 @@ from .config import settings
 from .schemas import (AckRequest, AckResponse, AlertEvalRequest, AlertEvalResponse,
                       AlertOut, AssessRequest, AssessResponse, ConsumerInput, DealCreate,
                       DealOut, DealTransition, EligDecision, HedgeOp, HedgeSchedule,
-                      KeyFactsRequest, KeyFactsResponse, MarketResponse, PortfolioLeg,
+                      KeyFactsRequest, KeyFactsResponse, LimitInputModel, LimitOut,
+                      MarketResponse, PortfolioLeg,
                       PortfolioRequest, PortfolioResponse, ProductOut, ProductsResponse,
                       RuleCreate, RuleOut, SalesGateOut, ScreeningRequest,
                       ScreeningResponse, TicketRequest, TicketResponse)
@@ -183,6 +185,18 @@ def assess(req: AssessRequest,
         blocks.append(f"{w['key']} 권유 보류 — {w['reason']}")
     blocks.extend(gate["kickback_flags"])
 
+    # ── 여신 한도 소진 (F3) ────────────────────────────────────────
+    # 소진율은 명목 기준(고객 약정 방식), 여신 계상액은 CEE(은행 내부). 둘 다 낸다.
+    # spot 은 CEE 를 원화로 보여주기 위해서만 쓴다(스냅샷이며 고시환율 아님).
+    li = (limits_mod.LimitInput(limit_notional=req.limits.limit_notional,
+                                used_notional=req.limits.used_notional)
+          if req.limits else None)
+    lim = limits_mod.assess_limit(li, req.trade.amount, req.trade.horizon,
+                                  spot=m_state.spot)
+    lim["fallback_keys"] = limits_mod.fallback_keys(lim["exceeds"], req.trade.pos)
+    if lim["exceeds"]:
+        blocks.append("선물환 계열 한도 초과 — " + lim["message"])
+
     audit_id = get_log().append(
         actor=p.subject, role=p.role, event="assess",
         payload={
@@ -198,6 +212,10 @@ def assess(req: AssessRequest,
             "eligibility": decisions,
             "blocked": blocks,
             # 판매프로세스 판정도 감사 대상이다 — "왜 그때 권유했나/왜 막았나"에 답해야 한다.
+            "limit": {"known": lim["known"], "cee_krw": lim["cee_krw"],
+                      "cee_notional": lim["cee_notional"],
+                      "util_after": lim["util_after"], "exceeds": lim["exceeds"],
+                      "status": lim["status"]},
             "sales_gate": {
                 "consumer_type": gate["consumer_type"],
                 "suitability_met": gate["suitability"]["met"],
@@ -224,6 +242,7 @@ def assess(req: AssessRequest,
         eligibility=[EligDecision(**d) for d in decisions],
         blocked=blocks,
         sales_gate=SalesGateOut(**gate),
+        limit=LimitOut(**lim),
         engine_version=settings.engine_version,
         market_asof=settings.snapshot_date,
         market_source=source,
