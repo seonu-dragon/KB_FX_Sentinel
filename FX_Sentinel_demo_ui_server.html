@@ -1016,6 +1016,16 @@
   .spectable thead th{background:var(--panel-2);color:var(--ink-mut);font-size:var(--fs-1);font-weight:700}
   .spectable tbody tr:last-child td{border-bottom:0}
   .spectable td.k{font-weight:700;color:var(--ink);white-space:nowrap}
+  /* 헤지수단 비교표: 좁은 화면에서 표 → 상품별 카드로 리플로우(가로 스크롤 대신) */
+  @media(max-width:560px){
+    table.cmp-table{min-width:0}
+    table.cmp-table thead{display:none}
+    table.cmp-table tbody tr{display:block;border:1px solid var(--line-solid);border-radius:var(--r-sm);padding:8px 11px;margin-bottom:8px}
+    table.cmp-table tbody tr:last-child td,table.cmp-table td{border-bottom:0}
+    table.cmp-table td{display:flex;justify-content:space-between;gap:12px;padding:3px 0;line-height:1.5}
+    table.cmp-table td.k{display:block;white-space:normal;border-bottom:1px solid var(--line-solid);padding-bottom:5px;margin-bottom:4px}
+    table.cmp-table td[data-label]::before{content:attr(data-label);color:var(--ink-faint);font-weight:400}
+  }
   .phase{font-size:var(--fs-1);font-weight:800;padding:1px 4px;border-radius:var(--r-pill);letter-spacing:.02em;white-space:nowrap}
   .phase.p0{color:var(--ink-mut);background:var(--panel-2);border:1px solid var(--line-solid)}
   .phase.p1{color:var(--good);background:color-mix(in srgb,var(--good) 4%,transparent)}
@@ -1468,6 +1478,9 @@
 
 
 
+  <!-- 헤지수단 비교 — 고객·RM 공통(내부 전용 아님). 상품 선택 근거는 고객에게도 유용하다. -->
+  <section class="card" id="hedge-compare" style="margin-top:16px"></section>
+
   <!-- ══════════ 심화 분석 · 심사 자료 ══════════ -->
   <div class="deep-h internal-only"><h2>심화 분석 · 심사 자료</h2><span class="tag">RM · 심사위원용</span><p>결정 근거 · 정직 검증 · 거버넌스 · 실서비스 로드맵</p></div>
 
@@ -1498,8 +1511,6 @@
       <button type="button" class="hd-cta" id="hd-cta">다음 액션: RM 검토 티켓 →</button>
     </div>
   </section>
-
-  <section class="card" id="hedge-compare" style="margin-top:14px"></section>
 
   <div class="calib-lite" id="calib-lite">–</div>
 
@@ -2486,12 +2497,12 @@ function renderHedgeCompare(f){
   h+='<div style="max-width:460px;margin-top:8px">'+svg
     +'<div style="font-size:var(--fs-1);color:var(--ink-faint);line-height:1.7;margin-top:2px"><span style="color:var(--ink-mut)">- - -</span> 무헤지 · <span style="color:var(--gold-ink)">▬</span> 선물환 고정 · <span style="color:var(--brand)">▬</span> 범위선물환(밴드 안은 시장 따라 상단 이익 일부 유지)</div></div>';
   // 컬럼 4개(수단·선납비용·상단이익·여신). '언제/사유'는 이름 아래 줄로 내려 첫 컬럼이 가로로 부풀지 않게.
-  h+='<div class="dwrap" style="margin-top:10px"><table class="spectable"><thead><tr><th scope="col">수단</th><th scope="col">선납비용</th><th scope="col">상단이익</th><th scope="col">여신</th></tr></thead><tbody>';
+  h+='<div class="dwrap" style="margin-top:10px"><table class="spectable cmp-table"><thead><tr><th scope="col">수단</th><th scope="col">선납비용</th><th scope="col">상단이익</th><th scope="col">여신</th></tr></thead><tbody>';
   rows.forEach(r=>{
     const off=r.elig===false, sub=r.note||r.when;
     h+='<tr style="'+(off?"opacity:.55":"")+'"><td class="k"><b>'+esc(r.t)+'</b>'
       +(sub?'<div style="color:var(--ink-faint);font-weight:400;font-size:var(--fs-1);line-height:1.5;margin-top:2px">'+esc(sub)+'</div>':"")+'</td>'
-      +'<td>'+esc(r.cost)+'</td><td>'+esc(r.up)+'</td><td>'+esc(r.credit)+'</td></tr>';
+      +'<td data-label="선납비용">'+esc(r.cost)+'</td><td data-label="상단이익">'+esc(r.up)+'</td><td data-label="여신">'+esc(r.credit)+'</td></tr>';
   });
   h+='</tbody></table></div>';
   h+='<div class="guard">※ 상단 이익 "일부 유지"는 범위형·칼라의 구조 설명입니다. 실제 밴드가·행사가·요율은 RM 견적이며, 이 표는 예측이 아니라 상품 구조 비교입니다.</div>';
