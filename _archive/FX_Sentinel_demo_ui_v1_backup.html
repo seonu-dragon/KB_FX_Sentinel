@@ -1,0 +1,346 @@
+<style>
+  :root{
+    --bg:#14130f; --panel:#1d1b16; --panel-2:#232019; --line:#33302704;
+    --line-solid:#332f25; --ink:#ece7d8; --ink-mut:#9b9482; --ink-faint:#6f6a5c;
+    --gold:#f5b800; --gold-dim:#7a6320;
+    --good:#37c98b; --warn:#f2c14e; --elev:#f08a3c; --crit:#ef5b52;
+    --radius:14px; --mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Malgun Gothic","Apple SD Gothic Neo",Segoe UI,sans-serif;
+  }
+  @media (prefers-color-scheme:light){
+    :root{ --bg:#f6f3ea; --panel:#ffffff; --panel-2:#faf7ef; --line-solid:#e7e1d1;
+      --ink:#201d16; --ink-mut:#6c6656; --ink-faint:#9a9484; --gold:#c9910a; --gold-dim:#e9d29a; }
+  }
+  :root[data-theme="dark"]{ --bg:#14130f; --panel:#1d1b16; --panel-2:#232019; --line-solid:#332f25;
+    --ink:#ece7d8; --ink-mut:#9b9482; --ink-faint:#6f6a5c; --gold:#f5b800; --gold-dim:#7a6320; }
+  :root[data-theme="light"]{ --bg:#f6f3ea; --panel:#ffffff; --panel-2:#faf7ef; --line-solid:#e7e1d1;
+    --ink:#201d16; --ink-mut:#6c6656; --ink-faint:#9a9484; --gold:#c9910a; --gold-dim:#e9d29a; }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    line-height:1.5;-webkit-font-smoothing:antialiased;font-size:15px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px 64px}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .lbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+
+  /* ── KB Star FX chrome ── */
+  .chrome{display:flex;align-items:center;gap:18px;padding:14px 20px;max-width:1180px;margin:0 auto;
+    border-bottom:1px solid var(--line-solid)}
+  .kb{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:-.01em}
+  .kb-star{width:26px;height:26px;border-radius:7px;background:var(--gold);color:#14130f;
+    display:grid;place-items:center;font-size:16px;font-weight:900}
+  .kb small{font-weight:600;color:var(--ink-mut);letter-spacing:0}
+  .tabs{display:flex;gap:4px;margin-left:6px;flex-wrap:wrap}
+  .tab{font-size:13px;color:var(--ink-mut);padding:6px 12px;border-radius:8px;white-space:nowrap}
+  .tab.on{color:var(--ink);background:var(--panel);border:1px solid var(--line-solid);font-weight:600}
+  .tab.on .dot{color:var(--gold)}
+  .chrome-right{margin-left:auto;display:flex;align-items:center;gap:14px}
+  .whoami{font-size:12px;color:var(--ink-mut)}
+  .whoami b{color:var(--ink);font-weight:700}
+  .switch-lbl{display:flex;align-items:baseline;gap:10px;margin:2px 0 10px}
+  .switch-lbl .sub{font-size:12px;color:var(--ink-faint);font-weight:400;letter-spacing:0;text-transform:none}
+  .themebtn{background:var(--panel);border:1px solid var(--line-solid);color:var(--ink-mut);
+    border-radius:8px;padding:6px 11px;font-size:12px;cursor:pointer;font-family:var(--sans)}
+  .themebtn:hover{color:var(--ink)}
+
+  /* ── header ── */
+  .head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px;padding:26px 0 18px}
+  .head h1{font-size:26px;margin:0;font-weight:800;letter-spacing:-.02em;text-wrap:balance}
+  .head h1 b{color:var(--gold)}
+  .head p{margin:4px 0 0;color:var(--ink-mut);font-size:13px}
+  .ticker{margin-left:auto;display:flex;gap:22px;align-items:center;padding:10px 16px;
+    background:var(--panel);border:1px solid var(--line-solid);border-radius:12px}
+  .ticker .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+  .ticker .v{font-size:19px;font-weight:700;font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+  /* ── company switcher ── */
+  .switch{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 22px}
+  .co{flex:1 1 210px;text-align:left;cursor:pointer;background:var(--panel);border:1px solid var(--line-solid);
+    border-radius:12px;padding:13px 15px;transition:border-color .15s,transform .15s;color:inherit;font-family:inherit}
+  .co:hover{transform:translateY(-2px)}
+  .co.on{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+  .co .nm{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+  .co .meta{color:var(--ink-mut);font-size:12px;margin-top:3px}
+  .co .badges{display:flex;gap:5px;margin-top:9px;flex-wrap:wrap}
+  .badge{font-size:10.5px;padding:2px 7px;border-radius:5px;background:var(--panel-2);
+    border:1px solid var(--line-solid);color:var(--ink-mut);letter-spacing:.02em;font-weight:600}
+  .badge.pos{color:var(--gold);border-color:var(--gold-dim)}
+
+  /* ── grid ── */
+  .grid{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:16px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line-solid);border-radius:var(--radius);padding:18px}
+  .card h3{margin:0 0 2px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);
+    display:flex;align-items:center;gap:8px;font-weight:700}
+  .agent-n{width:19px;height:19px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line-solid);
+    display:grid;place-items:center;font-size:11px;color:var(--gold);font-weight:800}
+
+  /* ── BBP hero gauge ── */
+  .hero{grid-column:1;display:flex;flex-direction:column}
+  .gauge-wrap{position:relative;width:100%;max-width:260px;margin:2px auto 0}
+  .gauge-val{position:absolute;left:0;right:0;top:52%;text-align:center}
+  .gauge-val .big{font-size:44px;font-weight:800;font-family:var(--mono);line-height:1;font-variant-numeric:tabular-nums}
+  .gauge-val .pct{font-size:20px;opacity:.7}
+  .gauge-val .cap{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin-top:5px}
+  .track{stroke:var(--panel-2)}
+  .arc{transition:stroke-dashoffset .7s cubic-bezier(.4,0,.2,1),stroke .3s}
+  .hero-foot{display:flex;justify-content:space-between;gap:10px;margin-top:8px;padding-top:14px;
+    border-top:1px solid var(--line-solid)}
+  .hero-foot div{flex:1}
+  .hero-foot .v{font-size:17px;font-weight:700;font-family:var(--mono);font-variant-numeric:tabular-nums;margin-top:2px}
+  .es .v{color:var(--elev)}
+
+  .statechip{margin-left:auto;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.03em}
+
+  /* ── FX-EWI meter ── */
+  .meter{height:12px;border-radius:6px;margin:14px 0 4px;position:relative;overflow:hidden;
+    background:linear-gradient(90deg,var(--good) 0 40%,var(--warn) 40% 60%,var(--elev) 60% 80%,var(--crit) 80% 100%);opacity:.9}
+  .meter .mk{position:absolute;top:-4px;width:3px;height:20px;background:var(--ink);border-radius:2px;
+    box-shadow:0 0 0 2px var(--panel);transition:left .6s}
+  .meterscale{display:flex;justify-content:space-between;font-size:10px;color:var(--ink-faint);font-family:var(--mono)}
+  .decomp{margin-top:16px;display:flex;flex-direction:column;gap:9px}
+  .decomp .row{display:grid;grid-template-columns:112px 1fr 34px;align-items:center;gap:10px;font-size:12.5px}
+  .decomp .bar{height:8px;background:var(--panel-2);border-radius:4px;overflow:hidden}
+  .decomp .fill{height:100%;background:var(--gold);border-radius:4px;transition:width .6s}
+  .decomp .num{font-family:var(--mono);text-align:right;color:var(--ink-mut)}
+
+  /* ── context ── */
+  .kv{display:flex;flex-direction:column;gap:11px;margin-top:12px}
+  .kv .r{display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+    padding-bottom:9px;border-bottom:1px dashed var(--line-solid)}
+  .kv .r:last-child{border:0;padding:0}
+  .kv .k{color:var(--ink-mut);font-size:13px}
+  .kv .val{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums}
+  .dir{color:var(--elev)}
+
+  /* ── agent row ── */
+  .agents{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:16px}
+  @media(max-width:900px){.agents{grid-template-columns:1fr}}
+  .narr{font-size:13.5px;color:var(--ink);margin:10px 0 0;line-height:1.6}
+  .analog{font-size:12px;color:var(--ink-mut);margin-top:10px;padding-top:10px;border-top:1px solid var(--line-solid)}
+  .info{margin-top:12px;display:flex;flex-direction:column;gap:11px}
+  .info .it{padding:11px;background:var(--panel-2);border-radius:9px;border:1px solid var(--line-solid)}
+  .info .t{font-weight:700;font-size:13px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .chip{font-size:10px;padding:1px 6px;border-radius:4px;background:var(--panel);border:1px solid var(--line-solid);
+    color:var(--ink-mut);font-weight:600;letter-spacing:.02em}
+  .chip.A{color:var(--good);border-color:color-mix(in srgb,var(--good) 40%,transparent)}
+  .info .s{font-size:12px;color:var(--ink-mut);margin-top:5px;line-height:1.55}
+  .info .src{font-size:11px;color:var(--ink-faint);margin-top:6px;font-style:italic}
+  .guard{font-size:11px;color:var(--ink-faint);margin-top:12px;line-height:1.5}
+
+  .rec{margin-top:12px;padding:14px;border-radius:11px;background:var(--panel-2);border:1px solid var(--gold-dim)}
+  .rec .inst{font-size:16px;font-weight:800}
+  .rec .prod{font-size:12px;color:var(--gold);margin-top:2px;font-weight:600}
+  .rec .why{font-size:12.5px;color:var(--ink-mut);margin-top:9px;line-height:1.55}
+  .hedge-kv{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .hedge-kv .box{flex:1 1 90px;background:var(--panel);border:1px solid var(--line-solid);border-radius:9px;padding:9px 11px}
+  .hedge-kv .k{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint)}
+  .hedge-kv .v{font-size:16px;font-weight:700;font-family:var(--mono);margin-top:3px;font-variant-numeric:tabular-nums}
+
+  /* ── footer honesty ── */
+  .foot{margin-top:26px;background:var(--panel);border:1px solid var(--line-solid);border-left:3px solid var(--gold);
+    border-radius:12px;padding:18px 20px}
+  .foot .h{font-weight:700;font-size:13px;margin-bottom:6px}
+  .foot p{margin:0;font-size:12.5px;color:var(--ink-mut);line-height:1.6}
+  .foot .meta{margin-top:10px;font-size:11px;color:var(--ink-faint);display:flex;gap:16px;flex-wrap:wrap}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="chrome">
+  <div class="kb"><span class="kb-star">★</span>KB&nbsp;Star&nbsp;FX <small>기업뱅킹</small></div>
+  <nav class="tabs">
+    <span class="tab">환율조회</span><span class="tab">FX주문</span><span class="tab">인사이트</span>
+    <span class="tab on"><span class="dot">●</span> FX Sentinel</span><span class="tab">환관리센터</span>
+  </nav>
+  <div class="chrome-right"><span class="whoami">기업뱅킹 로그인 · <b>(주)한빛교역</b> 재무팀</span><button class="themebtn" id="themebtn">◐ 테마</button></div>
+</div>
+
+<div class="wrap">
+  <header class="head">
+    <div>
+      <h1><b>FX Sentinel</b> · 우리 회사 환율 관제탑</h1>
+      <p>(주)한빛교역 재무담당자 화면 — 환율을 예측하지 않고, 우리 회사 예산환율이 깨질 확률로 옮겨 헤지 의사결정을 돕습니다.</p>
+    </div>
+    <div class="ticker">
+      <div><div class="k">USD / KRW</div><div class="v" id="tk-spot">–</div></div>
+      <div><div class="k">기준일</div><div class="v" id="tk-date" style="font-size:14px">–</div></div>
+      <div><div class="k">위험게이지</div><div class="v" id="tk-ewi">–</div></div>
+    </div>
+  </header>
+
+  <div class="switch-lbl"><span class="lbl">우리 회사 오픈 익스포저</span><span class="sub">헤지 예정 결제 건을 선택하세요 · 같은 시장이라도 건마다 예산환율·만기·조건이 달라 처방이 달라집니다</span></div>
+  <div class="switch" id="switch"></div>
+
+  <div class="grid">
+    <!-- ① Sentinel : BBP hero -->
+    <section class="card hero">
+      <h3><span class="agent-n">①</span> Sentinel · 예산환율 이탈확률 <span class="statechip" id="statechip"></span></h3>
+      <div class="gauge-wrap">
+        <svg viewBox="0 0 220 130" width="100%" aria-hidden="true">
+          <path class="track" d="M15 120 A 95 95 0 0 1 205 120" fill="none" stroke-width="15" stroke-linecap="round"/>
+          <path class="arc" id="arc" d="M15 120 A 95 95 0 0 1 205 120" fill="none" stroke-width="15" stroke-linecap="round"/>
+        </svg>
+        <div class="gauge-val">
+          <div><span class="big" id="bbp">0</span><span class="pct">%</span></div>
+          <div class="cap" id="bbp-cap">이탈확률</div>
+        </div>
+      </div>
+      <div class="hero-foot">
+        <div><div class="lbl">불리 방향</div><div class="v" id="hf-dir" style="font-size:14px">–</div></div>
+        <div class="es"><div class="lbl">이탈 시 기대손실</div><div class="v" id="hf-es">–</div></div>
+      </div>
+    </section>
+
+    <!-- FX-EWI gauge + decomposition (XAI) -->
+    <section class="card">
+      <h3><span class="agent-n">②</span> Analyst · 위험 원인 분해 (XAI)</h3>
+      <div class="lbl" style="margin-top:6px">FX-EWI 위험게이지</div>
+      <div class="meter"><span class="mk" id="ewi-mk"></span></div>
+      <div class="meterscale"><span>0 정상</span><span>40</span><span>60</span><span>80</span><span>100 심각</span></div>
+      <div class="decomp" id="decomp"></div>
+      <p class="narr" id="narr"></p>
+      <div class="analog" id="analog"></div>
+    </section>
+
+    <!-- company context -->
+    <section class="card">
+      <h3><span class="agent-n">◆</span> 익스포저 상세</h3>
+      <div class="kv" id="ctx"></div>
+    </section>
+  </div>
+
+  <div class="agents">
+    <!-- ③ Advisor -->
+    <section class="card">
+      <h3><span class="agent-n">③</span> Advisor · 정보 제공</h3>
+      <div class="info" id="advisor"></div>
+      <div class="guard" id="guard"></div>
+    </section>
+
+    <!-- ④ Hedge -->
+    <section class="card" style="grid-column:span 2">
+      <h3><span class="agent-n">④</span> Hedge · 실행 제안</h3>
+      <div class="rec">
+        <div class="inst" id="h-inst">–</div>
+        <div class="prod" id="h-prod">–</div>
+        <div class="hedge-kv">
+          <div class="box"><div class="k">권고 헤지비율</div><div class="v" id="h-ratio">–</div></div>
+          <div class="box"><div class="k">헤지 금액</div><div class="v" id="h-notional">–</div></div>
+          <div class="box"><div class="k">선물환율 (CIP)</div><div class="v" id="h-fwd">–</div></div>
+          <div class="box"><div class="k">스왑포인트</div><div class="v" id="h-swap">–</div></div>
+        </div>
+        <div class="why" id="h-why"></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="foot">
+    <div class="h">이 관제탑이 하지 않는 것 — 그리고 하는 것</div>
+    <p>FX Sentinel은 <b>환율을 예측하지 않습니다.</b> 이미 확정된 귀사의 <b>예산환율·결제 스케줄·포지션</b>을 정량 이탈확률(BBP)과 실행 가능한 헤지 의사결정으로 <b>번역</b>합니다. 지표의 예측력 한계는 walk-forward·PBO로 정직하게 검증·보정했습니다.</p>
+    <div class="meta">
+      <span>· 데이터: USD/KRW 2018–2026 실데이터 · FRED 금리</span>
+      <span>· 검증: walk-forward · PBO 0.20 · DSR 0.9999</span>
+      <span>· 정보 제공이며 최종 실행은 KB 영업점 확인</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = {"market":{"spot":1528.8,"date":"2026-07-06","ewi":38,"grade":"정상"},"companies":[
+{"name":"수출 · E-241","sector":"여신여력 보유","position":"export","budget":1450,"amount":500000,"horizon":63,"certainty":"confirmed","credit":true,"cash":false,"bbp":16.5,"es":2443408,"alert":false,"shares":{"V":82,"J":0,"C":18},"narr":"위험게이지 38/100 [정상]. 주요 견인은 변동성 국면(82%)과 변동성 군집(18%). 점프 집중은 없음.","analog":"2025-08-04","advisor":[{"title":"선물환 (표준 헤지)","domain":"D2","trust":"B","summary":"결제 만기에 맞춰 환율을 미리 고정하는 표준 헤지. CIP에 따라 현물 ± 스왑포인트로 결정. 확정 익스포저에 적합하나 여신 한도가 필요.","source":"일반 외환 실무(개념 안내)"},{"title":"환변동보험 (K-SURE)","domain":"D4","trust":"A","summary":"수출·수입 기업이 환율 변동 위험을 공적 보험으로 관리하는 제도. 보장환율 기준 정산이며 은행 여신 없이도 이용 가능.","source":"한국무역보험공사(K-SURE)"},{"title":"수출바우처 · 정책자금","domain":"D5","trust":"A","summary":"중소 수출기업 대상 정책자금·지원사업. 업종·규모·수출실적 자격요건에 따라 신청. 최신 공고는 기업마당에서 확인.","source":"기업마당(bizinfo)·중진공"}],"hedge":{"inst":"선물환","prod":"KB 선물환(대고객)","ratio":0,"notional":0,"fwd":1525.3,"swap":-3.48,"why":"여신 있음 + 현금 여유 → 표준 최저비용 헤지. 현재 이탈확률이 낮아 즉시 헤지는 불필요, 모니터링 지속 권고."}},
+{"name":"수출 · E-263","sector":"현금부담 · 옵션형","position":"export","budget":1480,"amount":300000,"horizon":63,"certainty":"provisional","credit":true,"cash":true,"bbp":26.9,"es":2880277,"alert":false,"shares":{"V":82,"J":0,"C":18},"narr":"위험게이지 38/100 [정상]. 주문이 아직 가결제(취소가능) 단계라 확정 전까지 유계손실 수단이 안전.","analog":"2025-08-04","advisor":[{"title":"제로코스트 칼라 (통화옵션)","domain":"D2/D6","trust":"B","summary":"달러 풋 매수 + 달러 콜 매도로 선납 프리미엄을 0에 가깝게. 초기 현금부담이 없고 취소 시 손실이 프리미엄으로 유계라 가결제 단계에 적합.","source":"일반 외환 실무(개념 안내)"},{"title":"환변동보험 (K-SURE)","domain":"D4","trust":"A","summary":"환율 변동 위험을 공적 보험으로 관리. 보장환율 기준 정산이며 여신 없이도 이용 가능.","source":"한국무역보험공사(K-SURE)"},{"title":"수출바우처 · 정책자금","domain":"D5","trust":"A","summary":"중소 수출기업 대상 정책자금·지원사업. 자격요건에 따라 신청, 최신 공고는 기업마당에서 확인.","source":"기업마당(bizinfo)·중진공"}],"hedge":{"inst":"제로코스트 칼라 / 환변동보험","prod":"KB 통화옵션 / K-SURE 환변동보험","ratio":0,"notional":0,"fwd":1525.3,"swap":-3.48,"why":"가결제(취소가능) → 비대칭 청산(최대손실=프리미엄). 선물환 금지: 주문 취소 시 반대매매 손실에 노출됨."}},
+{"name":"수출 · E-277","sector":"여신 소진 · 담보부족","position":"export","budget":1500,"amount":200000,"horizon":42,"certainty":"confirmed","credit":false,"cash":false,"bbp":32.8,"es":2138786,"alert":false,"shares":{"V":82,"J":0,"C":18},"narr":"위험게이지 38/100 [정상]. 담보 부족으로 선물환 여신이 없어, 공적보증 기반 수단으로 라우팅.","analog":"2025-08-04","advisor":[{"title":"환변동보험 (K-SURE)","domain":"D4","trust":"A","summary":"환율 변동 위험을 공적 보험으로 관리. 은행 여신 한도가 없어도 이용 가능한 것이 핵심.","source":"한국무역보험공사(K-SURE)"},{"title":"여신창출 상생체인 (K-SURE 보증 → 선물환 한도)","domain":"D4","trust":"B","summary":"담보 부족으로 선물환 여신이 없는 기업은, 공적보증을 연계해 은행 신용위험을 낮추고 선물환 한도를 창출하는 방식을 검토. ※ 구체 상품·한도는 확인 필요(가정).","source":"KB 기업금융·K-SURE 협약(가정)"},{"title":"선물환 (표준 헤지)","domain":"D2","trust":"B","summary":"만기 환율을 고정하는 표준 헤지. 여신 한도가 확보되면 적용 가능.","source":"일반 외환 실무(개념 안내)"}],"hedge":{"inst":"K-SURE 환변동보험 + 여신창출 체인","prod":"K-SURE 환변동보험 + KB 선물환 특별한도(가정)","ratio":0,"notional":0,"fwd":1526.4,"swap":-2.33,"why":"여신 사각지대 → 공적보증으로 KB 선물환 특별한도 자동창출(가정·확인 필요). 한도는 실수요 범위 내. 여신 없는 SME를 배제하지 않는 상생금융."}},
+{"name":"수입 · I-118","sector":"여신여력 보유","position":"import","budget":1500,"amount":400000,"horizon":63,"certainty":"confirmed","credit":true,"cash":false,"bbp":64.3,"es":18234776,"alert":true,"shares":{"V":82,"J":0,"C":18},"narr":"위험게이지 38/100 [정상]이나, 수입 포지션에서 현재 환율(1,528.8)이 예산환율(1,500)을 이미 상회 → 원화 약세 지속 시 결제부담 급증. 이탈확률 64%로 능동 헤지 구간.","analog":"2025-08-04","advisor":[{"title":"선물환 (표준 헤지)","domain":"D2","trust":"B","summary":"수입 결제 만기에 맞춰 매입환율을 고정. 원화 약세 리스크를 직접 방어. 여신 한도 필요.","source":"일반 외환 실무(개념 안내)"},{"title":"거래국 리스크 · 무역통계 참고","domain":"D5","trust":"B","summary":"거래 상대국 경제·환율은 결제 리스크에 영향. 국가지표·무역통계는 한국은행 ECOS·관세청·KITA에서 확인.","source":"한국은행 ECOS·관세청·KITA"},{"title":"환변동보험 (K-SURE)","domain":"D4","trust":"A","summary":"환율 변동 위험을 공적 보험으로 관리. 여신 없이도 이용 가능.","source":"한국무역보험공사(K-SURE)"}],"hedge":{"inst":"선물환","prod":"KB 선물환(대고객)","ratio":0.5,"notional":200000,"fwd":1525.3,"swap":-3.48,"why":"여신 있음 + 현금 여유 → 표준 최저비용 헤지. 이탈확률 64%·기대손실 1,823만원으로 능동 커버리지 상향 권고(부분 50%부터)."}}
+]};
+
+const GC={"정상":"var(--good)","주의":"var(--warn)","경계":"var(--elev)","심각":"var(--crit)"};
+function bbpColor(v){return v<20?"var(--good)":v<40?"var(--warn)":v<60?"var(--elev)":"var(--crit)"}
+function won(n){ if(n>=1e8)return (n/1e8).toFixed(2)+"억원"; return Math.round(n/1e4).toLocaleString()+"만원"; }
+const ARC_LEN=Math.PI*95; // semicircle length
+
+function render(i){
+  const c=DATA.companies[i], m=DATA.market;
+  document.getElementById("tk-spot").textContent=m.spot.toFixed(1);
+  document.getElementById("tk-date").textContent=m.date;
+  document.getElementById("tk-ewi").innerHTML=m.ewi+' <span style="font-size:12px;color:'+GC[m.grade]+'">'+m.grade+'</span>';
+
+  // switch active
+  [...document.querySelectorAll(".co")].forEach((el,k)=>el.classList.toggle("on",k===i));
+
+  // ① BBP gauge
+  const col=bbpColor(c.bbp);
+  const arc=document.getElementById("arc");
+  arc.style.stroke=col;
+  arc.style.strokeDasharray=ARC_LEN;
+  arc.style.strokeDashoffset=ARC_LEN*(1-c.bbp/100);
+  const bbpEl=document.getElementById("bbp"); bbpEl.style.color=col;
+  animateNum(bbpEl,c.bbp,1);
+  const band=c.bbp<20?"낮음":c.bbp<40?"보통":c.bbp<60?"높음":"매우 높음";
+  document.getElementById("bbp-cap").textContent="이탈확률 · "+band;
+  const sc=document.getElementById("statechip");
+  sc.textContent=c.alert?"🔔 능동 헤지 구간":"모니터링";
+  sc.style.background=c.alert?"color-mix(in srgb,var(--crit) 20%,transparent)":"var(--panel-2)";
+  sc.style.color=c.alert?"var(--crit)":"var(--ink-mut)";
+  const unfav=c.position==="export"?"원화 강세 (S < K)":"원화 약세 (S > K)";
+  document.getElementById("hf-dir").textContent=unfav;
+  document.getElementById("hf-es").textContent=won(c.es);
+
+  // ② FX-EWI meter + decomposition
+  document.getElementById("ewi-mk").style.left="calc("+m.ewi+"% - 1.5px)";
+  const dec=document.getElementById("decomp");
+  const names={V:"변동성 국면",J:"점프 집중",C:"변동성 군집"};
+  dec.innerHTML=Object.keys(names).map(k=>
+    '<div class="row"><span>'+names[k]+'</span><div class="bar"><div class="fill" style="width:'+c.shares[k]+'%"></div></div><span class="num">'+c.shares[k]+'%</span></div>').join("");
+  document.getElementById("narr").textContent=c.narr;
+  document.getElementById("analog").textContent="◷ 과거 유사 국면: "+c.analog+" (성분 벡터 최근접)";
+
+  // ◆ context
+  const posK=c.position==="export"?"수출 (달러 롱)":"수입 (달러 숏)";
+  const certK=c.certainty==="confirmed"?"확정 (인보이스)":"가결제 (PO·취소가능)";
+  document.getElementById("ctx").innerHTML=[
+    ["현재 환율 / 예산환율",'<span class="'+(c.position==="export"?(m.spot>=c.budget?"":"dir"):(m.spot<=c.budget?"":"dir"))+'">'+m.spot.toFixed(1)+" / "+c.budget.toFixed(0)+"</span>"],
+    ["포지션",posK],["결제 규모","$"+(c.amount/1000)+"K"],["결제 만기",c.horizon+" 영업일"],
+    ["익스포저 확실성",certK],["여신 한도",c.credit?"보유":"없음 (담보부족)"]
+  ].map(r=>'<div class="r"><span class="k">'+r[0]+'</span><span class="val">'+r[1]+'</span></div>').join("");
+
+  // ③ advisor
+  document.getElementById("advisor").innerHTML=c.advisor.map(a=>
+    '<div class="it"><div class="t">'+a.title+' <span class="chip">'+a.domain+'</span><span class="chip '+a.trust+'">신뢰 '+a.trust+'</span></div><div class="s">'+a.summary+'</div><div class="src">출처: '+a.source+'</div></div>').join("");
+  document.getElementById("guard").textContent="※ 정보 제공이며 법률·세무·계약 효력에 대한 확정 자문이 아닙니다. 수치·자격은 시점에 따라 변동하며 최종 확인·실행은 KB 영업점·해당 기관을 통해 진행하세요.";
+
+  // ④ hedge
+  const h=c.hedge;
+  document.getElementById("h-inst").textContent=h.inst;
+  document.getElementById("h-prod").textContent="→ "+h.prod;
+  document.getElementById("h-ratio").textContent=(h.ratio*100)+"%";
+  document.getElementById("h-notional").textContent=h.notional?"$"+(h.notional/1000)+"K":"–";
+  document.getElementById("h-fwd").textContent=h.fwd.toFixed(1);
+  document.getElementById("h-swap").textContent=(h.swap>0?"+":"")+h.swap.toFixed(2);
+  document.getElementById("h-why").textContent=h.why;
+}
+
+function animateNum(el,to,dec){
+  if(matchMedia("(prefers-reduced-motion:reduce)").matches){el.textContent=to.toFixed(dec);return;}
+  const from=parseFloat(el.textContent)||0,t0=performance.now(),D=600;
+  function step(t){const p=Math.min(1,(t-t0)/D),e=1-Math.pow(1-p,3);el.textContent=(from+(to-from)*e).toFixed(dec);if(p<1)requestAnimationFrame(step);}
+  requestAnimationFrame(step);
+}
+
+// build switcher
+document.getElementById("switch").innerHTML=DATA.companies.map((c,i)=>{
+  const posK=c.position==="export"?"수출":"수입";
+  const certK=c.certainty==="confirmed"?"확정":"가결제";
+  return '<button class="co" data-i="'+i+'"><div class="nm">'+c.name+'</div><div class="meta">예산 '+c.budget+'원 · $'+(c.amount/1000)+'K · '+c.horizon+'영업일</div><div class="badges"><span class="badge pos">'+posK+'</span><span class="badge">'+certK+'</span><span class="badge">'+c.sector+'</span></div></button>';
+}).join("");
+document.querySelectorAll(".co").forEach(el=>el.addEventListener("click",()=>render(+el.dataset.i)));
+
+// theme toggle
+document.getElementById("themebtn").addEventListener("click",()=>{
+  const r=document.documentElement;
+  const cur=r.getAttribute("data-theme")|| (matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");
+  r.setAttribute("data-theme",cur==="dark"?"light":"dark");
+});
+
+render(0);
+</script>

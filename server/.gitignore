@@ -1,0 +1,7 @@
+# 런타임 산출물 — 커밋하지 않는다.
+# var/sanctions 는 외부 리스트 캐시(수만 건)라 레포에 넣을 이유가 없고,
+# audit.sqlite3 는 기기별 로그다.
+var/
+__pycache__/
+*.pyc
+.pytest_cache/

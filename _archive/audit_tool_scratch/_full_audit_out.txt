@@ -1,0 +1,258 @@
+﻿=== FILE ===
+chars 917135 lines 4288 bytes 995929
+script_blocks 2 [126807, 43254]
+style_blocks 2 [625105, 79523]
+unique_ids 214 total 214
+dups []
+functions 123
+func_list gammaln,betacf,betai,tcdf,rand01,randn,standardT,bbpProb,expShortfall,schedOf,bbpOf,esOf,hedgeRatio,gradeOf,eligible,denyReason,triage,regimesOf,rateLbl,fmtRate,stableUnipass,esc,josa,macroGrade,riskCol,macroScore,combineRisk,recurOf,renderMatrix,renderTicket,fieldErrEl,validateForm,renderFieldErrors,showInputGuard,readForm,splitN,schedDefaults,renderSched,readSched,schedErrs,renderTranches,renderTrack,won,bbpColor,compute,renderScreening,fitCount,_facts,_fitBlock,renderAdvisor,flagshipName,primaryProduct,renderNextSteps,renderLifecycle,renderTimeline,renderBeforeAfter,renderKPI,recommendPackage,evidenceLabel,evidenceSteps,applyGate,animNum,step,curCode,setRegime,applyRegime,renderRegimeNote,renderRegimeChips,fillPreset,renderCurNote,recompute,_docName,_docClear,_docApply,runOCR,_fetchJSON,localBrief,showLocalBrief,generateAdvisorBrief,logAudit,renderAudit,exportAudit,rmfbSave,renderRmFeedback,exportRmfb,maskPII,setMode,updateRoleBadge,requestMode,openRmAuth,closeRmAuth,submitRmAuth,showView,showDeep,selDT,_recsOf,_deal,_statusOf,_series,_sparkPts,_chartCard,_sparkSVG,_recurCard,renderDashboard,renderTrades,_tradeRows,renderProducts,_prodCards,renderFx,_fxRenderAlerts,_isoDate,_setRateStatus,refreshRates,toast,renderPolicy,_polCards,renderReport,_rptBody,_rptPreview,renderSupport,renderNotifs,_setNotif,nameTables
+CONSTS ['AI_EXTERNAL_CALL_ENABLED', 'FX_ADVISOR_PROXY', 'MAXIT', 'TRADING', 'ELIG', 'MARKET', 'GCOL', 'HIST_USD', 'HIST_EUR', 'HIST_JPY', 'HIST', 'REG', 'R_HOME', 'CUR', 'REF_SPOT', 'ES_BIAS', 'CALIB_DIR', 'CALIB', 'COUNTRY', '_RATING', '_WM', 'GRADE_COL', 'TRADE_STATS', 'TARIFF', 'FTA', 'PRESETS', 'RECUR', 'W', 'FIELD_RULES', 'H', 'HS', 'C', 'W', 'X', 'Y', 'ARC', 'SANC_LIST_ASOF', 'SANC_CTY', 'ST_COL', 'SRC_CLASS', 'SEG_ORDER', '_FACT_PAY', 'F', 'HEDGED', 'H', 'R', 'DOC_FIELDS', '_BAD_PHRASE', 'P', 'ROADMAP', 'PHASE_LBL', 'GOV_AI', 'GOV_FCP', 'GOV_GATE', 'AUDIT_KEY', 'RMFB_KEY', 'RMFB_REASONS', 'RM_PASS', 'W', 'X']
+data-views ['copilot', 'dashboard', 'fx', 'policy', 'products', 'report', 'support', 'trades']
+modes ['customer']
+label_for 21
+inputs 27
+buttons 37
+button_no_type 36
+aria_count 77
+role_count 13
+innerHTML 87
+textContent_assign 83
+fetch 1
+localStorage 5
+media_queries 26
+viewport True
+lang <html lang="ko">
+views ['view-copilot', 'view-dashboard', 'view-trades', 'view-products', 'view-fx', 'view-policy', 'view-report', 'view-support']
+
+=== FEATURE COUNTS ===
+decision-hero	1
+hero-decision	2
+trust-strip	3
+calib-lite	5
+in-pay	7
+in-hs	7
+in-biz	5
+in-margin	6
+in-split	7
+recommendPackage	5
+renderTicket	2
+maskPII	5
+AI_EXTERNAL	2
+walk-forward	3
+prefers-reduced-motion	4
+focus-visible	12
+color-scheme	0
+data-theme	7
+themebtn	4
+dark	4
+serviceWorker	0
+manifest	0
+og:	0
+canonical	0
+Content-Security	0
+nonce	0
+strict-transport	0
+postMessage	0
+WebSocket	0
+IndexedDB	0
+print(	0
+window.print	0
+@media print	1
+keyboard	0
+keydown	6
+Escape	4
+skip	4
+skip-link	0
+sr-only	2
+error boundary	0
+try{	7
+catch	6
+ELIG	14
+fitCount	4
+primaryProduct	10
+OCR	22
+UNIPASS	2
+sanctions	0
+?쒖옱	13
+SSO	10
+RBAC	7
+payload	6
+global seller	0
+湲濡쒕쾶???16
+CNY	18
+VND	10
+EUR	37
+JPY	29
+settled	0
+泥닿껐 ??5
+post-hedge	0
+濡ㅼ삤踰?5
+recurring	0
+諛섎났 寃곗젣	2
+onboarding	0
+?쒗넗由ъ뼹	0
+empty-state	0
+toast	29
+loading	0
+skeleton	0
+i18n	0
+lang=	1
+en	1115
+PWA	2
+offline	0
+unit test	0
+jsdom	0
+chart.js	0
+d3	167
+canvas	0
+pdf	4
+PDF	10
+blob:	0
+clipboard	0
+navigator.clipboard	0
+history.pushState	0
+hashchange	0
+IntersectionObserver	0
+ResizeObserver	0
+debounce	0
+throttle	0
+zod	3
+schema	0
+XSS	5
+DOMPurify	0
+esc(	132
+function esc	1
+
+AI_EXTERNAL AI_EXTERNAL_CALL_ENABLED = false
+FX_ADVISOR_PROXY FX_ADVISOR_PROXY = "https://fx-sentinel.planbesides.workers.dev"
+FX_RATES_PROXY FX_RATES_PROXY = ""
+RM_PASS RM_PASS="1234"
+PRESET names ['?쒕튆?뺣?', '??깅Т??, '?뚮쭩?꾩옄', '?섎옒?곸궗', '?섎뒛??]
+COUNTRY keys ['誘멸뎅', '踰좏듃??, '以묎뎅', '?쇰낯', '湲고?']
+TRADE_STATS True
+HS-like codes sample ['1234', '1450', '6109', '7408', '8483', '8542']
+
+=== ERROR / VALIDATION ===
+aria-invalid 2
+err- 4
+?낅젰???뺤씤??1
+NaN 7
+
+=== A11Y / MOBILE ===
+touch-action 0
+min-height:44 24
+prefers-contrast 0
+prefers-reduced-motion 4
+forced-colors 0
+outline 9
+tabindex 4
+aria-live 7
+aria-expanded 3
+aria-controls 4
+aria-selected 3
+aria-current 3
+aria-busy 0
+aria-hidden 5
+
+=== SECURITY ===
+eval False
+document.write False
+innerHTML with user True
+https:// 10
+http:// 1
+ALLOW_ORIGIN False
+
+=== SIZE ===
+js_chars 170061 css_chars 704628
+base64_hits 2
+approx_html_markup 42446
+
+=== DEEP TABS ===
+
+=== DOMAIN TERMS ===
+?명솕?덇툑	9
+?명솕?異?8
+?섏엯?좎궛??0
+?섏텧?섏뼱??9
+?ㅺ퀬	0
+Nego	5
+Payment Usance	12
+?밸퀎異쒖뿰	21
+湲濡쒕쾶???16
+?섎??숇낫??24
+?섏텧諛붿슦泥?3
+?좎슜??17
+D/A	5
+D/P	7
+O/A	9
+濡ㅼ삤踰?5
+遺遺꾪빐吏	1
+?ㅼ닔??42
+?멸뎅?섍굅?섎쾿	10
+媛먯궗濡쒓렇	17
+紐⑤뜽踰꾩쟾	4
+ECE	16
+Brier	5
+PBO	5
+DSR	0
+before/after	1
+?뚯씪??KPI	4
+沅뚰븳 留ㅽ듃由?뒪	2
+SSO	10
+?먯옣	20
+CRM	14
+UNIPASS	2
+
+=== PYTHON MODULES ===
+agents.py	lines=230	bytes=12393
+backtest.py	lines=150	bytes=7142
+bbp.py	lines=222	bytes=11722
+build_currencies.py	lines=317	bytes=15928
+calibrate.py	lines=121	bytes=5059
+calibrate_bbp.py	lines=93	bytes=4295
+components.py	lines=179	bytes=8783
+country.py	lines=94	bytes=4826
+data_loader.py	lines=97	bytes=3616
+fx.py	lines=94	bytes=4967
+fx_ewi.py	lines=82	bytes=3323
+knowledge_base.py	lines=110	bytes=6952
+labels.py	lines=46	bytes=1865
+llm.py	lines=75	bytes=2546
+rates.py	lines=48	bytes=2099
+run_phase1.py	lines=128	bytes=6285
+run_phase2.py	lines=107	bytes=5657
+run_s7_honest.py	lines=124	bytes=6678
+validate_bbp.py	lines=146	bytes=7274
+validate_p2.py	lines=146	bytes=7500
+
+=== TESTS ===
+doc_sync_check.py	lines=97
+mobile_cdp_test.py	lines=162
+text_zoom_test.py	lines=105
+ui_smoke_test.py	lines=1485
+  ok( calls 232
+
+=== BBP PARITY CHECK ===
+js_bbp_has_iz True
+js_bbp_has_tcdf True
+js_bbp_snippet  |   const tau=hbd/TRADING, denom=sigAnn*Math.sqrt(tau); |   if(denom<=0)return NaN; const z=(Math.log(K)-Math.log(spot))/denom; |   let p = pos==="export"? tcdf(z,NU) : 1-tcdf(z,NU); if(iz)p*=0.7; |   return Math.min(Math.max(p,0),1);
+
+=== AGENT WIRING ===
+Sentinel 3
+Analyst 1
+Advisor 12
+Hedge 2
+4-agent 2
+?먯씠?꾪듃 0
+
+=== CUSTOMER FIRST SCREEN ===
+verdict 23
+easy-terms 0
+?ъ슫 ?⑹뼱 2
+glossary 0
+onboard 0
+help tip 0
+?댄똻 0
+tooltip 0
+
+DONE

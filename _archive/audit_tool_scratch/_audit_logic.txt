@@ -1,0 +1,630 @@
+============================================================
+bbpProb
+============================================================
+1373: function bbpProb(spot,K,sigAnn,hbd,pos,iz){
+1374:   const tau=hbd/TRADING, denom=sigAnn*Math.sqrt(tau);
+1375:   if(denom<=0)return NaN; const z=(Math.log(K)-Math.log(spot))/denom;
+1376:   let p = pos==="export"? tcdf(z,NU) : 1-tcdf(z,NU); if(iz)p*=0.7;
+1377:   return Math.min(Math.max(p,0),1);
+1378: }
+
+============================================================
+expShortfall
+============================================================
+1379: function expShortfall(spot,K,sigAnn,hbd,pos){
+1380:   _seed=987654321;                   // 결정론화: 매 호출 동일 시드에서 시작 → 재계산해도 ES 불변(2.4)
+1381:   const tau=hbd/TRADING, sd=sigAnn*Math.sqrt(tau), scale=sd/Math.sqrt(NU/(NU-2)), n=12000; let s=0;
+1382:   for(let i=0;i<n;i++){const t=standardT(NU),ST=spot*Math.exp(scale*t);
+1383:     s+= pos==="export"?Math.max(K-ST,0):Math.max(ST-K,0);} return s/n;
+1384: }
+
+============================================================
+hedgeRatio
+============================================================
+1385: function hedgeRatio(la){ return la<0.15?0:(la<0.35?0.5:1.0); }
+
+============================================================
+triage
+============================================================
+1387: function triage(cert,credit,cash){
+1388:   if(cert==="provisional")return["제로코스트 칼라 / 환변동보험","KB 통화옵션 / K-SURE 환변동보험","가결제(취소가능) → 비대칭 청산(최대손실=프리미엄). 선물환 금지: 취소 시 반대매매 손실 노출"];
+1389:   if(!credit)return["환변동보험 + KB 특별출연 수출입 금융지원","K-SURE 환변동보험 · KB 특별출연 수출입 금융지원","여신 사각지대 → 여신 없이 K-SURE 공적보험으로 환리스크 관리 + KB국민은행 특별출연 수출입 금융지원(K-SURE 보증 기반) 검토. 헤지 금액은 실수요 범위 내"];
+1390:   if(cash)return["제로코스트 칼라","KB 통화옵션","여신 있음 + 프리미엄 현금부담 → 풋매수=콜매도 상쇄로 선납비용 0"];
+1391:   return["선물환","KB 선물환(대고객)","여신 있음 + 현금 여유 → 표준 최저비용 헤지"];
+1392: }
+
+============================================================
+compute
+============================================================
+1551: function compute(){
+1552:   const f=readForm(), m=MARKET;
+1553:   const cur=CUR[f.currency]||CUR.USD;
+1554:   m.spot=cur.spot;                                    // 통화별 현재가
+1555:   const regMult=REGIMES[regimeIdx].sigAnn/0.098;      // 국면 = USD 기준 상대 변동성 배수
+1556:   const sigEff=cur.sig*regMult;                       // 통화 baseline σ × 국면 배수
+1557:   const bbp=bbpProb(m.spot,f.budget,sigEff,f.horizon,f.pos,m.iz)*100;
+1558:   const esUnit=expShortfall(m.spot,f.budget,sigEff,f.horizon,f.pos);
+1559:   const esTotal=esUnit*f.amount/cur.unit;            // 26.4: 호가단위 보정(JPY/VND unit=100)
+1560:   const la=(m.ewi/100)*(bbp/100), hr=hedgeRatio(la); // LossAlert=(EWI/100)×BBP
+1561:   const alert=(m.ewi>=60)||(bbp>=40);                // 26.1: agents.py SentinelAgent와 동일 경보 임계
+1562:   const badBudget = f.pos==="export"? m.spot<f.budget : m.spot>f.budget;  // 예산 대비 불리 여부(단일 정의)
+1563: 
+1564:   // 상단 티커(통화·국면 반영)
+1565:   $("whoami-co").textContent="(주)"+f.name;   // 26.7: 로그인 법인 = 선택 기업 동기화
+1566:   $("tk-pair").textContent="현재 "+cur.label;
+1567:   $("tk-spot").textContent=fmtRate(cur.spot);
+1568:   $("tk-sig").textContent=(sigEff*100).toFixed(1)+"%";
+1569:   const gEwi=gradeOf(m.ewi);
+1570:   $("tk-ewi").innerHTML=Math.round(m.ewi)+' <span style="font-size:12px;color:'+GCOL[gEwi]+'">'+gEwi+'</span>';
+1571: 
+1572:   // ① BBP gauge
+1573:   const col=bbpColor(bbp); const arc=$("arc");
+1574:   arc.style.stroke=col; arc.style.strokeDasharray=ARC; arc.style.strokeDashoffset=ARC*(1-bbp/100);
+1575:   const be=$("bbp"); be.style.color=col; animNum(be,bbp,1);
+1576:   const band=bbp<20?"낮음":bbp<40?"보통":bbp<60?"높음":"매우 높음";
+1577:   $("bbp-cap").textContent="예산환율 초과 가능성 · "+band;
+1578:   $("bbp-gauge-wrap").setAttribute("aria-label","예산환율 초과 가능성 "+bbp.toFixed(0)+"퍼센트, "+band+(alert?", 헤지 검토 권장":", 안정"));
+1579:   const sc=$("statechip"); sc.textContent=alert?"🔔 헤지 검토 권장":"안정적";
+1580:   sc.style.background=alert?"color-mix(in srgb,var(--crit) 18%,transparent)":"var(--panel-2)";
+1581:   sc.style.color=alert?"var(--crit)":"var(--ink-mut)";
+1582:   // 26.3: '현재 이미 불리' 상태를 '만기 이탈확률(BBP)'과 분리 표기
+1583:   // 유불리는 badBudget(포지션별 정의), 상회/미달은 부호 — 수출(불리=예산 미달)에서 문구가 뒤집히지 않게 분리
+1584:   const gapWon=m.spot-f.budget;  // +면 현재가가 예산 상회
+1585:   $("hf-dir").textContent=(badBudget?"이미 불리 · ":"여유 · ")+"예산 "+(gapWon>=0?"+":"−")+fmtRate(Math.abs(gapWon))+"원 "+(gapWon>=0?"상회":"미달");
+1586:   $("hf-es").textContent=won(esTotal);
+1587: 
+1588:   // #7 상단 판정 배너 — 위험/안전 + 다음 할 일 1개
+1589:   const vb=$("verdict");
+1590:   if(vb){ vb.className="verdict "+(alert?"warn":"ok");
+1591:     vb.innerHTML='<span class="v-ic">'+(alert?"🔔":"✅")+'</span>'
+1592:       +'<div class="v-txt"><span class="vh">'+(alert?"지금 주의가 필요합니다":"지금은 안정적입니다")+'</span> · 예산환율 초과 가능성 <b>'+bbp.toFixed(0)+'%</b> · 초과 시 예상 부담액 <b>'+won(esTotal)+'</b></div>'
+1593:       +'<div class="v-act">'+(alert?"권장: 환리스크 관리 상담":"권장: 모니터링 유지")+'</div>';
+1594:   }
+1595:   // #2 의사결정 도우미 — 헤지 비용 vs 무헤지 리스크 + 액션 1개
+1596:   // 마진 잠식 — 사장님 언어: "환율이 이 거래 마진의 N%를 위협"
+1597:   const dealKRW=(f.amount/cur.unit)*cur.spot;              // 거래 규모(원화 환산)
+1598:   const marginKRW=dealKRW*((f.margin>0?f.margin:8)/100);  // 예상 마진 금액(기본 8%)
+1599:   const erosion=marginKRW>0?Math.min(esTotal/marginKRW*100,999):0;  // 이탈 시 부담이 마진의 몇 %
+1600:   const eColor=erosion>=50?"var(--crit)":erosion>=25?"var(--elev)":"var(--good)";
+1601:   const dcm=$("dc-margin");
+1602:   if(dcm) dcm.innerHTML=marginKRW>0?('이 거래 예상 마진 <b>~'+won(marginKRW)+'</b> · 환율 변동이 마진의 <b style="color:'+eColor+'">'+erosion.toFixed(0)+'%</b>까지 위협'):'';
+1603:   const dec=$("decide"), decA=$("decide-act");
+1604:   if(dec){
+1605:     const hedgeCostKRW=(f.amount/cur.unit)*cur.spot*0.003*hr;   // 대고객 스프레드 0.3% 가정(데모)
+1606:     const residual=esTotal*(1-hr);
+1607:     if(hr>0){
+1608:       dec.innerHTML='<div class="dc-col"><div class="dc-k">지금 헤지 안 하면</div><div class="dc-v risk">최대 부담 '+won(esTotal)+'</div><div class="dc-s">만기까지 환율에 그대로 노출</div></div>'
+1609:         +'<div class="dc-vs">vs</div>'
+1610:         +'<div class="dc-col after"><div class="dc-k">부분 헤지('+Math.round(hr*100)+'%) 하면</div><div class="dc-v">비용 ~'+won(hedgeCostKRW)+'</div><div class="dc-s">남는 리스크 ~'+won(residual)+' · 비용은 실제 스프레드로 확정</div></div>';
+1611:       decA.textContent="권고: 지금 부분 "+Math.round(hr*100)+"% 헤지 상담을 권장합니다. 소액 비용으로 큰 부담을 줄일 수 있습니다.";
+1612:     } else {
+1613:       dec.innerHTML='<div class="dc-col"><div class="dc-k">현재 노출</div><div class="dc-v">초과 시 부담 ~'+won(esTotal)+'</div><div class="dc-s">초과 가능성이 낮은 구간</div></div>'
+1614:         +'<div class="dc-vs">→</div>'
+1615:         +'<div class="dc-col after"><div class="dc-k">지금 권장</div><div class="dc-v">모니터링 유지</div><div class="dc-s">급변 시 알림·재진단</div></div>';
+1616:       decA.textContent="권고: 초과 가능성이 낮아 지금은 헤지보다 모니터링이 적절합니다.";
+1617:     }
+1618:   }
+1619:   // 급변 시나리오(스트레스) — 고객 체감: 환율이 불리하게 5% 튀면 부담·마진이 얼마나 커지나
+1620:   const shockEl=$("dc-shock");
+1621:   if(shockEl){
+1622:     const shockSpot=f.pos==="import"? m.spot*1.05 : m.spot*0.95;   // 불리 방향 5% 급변
+1623:     const shockES=expShortfall(shockSpot,f.budget,sigEff,f.horizon,f.pos)*f.amount/cur.unit;
+1624:     const shockEro=marginKRW>0?Math.min(shockES/marginKRW*100,999):0;
+1625:     shockEl.innerHTML='⚡ <b>환율이 불리하게 5% 급변하면</b> → 예상 부담 '+won(esTotal)+' → <b style="color:var(--crit)">'+won(shockES)+'</b>'
+1626:       +(marginKRW>0?' · 마진 잠식 '+erosion.toFixed(0)+'% → <b style="color:var(--crit)">'+shockEro.toFixed(0)+'%</b>':'')
+1627:       +' <span style="color:var(--ink-faint)">— 급변기 대응이 이 서비스의 진짜 가치</span>';
+1628:   }
+1629: 
+1630:   // context
+1631:   const certK=f.cert==="confirmed"?"확정 (인보이스)":"가결제 (취소가능)";
+1632:   $("ctx").innerHTML=[
+1633:     ["현재환율 / 예산환율",'<span class="'+(badBudget?"dir":"")+'">'+fmtRate(m.spot)+" / "+fmtRate(f.budget)+"</span>"],
+1634:     ["결제 만기",f.horizon+" 영업일"],
+1635:     ["거래 확정 여부",certK]
+1636:   ].map(r=>'<div class="r"><span class="k">'+r[0]+'</span><span class="val">'+r[1]+'</span></div>').join("");
+1637: 
+1638:   // ② XAI — 시장 공통 (V/J/C)
+1639:   $("ewi-mk").style.left="calc("+m.ewi+"% - 1.5px)";
+1640:   const nm={V:"변동성 국면",J:"점프 집중",C:"변동성 군집"};
+1641:   $("decomp-mkt").innerHTML=Object.keys(nm).map(k=>
+1642:     '<div class="row"><span>'+nm[k]+'</span><div class="bar"><div class="fill mkt" style="width:'+m.shares[k]+'%"></div></div><span class="num">'+m.shares[k]+'%</span></div>').join("");
+1643:   // ② XAI — 우리 회사 고유 노출 (프로필별 상이)
+1644:   const tau=f.horizon/TRADING, sigStep=sigEff*Math.sqrt(tau)*m.spot;  // 26.2: BBP와 동일 σ(sigEff) 사용
+1645:   const cushion=(f.pos==="export"? (m.spot-f.budget) : (f.budget-m.spot)); // +면 여유
+1646:   const gapInt=Math.round(Math.min(Math.max(50-(cushion/sigStep)*45,4),100));   // 이격이 불리할수록↑
+1647:   const horInt=Math.round(Math.min(Math.max(100*f.horizon/90,6),100));          // 만기 길수록↑
+1648:   const dirInt=Math.round(Math.min(Math.max(bbp,4),100));                        // 방향 노출=이탈확률
+1649:   const own={"예산환율 이격":gapInt,"결제 만기":horInt,"방향 노출":dirInt};
+1650:   $("decomp-own").innerHTML=Object.keys(own).map(k=>
+
+============================================================
+recommendPackage
+============================================================
+1927: function recommendPackage(f,ctx){
+1928:   const R=[], imp=f.pos==="import", exp=f.pos==="export", pay=f.pay;
+1929:   const bbpN=Math.round(ctx.bbp), cur=f.currency||"USD", hs=f.hs||"";
+1930:   const usanceCur=["USD","EUR","JPY","CNY"].includes(cur);
+1931:   const seller = f.biz==="sole" || /marketplace|셀러|amazon|정산|플랫폼/i.test((f.party||"")+" "+(f.name||""));
+1932:   const recvRisk = exp && (pay==="OA"||pay==="DA"||pay==="DP");
+1933:   const macroWarn = ctx.macroGrade==="주의"||ctx.macroGrade==="경계";
+1934:   const gateOn = !!ctx.gate;
+1935:   // 서류 준비율 데모 규칙: 게이트 확정 시 앞쪽 서류 확인, 미확정 시 부분
+1936:   const readiness = docs => { if(!docs||!docs.length) return null;
+1937:     const n = gateOn ? Math.min(docs.length, Math.max(2, Math.ceil(docs.length*0.6))) : Math.min(docs.length, 1);
+1938:     return {n:n, m:docs.length, confirmed:docs.slice(0,n), missing:docs.slice(n)}; };
+1939: 
+1940:   /* ═══ 1) 거래유형별 KB 수출입금융 상품 (라우팅 주인공) ═══ */
+1941:   if(imp){
+1942:     if(usanceCur){
+1943:       const confirmed=f.cert==="confirmed", termOk=f.horizon<=126;   // 6개월(약 126영업일) 이내 자격 조건
+1944:       const usSt = !termOk ? "보류" : (confirmed?"추천":"검토");
+1945:       const rec={t:"KB Payment Usance", cat:"수입금융", st:usSt, src:"KB 공식상품",
+1946:         kbPath:"기업뱅킹 › 외환 › 수출입 › KB Payment Usance", ref:"https://obiz.kbstar.com/quics?page=C102065",
+1947:         why:["수입 "+(confirmed?"확정":"진행")+" 건 · "+(pay==="TT"?"T/T 송금방식":pay)+" · "+cur+" 결제","결제 만기 "+f.horizon+"영업일"+(termOk?" · 신청일로부터 6개월 이내":" · 기본 6개월 초과 가능")],
+1948:         docs:["신청서","수입계약서","Invoice","운송서류"],
+1949:         channels:["영업점","기업인터넷뱅킹","전자무역(EDI)"],
+1950:         rmChecks:["포괄외화지급보증 한도","금리","인수수수료·전신료","내부 신용심사"],
+1951:         next:termOk?"KB Payment Usance 한도·요율 확인":"만기 조건 재확인 또는 대체 수입금융 검토"};
+1952:       if(!termOk){ rec.block={reason:"기간 조건 확인 필요", detail:"입력 만기 "+f.horizon+"영업일은 기본 6개월(약 126영업일) 이내 조건을 초과할 수 있음 — 최장 1년 이내 연장 가능 여부는 RM 확인 필요", unlock:"만기 조건 재확인 또는 대체 수입금융 검토"}; }
+1953:       else { rec.fit={score:confirmed?86:70, pass:["사전/사후 송금방식 수입기업","신청통화 "+cur,"6개월 이내 충족"], unknown:["포괄외화지급보증 한도","내부 신용심사"]}; }
+1954:       R.push(rec);
+1955:     } else {
+1956:       R.push({t:"KB Payment Usance", cat:"수입금융", st:"보류", src:"KB 공식상품",
+1957:         kbPath:"기업뱅킹 › 외환 › 수출입 › KB Payment Usance", ref:"https://obiz.kbstar.com/quics?page=C102065",
+1958:         why:["수입 · "+cur+" 결제"],
+1959:         block:{reason:"신청통화 미지원", detail:cur+" 결제는 KB Payment Usance 신청통화(USD/EUR/JPY/CNY) 범위 밖 — 별도 수입금융 또는 해외송금 검토 필요", unlock:"USD/EUR/JPY/CNY 결제 전환 또는 대체 수입금융 확인"},
+1960:         next:"대체 수입금융/해외송금 검토"});
+1961:     }
+1962:     if(pay==="LC"){
+1963:       R.push({t:"수입신용장(L/C) 개설", cat:"수입금융", st:"추천", src:"KB 공식상품",
+1964:         kbPath:"기업뱅킹 › 외환 › 수출입 › 수입신용장", why:["수입 + L/C — 대금지급 보장·개설"],
+1965:         docs:["개설신청서","수입계약서","사업자등록증"], channels:["영업점","기업인터넷뱅킹"],
+1966:         rmChecks:["개설 한도","개설수수료","담보/여신"], next:"L/C 개설 한도 검토"});
+1967:       R.push({t:"운송서류인수(L/G)", cat:"수입금융", st:"검토", src:"KB 공식상품",
+1968:         why:["선적서류 도착 전 통관 필요 시 수입화물선취보증"], docs:["L/G 신청서","B/L 사본"], next:"L/G 발급 조건 확인"});
+1969:     }
+1970:   }
+1971:   if(exp){
+1972:     if(f.credit==="no" && f.biz!=="sole"){
+1973:       R.push({t:"KB국민은행 특별출연 수출입 금융지원", cat:"수출금융", st:"RM확인", src:"KB 공식상품",
+1974:         kbPath:"기업뱅킹 › 외환 › 수출입 › 특별출연 수출입 금융지원", ref:"https://obiz.kbstar.com/quics?page=C101674",
+1975:         why:["여신 부족 수출기업 · 확정 수출채권","K-SURE 보증서 기반 수출입금융 검토"],
+1976:         fit:{score:64, pass:["수출기업","확정 수출채권"], unknown:["보증종목","수출실적 요건","KB 내부 신용심사","금리/수수료/한도"]},
+1977:         docs:["수출계약서","Invoice","선적서류","수출실적","K-SURE 보증서 또는 심사결과"],
+1978:         channels:["영업점"], rmChecks:["보증종목","수출실적 요건","KB 내부 신용심사","금리/수수료/한도"],
+1979:         note:"연계 가능 업무: 무신용장 수출환어음매입 · 무역금융 · 원화대출 · 일반운전자금대출",
+1980:         next:"K-SURE 보증 가능 여부 + KB 특별출연 한도 확인"});
+1981:     }
+1982:     if(pay==="OA"){
+1983:       const sole=f.biz==="sole";  // 개인 마켓플레이스 셀러는 수출환어음매입이 부적합 → 검토로 강등, 글로벌셀러 우대가 1순위
+1984:       R.push({t:"수출환어음매입 / O/A 매입", cat:"수출금융", st:sole?"검토":"추천", src:"KB 공식상품",
+1985:         kbPath:"기업뱅킹 › 외환 › 수출입 › 수출환어음매입",
+1986:         why:sole?["플랫폼 정산은 전통적 수출환어음과 성격이 달라 적용 여부 확인 필요"]:["수출 + O/A(무신용장) — 수출채권 조기 대금화"],
+1987:         docs:["수출계약서","선적서류","Invoice"], channels:["영업점","기업인터넷뱅킹"],
+1988:         rmChecks:["매입 한도","매입 요율","상환청구 조건"], next:sole?"플랫폼 정산 건 매입 가능 여부 확인":"매입 한도·요율 확인"});
+1989:     } else if(pay==="LC"){
+1990:       R.push({t:"수출환어음매입(L/C Nego)", cat:"수출금융", st:"추천", src:"KB 공식상품",
+1991:         kbPath:"기업뱅킹 › 외환 › 수출입 › 수출환어음매입", why:["수출 + L/C — Nego(매입) 통한 조기 회수"],
+1992:         docs:["신용장 원본","선적서류","환어음"], channels:["영업점"], rmChecks:["Nego 한도","하자 여부","환가료"], next:"Nego 한도·하자 확인"});
+1993:     } else if(pay==="DA"||pay==="DP"){
+1994:       R.push({t:"추심결제("+(pay==="DA"?"D/A 인수도":"D/P 지급도")+") 무역금융", cat:"수출금융", st:"검토", src:"KB 공식상품",
+1995:         why:["추심방식 — 대금회수 시점 리스크, 자금·보험 병행"], docs:["추심지시서","선적서류"], next:"추심 조건·보험 병행 검토"});
+1996:     } else if(pay==="TT"){
+1997:       R.push({t:"무역금융(수출)", cat:"수출금융", st:"검토", src:"KB 공식상품",
+1998:         why:["수출 + T/T — 생산·구매자금 무역금융 검토"], docs:["수출계약","수출실적"], next:"무역금융 한도 검토"});
+1999:     }
+2000:   }
+2001: 
+2002:   /* ═══ 2) 외환 헤지 ═══ */
+2003:   if(f.cert==="provisional"){
+2004:     R.push({t:"제로코스트 칼라(통화옵션)", cat:"외환헤지", st:"상담후보", src:"일반 외환 실무",
+2005:       why:["가결제(취소가능) — 비대칭 청산(최대손실=프리미엄)","초과 가능성 "+bbpN+"%"], docs:["PO/발주서","옵션 적합성 확인"],
+2006:       rmChecks:["프리미엄·증거금","손실구조 설명","적합성"], next:"KB 통화옵션 상담"});
+2007:     R.push({t:"선물환", cat:"외환헤지", st:"차단", src:"외국환거래법 실수요 원칙",
+2008:       why:["가결제 단계 — 실수요 미확정"],
+2009:       block:{reason:"실수요 미확정", detail:"PO 단계 거래는 취소 가능성이 있어 선물환 체결 시 반대매매 손실이 발생할 수 있음", unlock:"인보이스 확정 + 실수요 증빙 OCR/HITL 완료"},
+2010:       next:"인보이스 확정 후 재검토"});
+2011:   } else if(f.credit==="no"){
+2012:     R.push({t:"환변동보험(K-SURE)", cat:"외환헤지", st:"추천", src:"외부기관(K-SURE)",
+2013:       why:["여신 한도 없음 — 은행 여신 없이 공적보험으로 환리스크 관리"], docs:["수출계약/Invoice","수출신고필증","K-SURE 보험 대상 확인"],
+2014:       rmChecks:["보험료","보장범위","가입 요건"], next:"K-SURE 환변동보험 상담"});
+2015:     R.push({t:"선물환", cat:"외환헤지", st:"제외", src:"일반 외환 실무",
+2016:       why:["선물환 여신 한도 없음"],
+2017:       block:{reason:"여신 한도 부재", detail:"선물환은 여신(선물환 한도)이 필요 — 무여신 상태에서는 체결 불가", unlock:"KB 특별출연/보증 기반 여신 확보 시 적용"},
+2018:       next:"여신 확보 시 적용"});
+2019:   } else if(f.cash==="tight"){
+2020:     R.push({t:"제로코스트 칼라", cat:"외환헤지", st:"상담후보", src:"일반 외환 실무",
+2021:       why:["프리미엄 현금부담 — 풋매수=콜매도 상쇄로 선납비용 0"], docs:["옵션 적합성","숏콜 여신 한도"],
+2022:       rmChecks:["증거금·여신","손실구조 설명"], next:"KB 통화옵션 상담"});
+2023:     R.push({t:"선물환", cat:"외환헤지", st:"검토", src:"일반 외환 실무",
+2024:       why:["여신 보유 — 표준 최저비용, 현금흐름 확인 필요","초과 가능성 "+bbpN+"%"], docs:["인보이스/계약서","여신 한도"],
+2025:       rmChecks:["실제 고시 스왑포인트","대고객 스프레드"], next:"RM 고시 스왑포인트 확인"});
+2026:   } else {
+
+============================================================
+primaryProduct
+============================================================
+1866: function primaryProduct(recs,biz){
+1867:   return (biz==="sole" && recs.find(r=>r.t==="KB 글로벌셀러 우대서비스"))
+1868:     || recs.find(r=>r.src==="KB 공식상품"&&["추천","RM확인"].includes(r.st))
+1869:     || recs.find(r=>r.src==="KB 공식상품")
+1870:     || recs.find(r=>["추천","RM확인","상담후보"].includes(r.st))
+1871:     || recs[0];
+1872: }
+
+============================================================
+generateAdvisorBrief
+============================================================
+2204: async function generateAdvisorBrief(){
+2205:   const out=$("ai-out"), btn=$("ai-gen");
+2206:   if(!_advisorPayload){ out.innerHTML='<div class="ai-empty">먼저 위에서 분석을 실행하세요.</div>'; return; }
+2207:   if(!FX_ADVISOR_PROXY){ showLocalBrief("AI 생성 서비스 미연결 · 오프라인 모드"); return; }
+2208:   btn.disabled=true; const bt=btn.textContent; btn.textContent="생성 중…";
+2209:   out.innerHTML='<div class="ai-loading"><span class="dot"></span><span class="dot"></span><span class="dot"></span> KB Star FX AI 어드바이저가 브리핑을 작성 중…</div>';
+2210:   try{
+2211:     const data=await _fetchJSON(FX_ADVISOR_PROXY.replace(/\/$/,"")+"/advisor",{
+2212:       method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(_advisorPayload)}, 8000);
+2213:     if(data && (data.blocked || (data.reply && _BAD_PHRASE.test(data.reply)))){   // 이중 가드레일 — 부적절 표현 차단
+2214:       logAudit("AI 브리핑 가드레일 차단", (_advisorPayload.profile.name||""));
+2215:       showLocalBrief("AI 생성문이 가이드라인(수익보장·투자권유 표현 금지)에 저촉 — 차단 후 로컬 요약으로 대체");
+2216:     } else if(data && data.reply){
+2217:       out.innerHTML='<div class="ai-reply">'+esc(data.reply).replace(/\n/g,"<br>")+'</div>'
+2218:         +'<div class="ai-meta">생성 모델 '+esc(data.model||"Workers AI")+' · 근거: 위 룰엔진 BBP·상품 후보(FACTS) · 가드레일 통과 · '+new Date().toLocaleTimeString("ko-KR",{hour12:false})+'</div>';
+2219:       logAudit("AI 어드바이저 브리핑 생성", (_advisorPayload.profile.name||"")+" · "+(data.model||""));
+2220:     } else {
+2221:       logAudit("AI 요약 폴백 상세(내부)", "생성 응답 이상: "+((data&&data.error)||"empty reply"));
+2222:       showLocalBrief("AI 생성 서비스 일시 오류");
+2223:     }
+2224:   }catch(e){
+2225:     // 원문 오류(Failed to fetch 등)는 감사로그에만 — 화면에는 심사위원이 읽을 문장으로
+2226:     const off=(e && e.name==="AbortError");
+2227:     logAudit("AI 요약 폴백 상세(내부)", (off?"타임아웃 8s":"네트워크 오류")+": "+String(e && e.message||e));
+2228:     showLocalBrief(off?"AI 생성 서비스 응답 지연 · 오프라인 모드":"네트워크 미연결 · 오프라인 모드");
+2229:   }finally{ btn.disabled=false; btn.textContent=bt; }
+2230: }
+
+============================================================
+localBrief
+============================================================
+2181: function localBrief(p){
+2182:   const pr=p.profile, r=p.risk, prim=(p.products||[])[0], posK=pr.pos==="import"?"수입":"수출";
+2183:   const lines=[
+2184:     esc(pr.name)+" · "+posK+" · "+esc(pr.country)+" "+pr.amount.toLocaleString()+" "+esc(pr.currency)
+2185:       +" · 결제 만기 "+pr.horizon+"영업일 거래입니다.",
+2186:     "예산환율 "+fmtRate(pr.budget)+"원 초과 가능성은 <b>"+r.bbp.toFixed(1)+"%</b>, 초과 시 예상 부담액은 <b>"
+2187:       +won(r.expectedLossKRW)+"</b>입니다. 시장 위험게이지 "+r.ewi+"/100 · 거래국 구조 리스크 "+esc(r.macroGrade)+".",
+2188:     r.alert
+2189:       ? "지금은 <b>능동 헤지 검토 구간</b>입니다 — "+esc(p.hedge.inst)+" 기준 부분 <b>"+Math.round(p.hedge.ratio*100)
+2190:         +"%</b>가 참고 관리범위이며, 실제 비율·비용은 상담에서 확정됩니다."
+2191:       : "초과 가능성이 낮아 지금은 <b>모니터링</b>이 적절한 구간입니다. 급변 시 알림·재진단으로 대응합니다."
+2192:   ];
+2193:   if(prim) lines.push("1순위 후보는 <b>"+esc(prim.t)+"</b> ("+esc(prim.st)+") — "+(prim.why||[]).map(esc).join(" · ")+".");
+2194:   lines.push("한도·요율·수수료 등 실제 조건과 계약은 KB 영업점 상담에서 확정됩니다.");
+2195:   return lines.map(t=>"· "+t).join("<br>");
+2196: }
+
+============================================================
+runOCR
+============================================================
+2142: function runOCR(){
+2143:   const f=readForm(); const scan=$("scan"),fill=$("scanfill"),txt=$("scantxt");
+2144:   scan.classList.add("on"); fill.style.width="0%";
+2145:   const steps=evidenceSteps(f);
+2146:   let k=0;
+2147:   const iv=setInterval(()=>{ const[w,t]=steps[k]; fill.style.width=w+"%"; txt.textContent=t; k++;
+2148:     if(k>=steps.length){clearInterval(iv);
+2149:       const party=f.name+" 거래처", uni=f.cert==="provisional"?"—(PO 단계, 확정 시 발급)":stableUnipass(f.name);  // 26.8: 클릭마다 난수 → 회사별 결정론(감사 가능)
+2150:       gate = f.cert!=="provisional"; gateInfo={party:party,unipass:uni};
+2151:       setTimeout(()=>{scan.classList.remove("on"); compute();
+2152:         if(!gate){ $("gate-h").textContent="🔒 가결제(취소 가능) — 서류 확인 전, 옵션형만 가능"; }
+2153:         // #1 자동채움 시연 — 서류에서 추출된 값이 폼에 들어온 것처럼 하이라이트
+2154:         ["in-amount","in-horizon","in-country"].forEach(id=>{ const el=$(id); if(el){ el.classList.remove("ocr-filled"); void el.offsetWidth; el.classList.add("ocr-filled"); } });
+2155:         if(typeof toast==="function") toast("📄 서류에서 거래 정보가 자동 입력되었습니다 (값은 수정 가능)");
+2156:         logAudit("서류 업로드·OCR 추출",f.name);
+2157:       },500);
+2158:     }
+2159:   },420);
+2160: }
+
+============================================================
+refreshRates
+============================================================
+2673: async function refreshRates(){
+2674:   var btn=document.getElementById("fx-live"), bt=btn?btn.textContent:"";
+2675:   if(btn){ btn.disabled=true; btn.textContent="조회 중…"; }
+2676:   var base=(FX_RATES_PROXY||FX_ADVISOR_PROXY||"").replace(/\/$/,"");
+2677:   try{
+2678:     if(!base) throw new Error("시세 조회 주소 미설정");
+2679:     var data=await _fetchJSON(base+"/rates",{cache:"no-store"},8000);
+2680:     if(!(data && data.ok && data.spots)) throw new Error((data&&data.error)||"조회 응답 이상");
+2681:     Object.keys(data.spots).forEach(function(k){ if(CUR[k] && isFinite(+data.spots[k])) CUR[k].spot=+data.spots[k]; });
+2682:     MARKET.spot=CUR.USD.spot;
+2683:     _ratesInfo={live:true, asof:_isoDate(data.asof||new Date()), source:(data.source||"공개 환율 API")};
+2684:     _setRateStatus();
+2685:     compute();                                   // 코파일럿·사이드바 티커 갱신
+2686:     var av=document.querySelector(".view.active");
+2687:     if(av){ if(av.id==="view-fx")renderFx(); else if(av.id==="view-dashboard")renderDashboard(); else if(av.id==="view-trades")renderTrades(); }
+2688:     logAudit("당일 참고시세 조회", _ratesInfo.source+" · "+_ratesInfo.asof);
+2689:     toast("당일 참고시세를 반영했습니다 · "+_ratesInfo.source+" "+_ratesInfo.asof);
+2690:     return true;
+2691:   }catch(e){
+2692:     logAudit("당일 참고시세 조회 실패", String(e && e.message||e)+" — 기준일 스냅샷 유지(폴백)");
+2693:     toast("시세 조회 실패 — 기준일 스냅샷을 유지합니다(설계된 폴백)");
+2694:     return false;
+2695:   }finally{ if(btn){ btn.disabled=false; btn.textContent=bt; } }
+2696: }
+
+============================================================
+setMode
+============================================================
+2312: function setMode(m){ const r=document.documentElement; r.setAttribute("data-mode",m);
+2313:   // 고객 모드면 클릭 시 RM으로, RM 모드면 클릭 시 고객으로
+2314:   $("modebtn").textContent = m==="customer" ? "👤 RM 내부 화면 보기" : "🙍 고객 화면 보기";
+2315:   // §6 CTA는 고객 행동 언어 vs 내부 업무 용어로 전환
+2316:   const cust = m==="customer";
+2317:   if($("hd-cta")) $("hd-cta").textContent = cust ? "KB 상담 요청하기 →" : "다음 액션: RM 검토 티켓 →";
+2318:   if($("book")) $("book").textContent = cust ? "KB 상담 요청하기" : "영업점 상담 예약 요청 · RM 티켓 생성"; }
+
+============================================================
+requestMode
+============================================================
+2324: function requestMode(nx){
+2325:   if(nx==="internal" && !_rmAuthed){ openRmAuth(); return; }   // 미인증이면 RM 진입 차단
+2326:   setMode(nx); updateRoleBadge(); logAudit("화면 모드 전환", nx==="customer"?"고객용":"내부 RM용");
+2327: }
+
+============================================================
+renderAdvisor
+============================================================
+1807: function renderAdvisor(recs,f){
+1808:   const cont=$("advisor"); if(!cont)return;
+1809:   const groups={}; SEG_ORDER.forEach(s=>groups[s]=[]);
+1810:   recs.forEach(r=>{ (groups[r.cat]||(groups[r.cat]=[])).push(r); });
+1811:   const active=SEG_ORDER.filter(s=>groups[s].length);
+1812:   const _prim=primaryProduct(recs,f.biz);
+1813:   // 1순위 KB 상품을 해당 탭의 맨 앞으로 — 탭 열자마자 첫눈에 보이게
+1814:   if(_prim && groups[_prim.cat]){ const g=groups[_prim.cat], i=g.indexOf(_prim); if(i>0){ g.splice(i,1); g.unshift(_prim); } }
+1815:   // 기본 활성 세그먼트: 1순위 KB 상품의 카테고리를 열어 화면 전체 "1순위" 메시지 일치
+1816:   let def = (_prim||{}).cat;
+1817:   if(!def || !groups[def] || !groups[def].length) def = f.pos==="import"?"수입금융":"수출금융";
+1818:   if(!groups[def]||!groups[def].length) def=active[0]||"외환헤지";
+1819:   const card=r=>{
+1820:     const stc=ST_COL[r.st]||"var(--ink-mut)", srcCls=SRC_CLASS[r.src]||"ext";
+1821:     let h='<div class="it"><div class="t">'+esc(r.t)
+1822:       +'<span class="src '+srcCls+'">'+esc(r.src)+'</span>'
+1823:       +'<span class="chip" style="color:'+stc+';border-color:color-mix(in srgb,'+stc+' 45%,transparent)">'+esc(r.st)+'</span></div>';
+1824:     h+='<div class="s">'+r.why.map(esc).join(" · ")+'</div>';
+1825:     if(r.fit){ const p=Math.max(0,Math.min(100,r.fit.score));
+1826:       h+='<div class="fitrow"><span class="lbl" style="letter-spacing:.04em">적합도</span><div class="fitbar"><i style="width:'+p+'%"></i></div>'
+1827:         +'<span class="fs">'+p+'</span>'+((r.fit.unknown&&r.fit.unknown.length)?'<span class="fu">미확인 '+r.fit.unknown.length+'</span>':'')+'</div>';
+1828:       if(r.fit.pass&&r.fit.pass.length) h+='<div class="metaline"><b>충족</b> '+r.fit.pass.map(esc).join(" · ")+'</div>';
+1829:       if(r.fit.unknown&&r.fit.unknown.length) h+='<div class="metaline rm"><b>미확인</b> '+r.fit.unknown.map(esc).join(" · ")+'</div>';
+1830:     }
+1831:     if(r.block){ h+='<div class="blockbox"><b>'+esc(r.st)+' · '+esc(r.block.reason)+'</b><br>'+esc(r.block.detail)
+1832:       +'<br><span style="color:var(--ink-mut)">해제조건: '+esc(r.block.unlock)+'</span></div>'; }
+1833:     if(r.readiness){ const rd=r.readiness;
+1834:       h+='<div class="metaline"><b>서류 준비 '+rd.n+'/'+rd.m+'</b>'
+1835:         +(rd.confirmed.length?' · 확인 '+rd.confirmed.map(esc).join(", "):'')
+1836:         +(rd.missing.length?' · <span style="color:var(--elev)">필요 '+rd.missing.map(esc).join(", ")+'</span>':'')+'</div>'; }
+1837:     else if(r.docs&&r.docs.length){ h+='<div class="metaline"><b>필요서류</b> '+r.docs.map(esc).join(", ")+'</div>'; }
+1838:     if(r.channels&&r.channels.length) h+='<div class="metaline chan"><b>신청채널</b> '+r.channels.map(esc).join(" · ")+'</div>';
+1839:     if(r.rmChecks&&r.rmChecks.length) h+='<div class="metaline rm"><b>RM 확인사항</b> '+r.rmChecks.map(esc).join(" · ")+'</div>';
+1840:     if(r.note) h+='<div class="metaline">'+esc(r.note)+'</div>';
+1841:     h+='<div class="metaline"><b>다음</b> '+esc(r.next)+'</div>';
+1842:     if(r.kbPath) h+='<div class="kbpath">'+esc(r.kbPath)+(r.ref?' · <a href="'+esc(r.ref)+'" target="_blank" rel="noopener">KB 안내</a>':'')+'</div>';
+1843:     return h+'</div>';
+1844:   };
+1845:   const tabs=active.map(s=>'<button class="seg-tab'+(s===def?' on':'')+'" data-seg="'+s+'">'+s+'<span class="cnt">'+groups[s].length+'</span></button>').join("");
+1846:   const panes=active.map(s=>'<div class="seg-pane'+(s===def?' on':'')+'" data-pane="'+s+'">'+groups[s].map(card).join("")+'</div>').join("");
+1847:   cont.innerHTML='<div class="seg-tabs" role="tablist">'+tabs+'</div>'+panes;
+1848:   const segTabs=[].slice.call(cont.querySelectorAll(".seg-tab"));
+1849:   segTabs.forEach(b=>{ b.setAttribute("role","tab"); b.setAttribute("aria-selected",b.classList.contains("on")?"true":"false"); b.tabIndex=b.classList.contains("on")?0:-1;
+1850:     b.addEventListener("click",()=>{
+1851:       const s=b.getAttribute("data-seg");
+1852:       segTabs.forEach(x=>{ const on=x===b; x.classList.toggle("on",on); x.setAttribute("aria-selected",on?"true":"false"); x.tabIndex=on?0:-1; });
+1853:       cont.querySelectorAll(".seg-pane").forEach(p=>p.classList.toggle("on",p.getAttribute("data-pane")===s));
+1854:     });
+1855:     b.addEventListener("keydown",e=>{ const i=segTabs.indexOf(b); let n=-1;
+1856:       if(e.key==="ArrowRight"||e.key==="ArrowDown")n=(i+1)%segTabs.length;
+
+============================================================
+renderNextSteps
+============================================================
+1874: function renderNextSteps(f,ctx){
+1875:   const p=primaryProduct(ctx.recs,f.biz), hr=ctx.recs.find(r=>r.cat==="외환헤지"&&["추천","상담후보"].includes(r.st));
+1876:   const items=[];
+1877:   if(p){ const verb=(p.st==="보류"||p.block)?"조건 확인 필요":(["추천","RM확인"].includes(p.st)?"신청 가능 여부 확인":"검토");
+1878:     items.push("<b>"+esc(p.t)+"</b> "+verb+(p.block?" — "+esc(p.block.reason):"")); }
+1879:   if(p&&p.readiness){ const rd=p.readiness; items.push("필요서류 <b>"+rd.n+"/"+rd.m+"</b> 준비"+(rd.missing.length?" · 남은 서류 "+esc(rd.missing.slice(0,2).join(", ")):"")); }
+1880:   else items.push("실수요 증빙(인보이스·계약서) 업로드로 서류 확정");
+1881:   items.push("KB 담당자가 <b>한도·금리 등 조건</b>을 확인해 드립니다");
+1882:   items.push("환리스크 관리는 <b>KB 상담</b>에서 안내됩니다 — 계약은 영업점 확인 후 진행");
+1883:   $("nextsteps").innerHTML='<div class="ns-h">오늘 가능한 다음 단계 <span class="tag">고객 다음 단계 요약</span></div><div class="ns-list">'
+1884:     +items.map((t,i)=>'<div class="ns-item"><span class="num">'+(i+1)+'</span><div>'+t+'</div></div>').join("")+'</div>';
+1885: }
+
+============================================================
+applyGate
+============================================================
+2085: function applyGate(){
+2086:   const locked=!gate, f=readForm(), ev=evidenceLabel(f);
+2087:   $("lockmask").style.display=locked?"grid":"none";
+2088:   $("g-party").textContent=(!gate||gateInfo.party==="–")?"업로드 전":maskPII(gateInfo.party)+" · 사업자 123-45-●●●●● (정보 보호)";
+2089:   $("g-amt").textContent=gate?((+$("in-amount").value||0).toLocaleString()+" "+$("in-cur").value+" · "+($("in-horizon").value)+"영업일"):"업로드 전";
+2090:   $("g-evidence-value").textContent=gate?gateInfo.unipass:"업로드 전";
+2091:   $("g-ev-label").textContent=ev.row;
+2092:   $("gate-note").innerHTML='인보이스·계약서('+esc(ev.legal)+')를 확인하면 환리스크 관리 상담을 진행할 수 있습니다. 최종 확인은 KB 영업점에서 진행됩니다.';
+2093:   const gh=$("gate-h"), gc=$("gate");
+2094:   if(gate){gh.textContent="🔓 서류 확인 완료 — 헤지 상담 가능"; gc.classList.add("ok");}
+2095:   else{gh.textContent="🔒 서류 확인 전 — 헤지 상담 잠금"; gc.classList.remove("ok");}
+2096: }
+
+============================================================
+maskPII
+============================================================
+2309: function maskPII(s){ s=String(s); return s.length<=2?s:s.slice(0,2)+"●".repeat(Math.max(2,Math.min(8,s.length-2))); }
+
+============================================================
+MARKET
+============================================================
+1395: const MARKET={spot:1528.8,date:"2026-07-06",sigAnn:0.098,ewi:38,iz:0,shares:{V:79,J:0,C:21},rateDiffPct:-0.92,regimeName:"현재",regimeNote:"실측 기준일 · 평시"};
+1396: const GCOL={"정상":"var(--good)","주의":"var(--warn)","경계":"var(--elev)","심각":"var(--crit)"};
+1397: // 과거 실측 국면(state/fx_ewi_timeseries.csv) — σ·EWI·성분·개입을 현재 포지션에 스트레스로 적용
+1398: const REGIMES=[
+1399:   {key:"현재",     date:"2026-07-06", sigAnn:0.098, ewi:38, iz:0, shares:{V:79,J:0, C:21}, note:"실측 기준일 · 평시"},
+1400:   {key:"평온",     date:"2019-07-25", sigAnn:0.058, ewi:12, iz:0, shares:{V:61,J:0, C:39}, note:"저변동성 안정 국면"},
+1401:   {key:"COVID 쇼크", date:"2020-03-25", sigAnn:0.124, ewi:87, iz:0, shares:{V:48,J:10,C:42}, note:"팬데믹 급락 · 점프 동반"},
+1402:   {key:"2022 킹달러", date:"2022-11-15", sigAnn:0.164, ewi:91, iz:0, shares:{V:44,J:8, C:48}, note:"최고 변동성 · 군집 심화"},
+1403:   {key:"점프 급변",  date:"2021-03-03", sigAnn:0.099, ewi:98, iz:0, shares:{V:42,J:19,C:39}, note:"금리 발작 급변 · 점프 집중"}
+1404: ];
+1405: // 다통화 레지스트리(fx.py 미러) — USD=실데이터, 그 외=대표 스냅샷. r_home=원화 3M
+1406: const R_HOME=0.0282;
+1407: // unit=호가단위(원/unit통화). ES 총액 = esUnit(원/unit) × amount / unit (26.4)
+1408: const CUR={
+1409:   USD:{label:"USD / KRW",   unit:1,  spot:1528.8, sig:0.098, rf:0.0374, budget:1500, amount:500000},
+1410:   EUR:{label:"EUR / KRW",   unit:1,  spot:1662.0, sig:0.086, rf:0.0245, budget:1630, amount:460000},
+1411:   JPY:{label:"JPY100 / KRW",unit:100,spot:982.0,  sig:0.112, rf:0.0055, budget:965,  amount:78000000},
+1412:   CNY:{label:"CNY / KRW",   unit:1,  spot:210.5,  sig:0.058, rf:0.0190, budget:207,  amount:3600000},
+1413:   VND:{label:"VND100 / KRW",unit:100,spot:6.20,   sig:0.049, rf:0.0460, budget:6.10, amount:12000000000}
+1414: };
+
+============================================================
+REGIMES
+============================================================
+1398: const REGIMES=[
+1399:   {key:"현재",     date:"2026-07-06", sigAnn:0.098, ewi:38, iz:0, shares:{V:79,J:0, C:21}, note:"실측 기준일 · 평시"},
+1400:   {key:"평온",     date:"2019-07-25", sigAnn:0.058, ewi:12, iz:0, shares:{V:61,J:0, C:39}, note:"저변동성 안정 국면"},
+1401:   {key:"COVID 쇼크", date:"2020-03-25", sigAnn:0.124, ewi:87, iz:0, shares:{V:48,J:10,C:42}, note:"팬데믹 급락 · 점프 동반"},
+1402:   {key:"2022 킹달러", date:"2022-11-15", sigAnn:0.164, ewi:91, iz:0, shares:{V:44,J:8, C:48}, note:"최고 변동성 · 군집 심화"},
+1403:   {key:"점프 급변",  date:"2021-03-03", sigAnn:0.099, ewi:98, iz:0, shares:{V:42,J:19,C:39}, note:"금리 발작 급변 · 점프 집중"}
+1404: ];
+1405: // 다통화 레지스트리(fx.py 미러) — USD=실데이터, 그 외=대표 스냅샷. r_home=원화 3M
+1406: const R_HOME=0.0282;
+1407: // unit=호가단위(원/unit통화). ES 총액 = esUnit(원/unit) × amount / unit (26.4)
+1408: const CUR={
+1409:   USD:{label:"USD / KRW",   unit:1,  spot:1528.8, sig:0.098, rf:0.0374, budget:1500, amount:500000},
+1410:   EUR:{label:"EUR / KRW",   unit:1,  spot:1662.0, sig:0.086, rf:0.0245, budget:1630, amount:460000},
+1411:   JPY:{label:"JPY100 / KRW",unit:100,spot:982.0,  sig:0.112, rf:0.0055, budget:965,  amount:78000000},
+1412:   CNY:{label:"CNY / KRW",   unit:1,  spot:210.5,  sig:0.058, rf:0.0190, budget:207,  amount:3600000},
+1413:   VND:{label:"VND100 / KRW",unit:100,spot:6.20,   sig:0.049, rf:0.0460, budget:6.10, amount:12000000000}
+1414: };
+
+============================================================
+CUR
+============================================================
+1408: const CUR={
+1409:   USD:{label:"USD / KRW",   unit:1,  spot:1528.8, sig:0.098, rf:0.0374, budget:1500, amount:500000},
+1410:   EUR:{label:"EUR / KRW",   unit:1,  spot:1662.0, sig:0.086, rf:0.0245, budget:1630, amount:460000},
+1411:   JPY:{label:"JPY100 / KRW",unit:100,spot:982.0,  sig:0.112, rf:0.0055, budget:965,  amount:78000000},
+1412:   CNY:{label:"CNY / KRW",   unit:1,  spot:210.5,  sig:0.058, rf:0.0190, budget:207,  amount:3600000},
+1413:   VND:{label:"VND100 / KRW",unit:100,spot:6.20,   sig:0.049, rf:0.0460, budget:6.10, amount:12000000000}
+1414: };
+
+============================================================
+COUNTRY
+============================================================
+1422: const COUNTRY={
+1423:   "미국":  {rating:"AA+",growth:2.0,inflation:2.8,current_acct:-3.0,political:82,demand:["+3.1%","up"], gdp:["+2.0%","up"],fx:"DXY 103.2",     credit:"AA+ / 안정적",src:"S&P·IMF·World Bank·KITA(대표 스냅샷)"},
+1424:   "베트남":{rating:"BB+",growth:5.7,inflation:3.5,current_acct: 2.0,political:55,demand:["+14.2%","up"],gdp:["+5.7%","up"],fx:"USD/VND 24,650",credit:"BB+ / 안정적",src:"S&P·IMF·World Bank·KITA(대표 스냅샷)"},
+1425:   "중국":  {rating:"A+", growth:4.6,inflation:0.8,current_acct: 1.5,political:60,demand:["-1.2%","dn"], gdp:["+4.6%","up"],fx:"USD/CNY 7.24",  credit:"A+ / 부정적",src:"S&P·IMF·World Bank·KITA(대표 스냅샷)"},
+1426:   "일본":  {rating:"A+", growth:0.9,inflation:2.2,current_acct: 3.5,political:85,demand:["+1.8%","up"], gdp:["+0.9%","up"],fx:"USD/JPY 152.6", credit:"A+ / 안정적",src:"S&P·IMF·World Bank·KITA(대표 스냅샷)"},
+1427:   "기타":  {rating:null, demand:["N/A",""],gdp:["N/A",""],fx:"—",credit:"미상 — 확인 필요",src:"거래국 지표 미확보 — KITA·IMF 확인 필요"}
+1428: };
+
+============================================================
+PRESETS
+============================================================
+1474: const PRESETS=[
+1475:   {label:"한빛정밀 · 수출확정",name:"한빛정밀",pos:"export",budget:1450,amount:500000,horizon:63,country:"미국",pay:"LC",hs:"8542",cert:"confirmed",credit:"yes",cash:"ok",biz:"corp",size:"sme",party:"Hanbit America LLC",unipass:"41029-26-7004821"},
+1476:   {label:"대성무역 · 가결제",name:"대성무역",pos:"export",budget:1480,amount:300000,horizon:63,country:"베트남",pay:"TT",hs:"8483",cert:"provisional",credit:"yes",cash:"tight",biz:"corp",size:"sme",party:"Dae-sung Vina Co.",unipass:"—(PO 단계)"},
+1477:   {label:"소망전자 · 무여신",name:"소망전자",pos:"export",budget:1500,amount:200000,horizon:42,country:"중국",pay:"OA",hs:"8542",cert:"confirmed",credit:"no",cash:"ok",biz:"corp",size:"small",party:"Somang Semicon HK",unipass:"41029-26-7009914"},
+1478:   {label:"나래상사 · 수입",name:"나래상사",pos:"import",budget:1500,amount:400000,horizon:63,country:"베트남",pay:"TT",hs:"7408",cert:"confirmed",credit:"yes",cash:"ok",biz:"corp",size:"sme",party:"Narae Materials Import",unipass:"41055-26-7012036"},
+1479:   {label:"하늘샵 · 글로벌셀러",name:"하늘샵",pos:"export",budget:1420,amount:80000,horizon:14,country:"미국",pay:"OA",hs:"6109",cert:"confirmed",credit:"no",cash:"tight",biz:"sole",size:"micro",party:"Amazon Marketplace Settlement",unipass:"플랫폼 정산명세"}
+1480: ];
+1481: 
+1482: /* ══════════ 상태 ══════════ */
+1483: let gate=false, gateInfo={party:"–",unipass:"–"};
+1484: let _ticket={};  // Tier2 RM 티켓 데이터(compute에서 갱신)
+1485: // Tier2 리스크 매트릭스(환율변동성 × 거래국구조)
+1486: function renderMatrix(vol,macro,country){
+1487:   const W=300,H=200,L=32,B=24,T=10,R=12, X=v=>L+(v/100)*(W-L-R), Y=v=>T+(1-v/100)*(H-T-B);
+1488:   let g='<rect x="'+L+'" y="'+T+'" width="'+(W-L-R)+'" height="'+(H-T-B)+'" fill="none" stroke="var(--line-solid)"/>';
+1489:   g+='<line x1="'+X(50)+'" y1="'+T+'" x2="'+X(50)+'" y2="'+(H-B)+'" stroke="var(--line-solid)" stroke-dasharray="3 3"/>';
+1490:   g+='<line x1="'+L+'" y1="'+Y(50)+'" x2="'+(W-R)+'" y2="'+Y(50)+'" stroke="var(--line-solid)" stroke-dasharray="3 3"/>';
+1491:   const q=[[X(25),Y(75),"안정"],[X(75),Y(75),"환율 우선"],[X(25),Y(25),"거래국 우선"],[X(75),Y(25),"양면 경계"]];
+1492:   q.forEach(c=>g+='<text x="'+c[0].toFixed(0)+'" y="'+c[1].toFixed(0)+'" font-size="8" fill="var(--ink-faint)" text-anchor="middle">'+c[2]+'</text>');
+1493:   g+='<circle cx="'+X(vol).toFixed(0)+'" cy="'+Y(macro).toFixed(0)+'" r="5" fill="var(--gold)" stroke="var(--panel)" stroke-width="1.5"/>';
+1494:   g+='<text x="'+((L+W-R)/2)+'" y="'+(H-6)+'" font-size="8" fill="var(--ink-faint)" text-anchor="middle">환율 변동성(FX-EWI) →</text>';
+1495:   g+='<text x="10" y="'+((T+H-B)/2)+'" font-size="8" fill="var(--ink-faint)" text-anchor="middle" transform="rotate(-90 10 '+((T+H-B)/2)+')">거래국 구조 ↑</text>';
+1496:   $("matrix-svg").innerHTML=g;
+1497:   const vh=vol>=60, mh=macro>=45;
+1498:   const msg=vh&&mh?"환율·거래국 모두 높음 — 결제환율 방어 + 보증/신용장 강화 병행":
+1499:     vh?"환율 리스크 우선 — 헤지(선물환/옵션) 중심, 거래국은 모니터링":
+1500:     mh?"거래국 구조 리스크 우선 — 보증·신용장 강화, 환율은 부분헤지":
+1501:     "안정 — 모니터링 중심, 급변 국면 진입 시 재점검";
+1502:   $("matrix-note").textContent=country+": 환율 변동성 "+Math.round(vol)+" × 거래국 구조 "+Math.round(macro)+" → "+msg;
+1503: }
+1504: // Tier2 RM 전달 티켓 렌더
+1505: function renderTicket(){ const t=_ticket; if(!t.name)return;
+1506:   $("tk-id").textContent="#RMT-"+stableUnipass(t.name).slice(-5);
+1507:   // 1. 고객·거래 요약
+1508:   $("tk-grid").innerHTML=[
+1509:     ["고객",esc(t.name)],["업무",t.pos+" 대금 · KB 상품 라우팅"],["거래국·결제",esc(t.country)+" · "+t.pay],
+1510:     ["거래금액",t.amount.toLocaleString()+" "+t.cur],["결제 만기",t.horizon+"영업일"],["BBP · 기대손실",t.bbp.toFixed(1)+"% · "+won(t.es)]
+1511:   ].map(r=>'<div class="c"><div class="k">'+r[0]+'</div><div class="v">'+r[1]+'</div></div>').join("");
+1512:   // 2. 1순위 KB 상품 블록
+1513:   const p=t.primary; let h='';
+1514:   if(p){
+1515:     const stc=ST_COL[p.st]||"var(--ink-mut)";
+1516:     h+='<div class="tk-prod"><div class="tk-prod-h"><span class="tk-rank">1순위 KB 상품</span> <b>'+esc(p.t)+'</b>'
+1517:       +' <span class="src '+(SRC_CLASS[p.src]||"ext")+'">'+esc(p.src)+'</span>'
+1518:       +' <span class="chip" style="color:'+stc+';border-color:color-mix(in srgb,'+stc+' 45%,transparent)">'+esc(p.st)+'</span>'
+
+============================================================
+KB_PRODUCTS
+============================================================
+2581: var KB_PRODUCTS=[
+2582:  {cat:"수입금융",n:"KB Payment Usance",src:"KB 공식상품",d:"수입 결제자금을 지원합니다(사전·사후 송금 방식).",req:"수입기업 · USD/EUR/JPY/CNY 결제 · 만기 6개월 이내",docs:"수입계약서·인보이스·운송서류",ch:"영업점·기업뱅킹·전자무역(EDI)",path:"기업뱅킹 › 외환 › 수출입 › KB Payment Usance"},
+2583:  {cat:"수입금융",n:"수입신용장(L/C) 개설",src:"KB 공식상품",d:"수입 대금 지급을 보장하는 신용장을 개설합니다.",req:"수입 · L/C 방식",docs:"개설신청서·수입계약서·사업자등록증",ch:"영업점·기업뱅킹",path:"기업뱅킹 › 외환 › 수출입 › 수입신용장"},
+2584:  {cat:"수입금융",n:"운송서류인수(L/G)",src:"KB 공식상품",d:"선적서류 도착 전 통관이 필요할 때 화물선취보증을 제공합니다.",req:"수입 · 선적서류 미도착",docs:"L/G 신청서·B/L 사본",ch:"영업점",path:"기업뱅킹 › 외환 › 수출입 › 수입화물선취보증"},
+2585:  {cat:"수출금융",n:"수출환어음매입",src:"KB 공식상품",d:"수출 채권을 조기에 대금화합니다(O/A·L/C Nego).",req:"수출 · 확정 수출채권",docs:"수출계약서·선적서류·인보이스",ch:"영업점·기업뱅킹",path:"기업뱅킹 › 외환 › 수출입 › 수출환어음매입"},
+2586:  {cat:"수출금융",n:"KB 특별출연 수출입 금융지원",src:"KB 공식상품",d:"여신이 부족한 수출기업에 K-SURE 보증 기반 자금을 지원합니다.",req:"수출기업 · 담보/여신 부족 · K-SURE 보증",docs:"수출계약서·인보이스·선적서류·수출실적",ch:"영업점",path:"기업뱅킹 › 외환 › 수출입 › 특별출연 수출입 금융지원"},
+2587:  {cat:"수출금융",n:"무역금융(수출)",src:"KB 공식상품",d:"수출 생산·구매 자금을 지원합니다.",req:"수출 · T/T 등",docs:"수출계약·수출실적",ch:"영업점",path:"기업뱅킹 › 외환 › 수출입 › 무역금융"},
+2588:  {cat:"외환헤지",n:"선물환",src:"KB 외환",d:"미래 결제 환율을 미리 고정해 환리스크를 관리합니다.",req:"확정 거래 · 여신 한도 보유",docs:"인보이스·계약서·수출입신고 서류",ch:"영업점·RM",path:"KB Star FX › 외환파생 상담"},
+2589:  {cat:"외환헤지",n:"제로코스트 칼라(통화옵션)",src:"KB 외환",d:"선납 비용 없이 환율 상·하단을 설정해 관리합니다(가결제·현금부담 시).",req:"옵션 적합성 확인",docs:"PO/발주서·옵션 적합성",ch:"영업점·RM",path:"KB Star FX › 통화옵션 상담"},
+2590:  {cat:"외환헤지",n:"환변동보험(K-SURE)",src:"외부기관(K-SURE)",d:"은행 여신 없이 공적보험으로 환리스크를 관리합니다.",req:"수출계약·수출신고 서류",docs:"수출계약/인보이스·수출신고 서류",ch:"K-SURE·영업점 연계",path:"무역보험공사 K-SURE"},
+2591:  {cat:"외환헤지",n:"KB Star FX 환율 알림",src:"KB 공식서비스",d:"목표환율 도달·급변 알림과 예약주문(환율픽)을 제공합니다.",req:"—",docs:"—",ch:"KB Star FX",path:"KB Star FX › 환율 알림 / 환율픽"},
+2592:  {cat:"무역지원",n:"해외거래처신용조사",src:"KB 공식서비스",d:"거래상대방의 대금회수 리스크를 사전에 확인합니다.",req:"거래상대방 정보",docs:"상호·소재국·사업자 정보",ch:"영업점",path:"기업뱅킹 › 수출입지원제도 › 해외거래처신용조사"},
+2593:  {cat:"무역지원",n:"수출입통관상담·파트너관세사",src:"KB 공식서비스",d:"통관·FTA·원산지·관세환급을 전문 관세사와 상담합니다.",req:"품목·HS코드",docs:"품목·원산지 정보",ch:"영업점·파트너관세사",path:"기업뱅킹 › 수출입지원제도 › 통관상담"},
+2594:  {cat:"무역지원",n:"KB 글로벌셀러 우대서비스",src:"KB 공식서비스",d:"해외 마켓플레이스 매출대금 수취·환전 우대를 지원합니다.",req:"개인사업자·소상공인 글로벌셀러",docs:"플랫폼 정산명세·사업자등록증",ch:"영업점·KB Star FX",path:"KB Star FX › 글로벌셀러 우대서비스"}
+2595: ];
+2596: var _prodCat="all", _prodQ="";
+2597: function renderProducts(){
+2598:   var cats=["all","수입금융","수출금융","외환헤지","무역지원"];
+2599:   var h='<div class="pagehead"><div><h2>금융상품</h2><p>KB 수출입·외환 금융상품을 살펴보고, 내 거래에 맞는 상품을 찾습니다.</p></div><button class="ab-cta sp" id="prod-match" style="color:#fff">내 거래 맞춤 찾기 →</button></div>';
+2600:   h+='<div class="filterbar">'+cats.map(c=>'<button class="fchip'+(_prodCat===c?" on":"")+'" data-c="'+c+'">'+(c==="all"?"전체":c)+'</button>').join("")+'<input class="searchbox" id="prod-q" placeholder="상품명 검색" value="'+esc(_prodQ)+'"></div>';
+2601:   h+='<div class="catgrid" id="prod-grid"></div>';
+2602:   document.getElementById("view-products").innerHTML=h;
+2603:   document.getElementById("prod-match").addEventListener("click",()=>{ showView("copilot"); var a=document.getElementById("advisor"); if(a)a.scrollIntoView({behavior:"smooth",block:"center"}); });
+2604:   document.querySelectorAll("#view-products .fchip").forEach(b=>b.addEventListener("click",()=>{ _prodCat=b.getAttribute("data-c"); document.querySelectorAll("#view-products .fchip").forEach(x=>x.classList.toggle("on",x===b)); _prodCards(); }));
+2605:   var q=document.getElementById("prod-q"); q.addEventListener("input",()=>{ _prodQ=q.value; _prodCards(); });
+2606:   _prodCards();
+2607: }
+2608: function _prodCards(){
+2609:   var list=KB_PRODUCTS.filter(p=>(_prodCat==="all"||p.cat===_prodCat)&&(!_prodQ||p.n.indexOf(_prodQ)>=0));
+2610:   document.getElementById("prod-grid").innerHTML=list.map(p=>'<div class="prodc"><div class="pc-cat">'+p.cat+'</div><div class="pc-n">'+esc(p.n)+' <span class="src '+(SRC_CLASS[p.src]||"ext")+'">'+esc(p.src)+'</span></div><div class="pc-d">'+esc(p.d)+'</div>'
+2611:     +(p.req!=="—"?'<div class="pc-row"><b>대상 요건</b> '+esc(p.req)+'</div>':'')
+2612:     +(p.docs!=="—"?'<div class="pc-row"><b>필요 서류</b> '+esc(p.docs)+'</div>':'')
+2613:     +'<div class="pc-row"><b>신청 채널</b> '+esc(p.ch)+'</div><div class="pc-path">'+esc(p.path)+'</div></div>').join("")||'<p style="color:var(--ink-faint)">해당 상품이 없습니다.</p>';
+2614: }
+2615: 
+2616: /* ── 외환 / 시세 ── */
+2617: var _fxAlerts=[];
+2618: function renderFx(){
+2619:   var tau=63/252;
+2620:   var cards=Object.keys(CUR).map(function(k){ var c=CUR[k], fwd=c.spot*(1+R_HOME*tau)/(1+c.rf*tau), swap=fwd-c.spot;
+2621:     return '<div class="fxc"><div class="fx-pair">'+c.label+'</div><div class="fx-spot">'+fmtRate(c.spot)+'</div>'
+2622:       +'<div class="fx-kv"><span>변동성(연율)</span><b>'+(c.sig*100).toFixed(1)+'%</b></div>'
+2623:       +'<div class="fx-kv"><span>선물환율(3개월)</span><b>'+fmtRate(fwd)+'</b></div>'
+2624:       +'<div class="fx-kv"><span>선물 프리미엄</span><b>'+(swap>=0?"+":"−")+fmtRate(Math.abs(swap))+'</b></div>'
+2625:       +_sparkSVG(_series(c.spot,30,0.016,Math.round(c.spot)||1),"var(--brand)",c.label)+'</div>'; }).join("");

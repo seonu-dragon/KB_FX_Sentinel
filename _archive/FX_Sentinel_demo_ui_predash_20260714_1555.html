@@ -1,0 +1,1756 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="KB Star FX 기반 수출입 금융 AI 코파일럿 — 거래 정보를 KB 외환·수출입금융·무역지원 상품으로 안전하게 라우팅합니다.">
+<title>KB Star FX 수출입 금융 AI 코파일럿</title>
+<style>
+  :root{
+    --bg:#f6f3ea; --panel:#ffffff; --panel-2:#faf7ef; --line-solid:#e7e1d1;
+    --ink:#201d16; --ink-mut:#6c6656; --ink-faint:#9a9484; --gold:#c9910a; --gold-dim:#e9d29a;
+    --good:#2fa971; --warn:#d9a52b; --elev:#e07a2f; --crit:#d64339;
+    --radius:14px; --mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Malgun Gothic","Apple SD Gothic Neo",Segoe UI,sans-serif;
+  }
+  :root[data-theme="dark"]{ --bg:#14130f; --panel:#1d1b16; --panel-2:#232019; --line-solid:#332f25;
+    --ink:#ece7d8; --ink-mut:#9b9482; --ink-faint:#6f6a5c; --gold:#f5b800; --gold-dim:#7a6320;
+    --good:#37c98b; --warn:#f2c14e; --elev:#f08a3c; --crit:#ef5b52; }
+  :root[data-theme="light"]{ --bg:#f6f3ea; --panel:#ffffff; --panel-2:#faf7ef; --line-solid:#e7e1d1;
+    --ink:#201d16; --ink-mut:#6c6656; --ink-faint:#9a9484; --gold:#c9910a; --gold-dim:#e9d29a;
+    --good:#2fa971; --warn:#d9a52b; --elev:#e07a2f; --crit:#d64339; }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    line-height:1.5;-webkit-font-smoothing:antialiased;font-size:15px}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 20px 64px}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .lbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+  button{font-family:inherit}
+
+  /* chrome */
+  .chrome{display:flex;align-items:center;gap:16px;padding:14px 20px;max-width:1200px;margin:0 auto;
+    border-bottom:1px solid var(--line-solid);flex-wrap:wrap}
+  .kb{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:-.01em}
+  .kb-star{width:26px;height:26px;border-radius:7px;background:var(--gold);color:#14130f;
+    display:grid;place-items:center;font-size:16px;font-weight:900}
+  .kb small{font-weight:600;color:var(--ink-mut);letter-spacing:0}
+  .beta{font-size:10px;font-weight:800;color:var(--gold);border:1px solid var(--gold-dim);
+    padding:1px 6px;border-radius:5px;letter-spacing:.06em}
+  .chrome-right{margin-left:auto;display:flex;align-items:center;gap:14px}
+  .whoami{font-size:12px;color:var(--ink-mut)}
+  .whoami b{color:var(--ink);font-weight:700}
+  .themebtn{background:var(--panel);border:1px solid var(--line-solid);color:var(--ink-mut);
+    border-radius:8px;padding:6px 11px;font-size:12px;cursor:pointer}
+  .themebtn:hover{color:var(--ink)}
+
+  /* header */
+  .head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px;padding:24px 0 14px}
+  .head h1{font-size:25px;margin:0;font-weight:800;letter-spacing:-.02em}
+  .head h1 b{color:var(--gold)}
+  .head p{margin:5px 0 0;color:var(--ink-mut);font-size:13px;max-width:640px}
+  .ticker{margin-left:auto;display:flex;gap:20px;align-items:center;padding:10px 16px;
+    background:var(--panel);border:1px solid var(--line-solid);border-radius:12px}
+  .ticker .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+  .ticker .v{font-size:18px;font-weight:700;font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+  /* stepper */
+  .stepper{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 22px}
+  .stp{display:flex;align-items:center;gap:9px;flex:1 1 200px;background:var(--panel);
+    border:1px solid var(--line-solid);border-radius:11px;padding:11px 14px}
+  .stp .n{width:22px;height:22px;border-radius:50%;background:var(--panel-2);border:1px solid var(--line-solid);
+    display:grid;place-items:center;font-size:12px;font-weight:800;color:var(--gold)}
+  .stp .t{font-weight:700;font-size:13px}
+  .stp .d{font-size:11px;color:var(--ink-faint)}
+
+  .sec-h{display:flex;align-items:center;gap:11px;margin:26px 0 12px}
+  .sec-h .bn{width:26px;height:26px;border-radius:50%;background:var(--gold);color:#14130f;
+    display:grid;place-items:center;font-weight:900;font-size:14px}
+  .sec-h h2{margin:0;font-size:17px;font-weight:800}
+  .sec-h p{margin:0;font-size:12px;color:var(--ink-mut)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1.15fr;gap:16px}
+  .grid3{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:16px}
+  @media(max-width:920px){.grid2,.grid3{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line-solid);border-radius:var(--radius);padding:18px}
+  .card h3{margin:0 0 2px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);
+    display:flex;align-items:center;gap:8px;font-weight:700}
+  .agent-n{width:19px;height:19px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line-solid);
+    display:grid;place-items:center;font-size:11px;color:var(--gold);font-weight:800}
+
+  /* STEP1 dropzone + form */
+  .drop{border:1.5px dashed var(--gold-dim);border-radius:12px;padding:20px;text-align:center;cursor:pointer;
+    background:var(--panel-2);transition:border-color .15s,background .15s;margin-top:12px}
+  .drop:hover{border-color:var(--gold)}
+  .drop .ic{font-size:26px}
+  .drop .m{font-weight:700;font-size:13px;margin-top:6px}
+  .drop .s{font-size:11px;color:var(--ink-faint);margin-top:3px}
+  .scan{margin-top:12px;display:none}
+  .scan.on{display:block}
+  .scanbar{height:8px;border-radius:5px;background:var(--panel-2);overflow:hidden}
+  .scanbar i{display:block;height:100%;width:0;background:var(--gold);border-radius:5px;transition:width .1s linear}
+  .gate{margin-top:12px;border-radius:11px;padding:12px 14px;border:1px solid var(--line-solid);
+    background:var(--panel-2);font-size:12.5px}
+  .gate.ok{border-color:color-mix(in srgb,var(--good) 45%,transparent)}
+  .gate .gh{font-weight:800;font-size:13px;display:flex;align-items:center;gap:7px}
+  .gate .gr{display:flex;justify-content:space-between;gap:10px;margin-top:7px;color:var(--ink-mut)}
+  .gate .gr .mono{color:var(--ink);font-weight:600}
+  .gate .note{font-size:11px;color:var(--ink-faint);margin-top:8px;line-height:1.5}
+
+  .form{display:grid;grid-template-columns:1fr 1fr;gap:11px 14px;margin-top:12px}
+  .f-hint{font-size:11px;color:var(--ink-faint);margin:12px 0 -2px;font-weight:500}
+  /* 고급 설정 접기 */
+  .advform{margin-top:12px;border-top:1px dashed var(--line-solid)}
+  .advform>summary{cursor:pointer;list-style:none;padding:11px 2px 4px;font-size:12.5px;font-weight:700;color:var(--ink-mut);
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .advform>summary::-webkit-details-marker{display:none}
+  .advform>summary::before{content:"⌄";font-size:15px;line-height:1;transition:transform .15s;display:inline-block}
+  .advform[open]>summary::before{transform:rotate(180deg)}
+  .advform>summary .sh{font-weight:400;font-size:11px;color:var(--ink-faint)}
+  .advform>summary:hover{color:var(--ink)}
+  .f{display:flex;flex-direction:column;gap:4px}
+  .f.wide{grid-column:span 2}
+  .f label{font-size:11px;color:var(--ink-mut);font-weight:600}
+  .f input,.f select{background:var(--panel-2);border:1px solid var(--line-solid);border-radius:8px;
+    padding:8px 10px;color:var(--ink);font-family:var(--mono);font-size:13px}
+  .f input:focus,.f select:focus{outline:none;border-color:var(--gold)}
+  .presets{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 2px}
+  .pchip{font-size:12px;padding:6px 11px;border-radius:8px;background:var(--panel-2);border:1px solid var(--line-solid);
+    color:var(--ink-mut);cursor:pointer;font-weight:600}
+  .pchip:hover{color:var(--ink);border-color:var(--gold-dim)}
+  .go{margin-top:14px;width:100%;background:var(--gold);color:#14130f;border:0;border-radius:10px;
+    padding:12px;font-weight:800;font-size:14px;cursor:pointer}
+  .go:hover{filter:brightness(1.05)}
+
+  /* market regime stress toggle */
+  .regime{background:var(--panel);border:1px solid var(--line-solid);border-radius:12px;padding:13px 16px;
+    margin-bottom:16px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .regime-l{flex:1 1 240px}
+  .regime-sub{display:block;font-size:11.5px;color:var(--ink-faint);margin-top:3px;font-weight:400;letter-spacing:0;text-transform:none;line-height:1.45}
+  .regime-chips{display:flex;gap:6px;flex-wrap:wrap}
+  .rchip{display:flex;flex-direction:column;gap:2px;align-items:flex-start;cursor:pointer;background:var(--panel-2);
+    border:1px solid var(--line-solid);border-radius:9px;padding:7px 11px;min-width:86px;color:inherit;font-family:inherit}
+  .rchip:hover{border-color:var(--gold-dim)}
+  .rchip.on{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+  .rchip .rk{font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px}
+  .rchip .gdot{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
+  .rchip .rd{font-size:10px;color:var(--ink-faint);font-family:var(--mono)}
+
+  /* BBP hero gauge */
+  .hero{display:flex;flex-direction:column}
+  .gauge-wrap{position:relative;width:100%;max-width:250px;margin:2px auto 0}
+  .gauge-val{position:absolute;left:0;right:0;top:52%;text-align:center}
+  .gauge-val .big{font-size:42px;font-weight:800;font-family:var(--mono);line-height:1;font-variant-numeric:tabular-nums}
+  .gauge-val .pct{font-size:19px;opacity:.7}
+  .gauge-val .cap{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-top:5px}
+  .track{stroke:var(--panel-2)}
+  .arc{transition:stroke-dashoffset .7s cubic-bezier(.4,0,.2,1),stroke .3s}
+  .hero-foot{display:flex;justify-content:space-between;gap:10px;margin-top:8px;padding-top:14px;border-top:1px solid var(--line-solid)}
+  .hero-foot div{flex:1}
+  .hero-foot .v{font-size:16px;font-weight:700;font-family:var(--mono);font-variant-numeric:tabular-nums;margin-top:2px}
+  .es .v{color:var(--elev)}
+  .statechip{margin-left:auto;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.02em}
+
+  /* FX-EWI */
+  .meter{height:12px;border-radius:6px;margin:12px 0 4px;position:relative;overflow:hidden;
+    background:linear-gradient(90deg,var(--good) 0 40%,var(--warn) 40% 60%,var(--elev) 60% 80%,var(--crit) 80% 100%);opacity:.9}
+  .meter .mk{position:absolute;top:-4px;width:3px;height:20px;background:var(--ink);border-radius:2px;box-shadow:0 0 0 2px var(--panel);transition:left .6s}
+  .meterscale{display:flex;justify-content:space-between;font-size:10px;color:var(--ink-faint);font-family:var(--mono)}
+  .subhd{font-size:11px;font-weight:700;color:var(--ink-mut);margin:15px 0 2px;display:flex;align-items:center;gap:6px}
+  .tagm{font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--panel-2);border:1px solid var(--line-solid);color:var(--ink-faint);letter-spacing:.02em}
+  .decomp{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+  .decomp .row{display:grid;grid-template-columns:96px 1fr 40px;align-items:center;gap:10px;font-size:12px}
+  .decomp .bar{height:8px;background:var(--panel-2);border-radius:4px;overflow:hidden}
+  .decomp .fill{height:100%;border-radius:4px;transition:width .6s}
+  .decomp .fill.mkt{background:var(--ink-faint)}
+  .decomp .fill.own{background:var(--gold)}
+  .decomp .num{font-family:var(--mono);text-align:right;color:var(--ink-mut)}
+  .narr{font-size:13px;color:var(--ink);margin:12px 0 0;line-height:1.6}
+
+  /* country risk + trade stats */
+  .cty{display:flex;align-items:center;gap:10px;margin-top:4px}
+  .cty .rg{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:15px;
+    border:2px solid var(--gold-dim);color:var(--gold)}
+  .cty .nm{font-weight:800;font-size:15px}
+  .cty .sub{font-size:11px;color:var(--ink-mut)}
+  .crk{display:flex;flex-direction:column;gap:7px;margin-top:12px}
+  .crk .r{display:flex;justify-content:space-between;align-items:center;font-size:12px}
+  .crk .pill{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:5px}
+  .stat{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+  .stat .b{background:var(--panel-2);border:1px solid var(--line-solid);border-radius:9px;padding:9px 11px}
+  .stat .k{font-size:10.5px;color:var(--ink-faint);font-weight:600}
+  .stat .v{font-size:15px;font-weight:700;font-family:var(--mono);margin-top:2px}
+  .stat .up{color:var(--good)} .stat .dn{color:var(--crit)}
+  .combine{margin-top:13px;padding:10px 12px;border-radius:9px;background:var(--panel-2);
+    border:1px solid var(--gold-dim);font-size:12px;line-height:1.55;color:var(--ink-mut)}
+  .combine b{color:var(--ink);font-family:var(--mono)}
+  .src{font-size:10.5px;color:var(--ink-faint);margin-top:10px;font-style:italic}
+
+  /* context kv */
+  .kv{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+  .kv .r{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-bottom:8px;border-bottom:1px dashed var(--line-solid)}
+  .kv .r:last-child{border:0;padding:0}
+  .kv .k{color:var(--ink-mut);font-size:12.5px}
+  .kv .val{font-family:var(--mono);font-weight:600}
+  .dir{color:var(--elev)}
+
+  /* hedge */
+  .locked{position:relative}
+  .lockmask{position:absolute;inset:0;background:color-mix(in srgb,var(--panel) 78%,transparent);
+    backdrop-filter:blur(2px);border-radius:var(--radius);display:grid;place-items:center;text-align:center;padding:20px;z-index:2}
+  .lockmask .li{font-size:22px}
+  .lockmask .lm{font-weight:800;font-size:14px;margin-top:6px}
+  .lockmask .ls{font-size:12px;color:var(--ink-mut);margin-top:4px;max-width:280px}
+  .rec{margin-top:6px;padding:15px;border-radius:12px;background:var(--panel-2);border:1px solid var(--gold-dim)}
+  .rec .inst{font-size:17px;font-weight:800}
+  .rec .prod{font-size:12px;color:var(--gold);margin-top:2px;font-weight:600}
+  .rec .why{font-size:12.5px;color:var(--ink-mut);margin-top:10px;line-height:1.55}
+  .hedge-kv{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .hedge-kv .box{flex:1 1 90px;background:var(--panel);border:1px solid var(--line-solid);border-radius:9px;padding:9px 11px}
+  .hedge-kv .k{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint)}
+  .hedge-kv .v{font-size:15px;font-weight:700;font-family:var(--mono);margin-top:3px;font-variant-numeric:tabular-nums}
+
+  /* advisor / packages */
+  .info{margin-top:8px;display:flex;flex-direction:column;gap:10px}
+  .info .it{padding:11px;background:var(--panel-2);border-radius:9px;border:1px solid var(--line-solid)}
+  .info .t{font-weight:700;font-size:13px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .chip{font-size:10px;padding:1px 6px;border-radius:4px;background:var(--panel);border:1px solid var(--line-solid);color:var(--ink-mut);font-weight:600}
+  .chip.A{color:var(--good);border-color:color-mix(in srgb,var(--good) 40%,transparent)}
+  .chip.assume{color:var(--elev);border-color:color-mix(in srgb,var(--elev) 45%,transparent)}
+  .info .s{font-size:12px;color:var(--ink-mut);margin-top:5px;line-height:1.5}
+  .info .eff{font-size:11.5px;color:var(--good);font-weight:700;margin-top:6px}
+  .info .sc{font-size:10.5px;color:var(--ink-faint);margin-top:5px;font-style:italic}
+  .guard{font-size:11px;color:var(--ink-faint);margin-top:12px;line-height:1.5}
+
+  /* KB 상품 라우팅 — 카테고리 세그먼트 + 구조화 카드 */
+  .seg-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 12px}
+  .seg-tab{flex:1 1 auto;background:var(--panel-2);border:1px solid var(--line-solid);color:var(--ink-mut);
+    border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;text-align:center;
+    display:flex;align-items:center;justify-content:center;gap:6px;transition:.12s}
+  .seg-tab:hover{color:var(--ink)}
+  .seg-tab.on{background:var(--panel);border-color:var(--gold);color:var(--ink);box-shadow:inset 0 -2px 0 var(--gold)}
+  .seg-tab .cnt{font-size:10px;font-weight:800;background:var(--panel);border:1px solid var(--line-solid);
+    border-radius:20px;padding:0 6px;min-width:17px;color:var(--ink-mut)}
+  .seg-tab.on .cnt{color:var(--gold);border-color:var(--gold-dim)}
+  .seg-pane{display:none;flex-direction:column;gap:10px}
+  .seg-pane.on{display:flex}
+  .src{font-size:9.5px;padding:1px 6px;border-radius:4px;font-weight:800;letter-spacing:.02em}
+  .src.official{color:var(--gold);background:color-mix(in srgb,var(--gold) 14%,transparent);border:1px solid var(--gold-dim)}
+  .src.service{color:var(--gold);background:transparent;border:1px solid var(--gold-dim)}
+  .src.ext{color:var(--ink-mut);background:var(--panel);border:1px solid var(--line-solid)}
+  .src.assume{color:var(--elev);background:transparent;border:1px solid color-mix(in srgb,var(--elev) 45%,transparent)}
+  .fitrow{display:flex;align-items:center;gap:8px;margin-top:8px}
+  .fitbar{flex:1;height:6px;background:var(--panel);border:1px solid var(--line-solid);border-radius:20px;overflow:hidden}
+  .fitbar i{display:block;height:100%;background:var(--gold);border-radius:20px}
+  .fitrow .fs{font-size:11px;font-weight:800;font-family:var(--mono);color:var(--ink)}
+  .fitrow .fu{font-size:10.5px;color:var(--elev);font-weight:700}
+  .metaline{font-size:10.5px;color:var(--ink-mut);margin-top:6px;line-height:1.5}
+  .metaline b{color:var(--ink-mut);font-weight:800}
+  .blockbox{margin-top:8px;padding:8px 10px;border-radius:8px;border:1px solid color-mix(in srgb,var(--crit) 30%,transparent);
+    background:color-mix(in srgb,var(--crit) 7%,transparent);font-size:11.5px;line-height:1.5}
+  .blockbox b{color:var(--crit)}
+  .kbpath{font-size:10px;color:var(--ink-faint);margin-top:6px;font-family:var(--mono)}
+  .kbpath a{color:var(--gold);text-decoration:none}
+  .rmonly .metaline.rm{display:block}
+  :root[data-mode="customer"] .metaline.rm{display:none}
+  .srclegend{margin-top:11px;font-size:10.5px;color:var(--ink-faint);line-height:2;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+
+  /* 왜 KB인가 */
+  .whykb{border-left:4px solid var(--gold)}
+  .wk-h{font-size:14px;font-weight:800;margin-bottom:12px}
+  .wk-h b{color:var(--gold)}
+  .wk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  @media(max-width:820px){.wk-grid{grid-template-columns:1fr}}
+  .wk{background:var(--panel-2);border:1px solid var(--line-solid);border-radius:10px;padding:11px 13px;font-size:12px;color:var(--ink-mut);line-height:1.5}
+  .wk .n{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--panel);border:1px solid var(--gold-dim);
+    color:var(--gold);font-weight:800;font-size:11px;margin-right:6px}
+  .wk b{color:var(--ink);font-weight:800}
+
+  /* 타임라인 · Before/After · KPI */
+  .tl{display:flex;gap:0;flex-wrap:wrap;margin-top:6px;counter-reset:tl}
+  .tl .n{flex:1 1 120px;position:relative;padding:2px 10px 0 0}
+  .tl .dm{font-family:var(--mono);font-weight:800;font-size:13px;color:var(--gold)}
+  .tl .dt{font-size:11.5px;color:var(--ink-mut);margin-top:3px;line-height:1.45}
+  .tl .bar{height:4px;background:var(--line-solid);border-radius:4px;margin:8px 10px 0 0;position:relative}
+  .tl .bar::before{content:"";position:absolute;left:0;top:-3px;width:10px;height:10px;border-radius:50%;background:var(--gold)}
+  .tl .n.now .dm{color:var(--crit)} .tl .n.now .bar::before{background:var(--crit)}
+  .ba{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:stretch;margin-top:6px}
+  @media(max-width:720px){.ba{grid-template-columns:1fr}}
+  .ba .col{background:var(--panel-2);border:1px solid var(--line-solid);border-radius:11px;padding:13px 15px}
+  .ba .col.after{border-color:var(--gold-dim);background:color-mix(in srgb,var(--gold) 6%,transparent)}
+  .ba .bl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+  .ba .bt{font-size:13px;margin-top:7px;line-height:1.55;color:var(--ink-mut)}
+  .ba .bt b{color:var(--ink)}
+  .ba .arrow{display:grid;place-items:center;color:var(--gold);font-size:22px;font-weight:800}
+  @media(max-width:720px){.ba .arrow{display:none}}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:6px}
+  @media(max-width:720px){.kpi{grid-template-columns:repeat(2,1fr)}}
+  .kpi .k{background:var(--panel-2);border:1px solid var(--line-solid);border-radius:10px;padding:12px}
+  .kpi .kv{font-size:19px;font-weight:800;font-family:var(--mono);color:var(--gold)}
+  .kpi .kl{font-size:11px;color:var(--ink-mut);margin-top:4px;line-height:1.4}
+
+  /* 오늘 가능한 다음 단계 (고객 다음 단계 요약) */
+  .nextsteps{border-left:4px solid var(--good);margin:12px 0}
+  .ns-h{font-size:13px;font-weight:800;margin-bottom:11px;display:flex;align-items:center;gap:8px}
+  .ns-h .tag{font-size:10px;font-weight:700;color:var(--good);border:1px solid color-mix(in srgb,var(--good) 40%,transparent);border-radius:5px;padding:1px 6px}
+  .ns-list{display:grid;grid-template-columns:repeat(2,1fr);gap:9px 18px}
+  @media(max-width:720px){.ns-list{grid-template-columns:1fr}}
+  .ns-item{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--ink-mut);line-height:1.5}
+  .ns-item .num{flex:none;width:20px;height:20px;border-radius:50%;background:color-mix(in srgb,var(--good) 15%,transparent);color:var(--good);font-weight:800;font-size:11px;display:grid;place-items:center;margin-top:1px}
+  .ns-item b{color:var(--ink);font-weight:700}
+
+  /* step 4 CTA */
+  .cta{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .cta-l{flex:1 1 260px}
+  .cta-t{font-weight:800;font-size:15px}
+  .cta-s{font-size:12.5px;color:var(--ink-mut);margin-top:4px;line-height:1.5}
+  .cta-btn{width:auto;padding:12px 22px;white-space:nowrap}
+
+  /* ★ Decision Hero (첫 화면 결과 주인공) */
+  .hero-decision{background:var(--panel);border:1px solid var(--line-solid);border-left:4px solid var(--gold);
+    border-radius:16px;padding:18px 20px;margin:18px 0 12px}
+  .hd-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:15px}
+  .hd-co{font-size:15px;font-weight:800;letter-spacing:-.01em}
+  .hd-state{margin-left:auto;font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:20px;white-space:nowrap}
+  .hd-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:720px){.hd-metrics{grid-template-columns:repeat(2,1fr)}}
+  .hd-m{border-left:1px solid var(--line-solid);padding-left:14px}
+  .hd-m:first-child{border-left:0;padding-left:0}
+  .hd-k{font-size:11px;letter-spacing:.03em;color:var(--ink-faint);font-weight:600}
+  .hd-v{font-size:23px;font-weight:800;font-family:var(--mono);margin-top:4px;font-variant-numeric:tabular-nums;line-height:1.05}
+  .hd-v.sm{font-size:15px}
+  .hd-foot{display:flex;align-items:center;gap:14px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line-solid);flex-wrap:wrap}
+  .hd-why{flex:1 1 300px;font-size:12.5px;color:var(--ink-mut);line-height:1.5}
+  .hd-cta{background:var(--gold);color:#14130f;border:0;border-radius:10px;padding:10px 16px;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap}
+  .hd-cta:hover{filter:brightness(1.05)}
+
+  /* Trust Strip (정직 검증 배지) */
+  .trust-strip{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 18px}
+  .ts-lead{font-size:11px;font-weight:800;color:var(--good);letter-spacing:.04em;text-transform:uppercase}
+  .ts-badge{font-size:11px;font-weight:600;color:var(--ink-mut);background:var(--panel);
+    border:1px solid var(--line-solid);border-radius:20px;padding:4px 11px}
+  .ts-badge b{color:var(--ink)}
+
+  /* BBP 캘리브레이션 패널 */
+  .calib{display:flex;gap:16px;align-items:center;background:var(--panel);border:1px solid var(--line-solid);
+    border-left:3px solid var(--good);border-radius:12px;padding:13px 16px;margin:0 0 18px;flex-wrap:wrap}
+  .calib-l{flex:1 1 300px}
+  .calib-h{font-weight:800;font-size:13px}
+  .calib-s{font-size:11.5px;color:var(--ink-faint);margin-top:2px;line-height:1.45}
+  .calib-kv{font-size:12px;color:var(--ink-mut);margin-top:6px}
+  .calib-kv b{color:var(--good);font-family:var(--mono)}
+  .calib-stamp{font-size:10.5px;color:var(--ink-faint);margin-top:7px;font-family:var(--mono);line-height:1.5}
+  .calib-svg{background:var(--panel-2);border:1px solid var(--line-solid);border-radius:8px;flex:0 0 auto}
+
+  /* 준법 배너 */
+  .compliance{display:flex;gap:9px;align-items:flex-start;background:var(--panel);border:1px solid var(--line-solid);
+    border-left:3px solid var(--ink-faint);border-radius:10px;padding:10px 13px;margin:0 0 20px;
+    font-size:11.5px;line-height:1.55;color:var(--ink-mut)}
+  .compliance b{color:var(--ink)}
+  .compliance .ic{font-size:14px;line-height:1.2}
+
+  /* 거버넌스·감사 */
+  .gate-flow{display:flex;flex-direction:column;gap:7px;margin-top:6px}
+  .gate-flow .g{display:flex;gap:9px;align-items:flex-start;font-size:12px;line-height:1.45}
+  .gate-flow .gn{width:18px;height:18px;border-radius:50%;background:var(--panel-2);border:1px solid var(--line-solid);
+    display:grid;place-items:center;font-size:10px;font-weight:800;color:var(--gold);flex:0 0 auto}
+  .gate-flow .gt b{color:var(--ink)}
+  .screen{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+  .screen .r{display:flex;justify-content:space-between;align-items:center;font-size:12px}
+  .screen .pill{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:5px}
+  .audit{display:flex;flex-direction:column;gap:0;margin-top:6px;font-size:11.5px;font-family:var(--mono)}
+  .audit .a{display:grid;grid-template-columns:132px 1fr;gap:10px;padding:5px 0;border-bottom:1px dashed var(--line-solid)}
+  .audit .a:last-child{border:0}
+  .audit .at{color:var(--ink-faint)}
+  .audit .ae{color:var(--ink)}
+  .customer-note{display:none;background:var(--panel);border:1px solid var(--line-solid);border-left:3px solid var(--gold);
+    border-radius:10px;padding:11px 14px;margin:0 0 16px;font-size:12px;color:var(--ink-mut);line-height:1.55}
+  :root[data-mode="customer"] .customer-note{display:block}
+  .customer-only{display:none}
+  :root[data-mode="customer"] .customer-only{display:block}
+  :root[data-mode="customer"] .internal-only{display:none !important}
+  /* 고객 모드: 진단(Step2)에 BBP 게이지 카드만 남으므로 단일 컬럼으로 */
+  :root[data-mode="customer"] .grid3{grid-template-columns:1fr}
+  :root[data-mode="customer"] .grid3>.card{max-width:600px}
+  .modebtn{background:var(--panel);border:1px solid var(--line-solid);color:var(--ink-mut);border-radius:8px;padding:6px 11px;font-size:12px;cursor:pointer;font-family:inherit}
+  .modebtn:hover{color:var(--ink)}
+
+  /* 4-agent 파이프라인 */
+  .agents4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 18px}
+  @media(max-width:760px){.agents4{grid-template-columns:repeat(2,1fr)}}
+  .a4{background:var(--panel);border:1px solid var(--line-solid);border-top:2px solid var(--gold);border-radius:11px;padding:11px 13px}
+  .a4h{font-weight:800;font-size:12px}
+  .a4o{font-family:var(--mono);font-size:12px;color:var(--ink);margin-top:5px;font-weight:600;min-height:16px}
+  .a4d{font-size:10.5px;color:var(--ink-faint);margin-top:5px;line-height:1.4}
+
+  /* RM 전달 티켓 */
+  .ticket{margin-top:12px;border-left:4px solid var(--good)}
+  .tk-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .tk-h{font-weight:800;font-size:14px}
+  .tk-id{font-family:var(--mono);font-size:11px;color:var(--ink-faint);font-weight:600}
+  .tk-st{margin-left:auto;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+  .tk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  @media(max-width:640px){.tk-grid{grid-template-columns:repeat(2,1fr)}}
+  .tk-grid .c{background:var(--panel-2);border:1px solid var(--line-solid);border-radius:8px;padding:8px 10px}
+  .tk-grid .k{font-size:10px;color:var(--ink-faint);font-weight:600}
+  .tk-grid .v{font-size:13px;font-weight:700;font-family:var(--mono);margin-top:2px}
+  .tk-docs{font-size:12px;color:var(--ink-mut);margin-top:12px;line-height:1.5}
+  .tk-docs b{color:var(--ink)}
+  .tk-prod{background:var(--panel-2);border:1px solid var(--gold-dim);border-left:3px solid var(--gold);border-radius:9px;padding:11px 13px;margin:4px 0 10px}
+  .tk-prod-h{font-size:13.5px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:7px}
+  .tk-prod-h b{font-weight:800}
+  .tk-rank{font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--gold);border:1px solid var(--gold-dim);border-radius:4px;padding:1px 6px}
+  .tk-fit{font-size:10px;font-weight:800;font-family:var(--mono);color:var(--ink-mut)}
+  .tk-line{font-size:11.5px;color:var(--ink-mut);margin-top:4px;line-height:1.5}
+  .tk-line b{color:var(--ink-mut);font-weight:800}
+  .tk-foot{font-size:11px;color:var(--ink-faint);margin-top:10px;font-style:italic}
+
+  /* 모델 검증 섹션 */
+  .vtable{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+  .vtable th,.vtable td{text-align:right;padding:5px 9px;border-bottom:1px solid var(--line-solid);font-variant-numeric:tabular-nums}
+  .vtable th:first-child,.vtable td:first-child{text-align:left}
+  .vtable thead th{color:var(--ink-faint);font-size:10.5px;font-weight:700}
+  .vtable td.best{color:var(--good);font-weight:800}
+  .vtable td.worst{color:var(--crit)}
+  .vsub{font-size:11px;font-weight:700;color:var(--ink-mut);margin:14px 0 2px;display:flex;align-items:center;gap:6px}
+  .vnote{font-size:11.5px;color:var(--ink-mut);margin-top:11px;line-height:1.55;padding:10px 12px;background:var(--panel-2);border-radius:8px;border-left:3px solid var(--warn)}
+  .vnote b{color:var(--ink)}
+  .frontier-svg{background:var(--panel-2);border:1px solid var(--line-solid);border-radius:8px;width:100%;max-width:100%;margin-top:6px}
+  .ragcheck{display:flex;flex-direction:column;gap:7px;margin-top:6px}
+  .ragcheck .r{display:flex;gap:8px;font-size:12px;align-items:flex-start;line-height:1.45}
+  .ragcheck .ok{color:var(--good);font-weight:800;flex:0 0 auto}
+
+  /* 파일럿 로드맵 */
+  .roadmap{margin-top:22px}
+  .roadmap .rt{overflow-x:auto;border:1px solid var(--line-solid);border-radius:12px}
+  .roadmap table{border-collapse:collapse;width:100%;min-width:560px;font-size:12px}
+  .roadmap th,.roadmap td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line-solid);vertical-align:top}
+  .roadmap thead th{background:var(--panel-2);font-size:11px;letter-spacing:.04em;color:var(--ink-faint);font-weight:700}
+  .roadmap tbody tr:last-child td{border-bottom:0}
+  .roadmap td.g{color:var(--ink);font-weight:600;white-space:nowrap}
+  .roadmap td.now{color:var(--ink-mut)}
+  .roadmap td.goal{color:var(--ink)}
+  .roadmap .cap{font-size:12.5px;color:var(--ink-mut);margin:4px 0 12px;line-height:1.55}
+
+  /* footer honesty */
+  .foot{margin-top:26px;background:var(--panel);border:1px solid var(--line-solid);border-left:3px solid var(--gold);border-radius:12px;padding:18px 20px}
+  .foot .h{font-weight:800;font-size:13.5px;margin-bottom:7px}
+  .foot p{margin:0 0 8px;font-size:12.5px;color:var(--ink-mut);line-height:1.6}
+  .foot p b{color:var(--ink)}
+  .foot .meta{margin-top:8px;font-size:11px;color:var(--ink-faint);display:flex;gap:16px;flex-wrap:wrap}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+  /* AI 어드바이저 브리핑 (LLM) */
+  .aibrief{border-left:4px solid var(--gold)}
+  .ai-tag{font-size:10px;font-weight:800;color:var(--gold);border:1px solid var(--gold-dim);border-radius:5px;padding:1px 7px;letter-spacing:.02em;text-transform:none}
+  .ai-gen{margin-left:auto;background:var(--gold);color:#14130f;border:0;border-radius:8px;padding:7px 14px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit}
+  .ai-gen:hover{filter:brightness(1.05)} .ai-gen:disabled{opacity:.6;cursor:default}
+  .ai-out{margin-top:10px;min-height:44px}
+  .ai-empty{font-size:12.5px;color:var(--ink-mut);line-height:1.6;background:var(--panel-2);border:1px solid var(--line-solid);border-radius:10px;padding:12px 14px}
+  .ai-empty code{font-family:var(--mono);font-size:11px;background:var(--panel);padding:1px 5px;border-radius:4px}
+  .ai-reply{font-size:14px;line-height:1.7;color:var(--ink);background:color-mix(in srgb,var(--gold) 6%,var(--panel));border:1px solid var(--gold-dim);border-radius:12px;padding:15px 17px;white-space:normal}
+  .ai-meta{font-size:10.5px;color:var(--ink-faint);margin-top:7px;font-family:var(--mono)}
+  .ai-loading{font-size:12.5px;color:var(--ink-mut);display:flex;align-items:center;gap:6px;padding:10px 2px}
+  .ai-loading .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block;animation:aiblink 1s infinite}
+  .ai-loading .dot:nth-child(2){animation-delay:.2s} .ai-loading .dot:nth-child(3){animation-delay:.4s}
+  @keyframes aiblink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+
+  /* §7 접근성 — 키보드 포커스 링 */
+  a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,[tabindex]:focus-visible{
+    outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
+
+  /* §12 점프 네비 + 1문장 결론 */
+  .jumpnav{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:10px 0 4px}
+  .jumpnav .jl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);font-weight:700;margin-right:4px}
+  .jumpnav a{font-size:12px;font-weight:700;color:var(--ink-mut);text-decoration:none;background:var(--panel);border:1px solid var(--line-solid);
+    border-radius:8px;padding:5px 11px}
+  .jumpnav a:hover{color:var(--ink);border-color:var(--gold-dim)}
+  .conclusion{background:color-mix(in srgb,var(--gold) 8%,var(--panel));border:1px solid var(--gold-dim);border-radius:12px;
+    padding:12px 15px;margin:6px 0 14px;font-size:13.5px;line-height:1.55;color:var(--ink)}
+  .conclusion b{color:var(--gold)}
+  .conclusion .cl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);font-weight:800;display:block;margin-bottom:4px}
+
+  /* §4 심사위원용 검증 요약 카드 */
+  .judgecard{border-left:4px solid var(--good)}
+  .judge-qa{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin-top:6px}
+  @media(max-width:720px){.judge-qa{grid-template-columns:1fr}}
+  .judge-qa .q{background:var(--panel-2);border:1px solid var(--line-solid);border-radius:9px;padding:10px 12px}
+  .judge-qa .q .qk{font-size:11px;color:var(--ink-faint);font-weight:700}
+  .judge-qa .q .qv{font-size:12.5px;color:var(--ink);margin-top:4px;line-height:1.5;font-weight:600}
+
+  /* §1-lite 데이터 운영 상태 */
+  .datastat{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 12px;margin-top:6px}
+  @media(max-width:720px){.datastat{grid-template-columns:1fr}}
+  .datastat .d{display:flex;justify-content:space-between;gap:8px;background:var(--panel-2);border:1px solid var(--line-solid);
+    border-radius:8px;padding:8px 11px;font-size:11.5px}
+  .datastat .dn{color:var(--ink-mut)} .datastat .dn b{color:var(--ink);font-weight:700}
+  .dpill{font-size:10px;font-weight:800;padding:1px 7px;border-radius:20px;white-space:nowrap;align-self:center}
+  .dpill.ok{color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+  .dpill.stale{color:var(--elev);background:color-mix(in srgb,var(--elev) 15%,transparent)}
+  .dpill.assume{color:var(--warn);background:color-mix(in srgb,var(--warn) 15%,transparent)}
+
+  /* 모바일 오버플로 방지 — 실제 원인: .form 2열이 브레이크포인트 없이 카드를 밀어냄 */
+  @media(max-width:720px){
+    .form{grid-template-columns:1fr}
+    .form input,.form select{min-width:0;max-width:100%}
+    .f.wide{grid-column:auto}
+    .presets{flex-wrap:wrap}
+    .gate .gr{gap:8px;flex-wrap:wrap}
+    .mono,.metaline,.kbpath,.note,.tk-line,.why,.s{overflow-wrap:anywhere;word-break:keep-all}
+    .hd-cta,.cta-btn,.go{width:100%;white-space:normal;line-height:1.35}
+    .ticker{width:100%;margin-left:0;justify-content:space-between}
+    .trust-strip{flex-wrap:wrap}
+    table{display:block;overflow-x:auto}
+  }
+</style>
+</head>
+<body>
+
+<div class="chrome">
+  <div class="kb"><span class="kb-star">★</span>KB&nbsp;Star&nbsp;FX <small>국민은행 기업뱅킹</small></div>
+  <span class="beta">수출입 금융 AI 코파일럿 · BETA</span>
+  <div class="chrome-right"><span class="whoami">기업뱅킹 로그인 · <b id="whoami-co">(주)한빛교역</b> 재무팀</span><button class="modebtn" id="modebtn">🙍 고객 화면 보기</button><button class="themebtn" id="themebtn">◐ 테마</button></div>
+</div>
+
+<div class="wrap">
+  <header class="head">
+    <div>
+      <h1><b>KB Star FX</b> 수출입 금융 AI 코파일럿</h1>
+      <p class="internal-only">환율을 맞히는 서비스가 아닙니다. 우리 회사의 <b>거래 정보(예산환율·결제 스케줄·거래국·결제방식)</b>를 정량 이탈확률로 번역하고, <b>KB 외환·수출입금융·무역지원 상품</b>으로 안전하게 라우팅하는 <b>환리스크 의사결정 보조</b>입니다. 투자자문·파생상품 권유가 아닙니다.</p>
+      <p class="customer-only">환율 예측 서비스가 아닙니다. 우리 회사의 <b>결제 일정과 기준환율</b>을 기준으로 <b>환리스크와 KB 상담 후보</b>를 정리합니다.</p>
+    </div>
+    <div class="ticker">
+      <div><div class="k" id="tk-pair">현재 USD / KRW</div><div class="v" id="tk-spot">–</div></div>
+      <div><div class="k">변동성 σ (연율)</div><div class="v" id="tk-sig" style="font-size:16px">–</div></div>
+      <div><div class="k">시장 위험게이지</div><div class="v" id="tk-ewi">–</div></div>
+    </div>
+  </header>
+
+  <section class="hero-decision" id="decision-hero">
+    <div class="hd-top">
+      <div class="hd-co" id="hd-co">–</div>
+      <div class="hd-state" id="hd-state">–</div>
+    </div>
+    <div class="hd-metrics">
+      <div class="hd-m"><div class="hd-k">예산환율 초과 가능성 (BBP)</div><div class="hd-v" id="hd-bbp">–</div></div>
+      <div class="hd-m"><div class="hd-k">이탈 시 기대손실</div><div class="hd-v" id="hd-es">–</div></div>
+      <div class="hd-m"><div class="hd-k">참고 헤지 (정보)</div><div class="hd-v sm" id="hd-hedge">–</div></div>
+      <div class="hd-m"><div class="hd-k">거래국 결합 리스크</div><div class="hd-v sm" id="hd-combine">–</div></div>
+    </div>
+    <div class="hd-foot">
+      <div class="hd-why" id="hd-why">–</div>
+      <button class="hd-cta" id="hd-cta">다음 액션: RM 검토 티켓 →</button>
+    </div>
+  </section>
+
+  <nav class="jumpnav internal-only" aria-label="섹션 바로가기">
+    <span class="jl">심사 바로가기</span>
+    <a href="#decision-hero">핵심 결과</a>
+    <a href="#sec-verify">검증 근거</a>
+    <a href="#sec-routing">KB 상품 라우팅</a>
+    <a href="#sec-gov">준법·감사</a>
+    <a href="#sec-roadmap">실서비스 로드맵</a>
+  </nav>
+  <div class="conclusion internal-only" id="conclusion"><span class="cl">이 화면의 결론</span><span id="conclusion-txt">–</span></div>
+
+  <section class="card nextsteps" id="nextsteps"></section>
+
+  <div class="trust-strip internal-only">
+    <span class="ts-lead">정직 검증</span>
+    <span class="ts-badge">예측·타이밍 알파 <b>기각</b> (walk-forward OOS)</span>
+    <span class="ts-badge internal-only">PBO 0.20 · 과최적화 점검</span>
+    <span class="ts-badge">체계적 <b>부분헤지 규율</b> 유효</span>
+    <span class="ts-badge">BBP = 예산환율 리스크 <b>번역</b> (예측 아님)</span>
+    <span class="ts-badge internal-only">BBP 캘리브레이션 <b>ECE 0.034</b> · 예측≈실제</span>
+  </div>
+
+  <div class="calib internal-only" id="calib-panel">
+    <div class="calib-l">
+      <div class="calib-h">BBP 신뢰도 (캘리브레이션 검증)</div>
+      <div class="calib-s">USD/KRW 2018–2026 실데이터 3,800건 무누수 백테스트 — 예측 이탈확률(BBP) vs 만기 실제 이탈빈도</div>
+      <div class="calib-kv"><b>ECE 0.034</b> · Brier 0.175 (무정보 0.25↓) · 십분위 전 구간 예측≈실제 (BBP 65%→실제 66%, 85%→85%)</div>
+      <div class="calib-stamp" id="calib-stamp">데이터 기준 2026-07-06 · BBP Student-t ν=5 · 헤지규율 0/50/100 MVP · 생성 –</div>
+    </div>
+    <svg class="calib-svg" id="calib-svg" viewBox="0 0 120 120" width="118" height="118" aria-label="신뢰도 곡선"></svg>
+  </div>
+
+  <div class="customer-note">고객 화면 모드 — 리스크 지표와 금융지원 안내를 제공합니다. 이탈확률·기대손실은 <b>참고 지표</b>이며 투자권유·손실확정이 아닙니다. 모델 내부지표·검증 세부는 표시하지 않으며, 최종 판단·확인·계약은 KB 영업점 상담으로 진행됩니다.</div>
+
+  <div class="agents4 internal-only" id="agents4">
+    <div class="a4"><div class="a4h">① Sentinel</div><div class="a4o" id="a4-1">–</div><div class="a4d">결정론 코어 · BBP·FX-EWI·실수요 계산</div></div>
+    <div class="a4"><div class="a4h">② Analyst</div><div class="a4o" id="a4-2">–</div><div class="a4d">원인 XAI · 거래국 매크로 결합</div></div>
+    <div class="a4"><div class="a4h">③ Advisor</div><div class="a4o" id="a4-3">–</div><div class="a4d">상품 룰엔진 · 추천/검토/차단/보류</div></div>
+    <div class="a4"><div class="a4h">④ Hedge</div><div class="a4o" id="a4-4">–</div><div class="a4d">트리아지 · CIP 선물환·옵션·보험</div></div>
+  </div>
+
+  <div class="stepper">
+    <div class="stp"><span class="n">1</span><div><div class="t">거래 정보 입력</div><div class="d">서류 업로드 · 실수요 증빙</div></div></div>
+    <div class="stp"><span class="n">2</span><div><div class="t">리스크 진단</div><div class="d">이탈확률 · 거래국 · 무역통계</div></div></div>
+    <div class="stp"><span class="n">3</span><div><div class="t">KB 상품 라우팅</div><div class="d">수출입금융 · 외환헤지 · 무역지원</div></div></div>
+    <div class="stp"><span class="n">4</span><div><div class="t">KB 상담 연결</div><div class="d">영업점·RM 확인</div></div></div>
+  </div>
+
+  <div class="compliance"><span class="ic">⚖</span><div>본 화면은 <b>정량 리스크 지표의 정보 제공</b>이며 투자자문·파생상품 권유가 아닙니다(<b>자본시장법상 투자권유 아님</b>). 이탈확률·기대손실은 환율 예측·손실 확정이 아닌 <b>참고 지표</b>이며, 헤지 수단·비율은 정보이지 상담·계약 지시가 아닙니다. 최종 판단·확인·계약은 <b>KB 영업점</b>에서 확정합니다.</div></div>
+
+  <!-- ───────── 왜 KB인가 ───────── -->
+  <section class="card whykb internal-only">
+    <div class="wk-h">왜 <b>KB국민은행</b>인가 — 다른 은행 로고로 대체되지 않는 이유</div>
+    <p style="margin:-4px 0 12px;font-size:12.5px;color:var(--ink-mut);line-height:1.6">KB 기존 외환 서비스가 <b>시장 뉴스·고시환율</b> 중심이라면, FX Sentinel은 고객의 <b>실제 결제 스케줄·예산환율·거래국·실수요 증빙</b>을 결합해 <b>BBP → KB 상품 라우팅 → RM 검토 티켓</b>까지 잇는 <b>기업별 외환 리스크 코파일럿</b>입니다.</p>
+    <div class="wk-grid">
+      <div class="wk"><span class="n">1</span><b>KB Star FX</b> — 환율 정보·외환파생 상담 진입점</div>
+      <div class="wk"><span class="n">2</span><b>KB Payment Usance</b> — 수입기업 결제자금 지원</div>
+      <div class="wk"><span class="n">3</span><b>특별출연 수출입 금융지원</b> — K-SURE 보증 기반 무여신 수출</div>
+      <div class="wk"><span class="n">4</span><b>해외거래처신용조사</b> — 거래상대방 대금회수 리스크 확인</div>
+      <div class="wk"><span class="n">5</span><b>통관상담·파트너관세사</b> — 통관·FTA·관세 리스크 연결</div>
+      <div class="wk"><span class="n">6</span><b>RM 티켓</b> — 고객 입력을 영업점 상담·검토로 전환</div>
+    </div>
+  </section>
+
+  <!-- ───────── STEP 1 ───────── -->
+  <div class="sec-h"><span class="bn">1</span><div><h2>거래 정보 입력</h2><p>인보이스를 올리면 실수요가 자동 확정되고, 아래 값은 직접 바꿔 볼 수 있습니다.</p></div></div>
+  <div class="grid2">
+    <section class="card">
+      <h3><span class="agent-n">◆</span> 실수요 증빙 게이트 (OCR)</h3>
+      <div class="drop" id="drop">
+        <div class="ic">📄</div>
+        <div class="m">인보이스 · 계약서 업로드</div>
+        <div class="s">PDF · JPG · PNG (최대 10MB) — 클릭하여 시연</div>
+      </div>
+      <div class="scan" id="scan">
+        <div class="scanbar"><i id="scanfill"></i></div>
+        <div class="s" style="margin-top:6px;text-align:center" id="scantxt">OCR 추출 중…</div>
+      </div>
+      <div class="gate" id="gate">
+        <div class="gh" id="gate-h">🔒 실수요 미확정 — 외환헤지 상담 잠금</div>
+        <div class="gr"><span>거래처</span><span class="mono" id="g-party">–</span></div>
+        <div class="gr"><span>결제 금액 / 만기</span><span class="mono" id="g-amt">–</span></div>
+        <div class="gr"><span id="g-ev-label">수출신고필증(UNIPASS)</span><span class="mono" id="g-evidence-value">–</span></div>
+        <div class="note" id="gate-note">외국환거래법상 기업의 선물환·옵션 헤지는 <b>실수요 증빙(인보이스·수출신고필증)</b>이 있어야 은행이 헤지 계약을 진행할 수 있습니다. OCR 자동추출은 초안이며, 최종 확정은 담당자 서명 검증(HITL)과 KB 영업점 KYC로 완료됩니다.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3><span class="agent-n">✎</span> 기업 · 거래 정보 <span style="margin-left:auto;font-weight:600;color:var(--ink-faint);text-transform:none;letter-spacing:0">직접 입력 가능</span></h3>
+      <div class="presets" id="presets"></div>
+      <div class="f-hint">아래 5가지만 입력하면 진단이 시작됩니다. 나머지는 서류 업로드·프리셋으로 자동 채워지며, 필요하면 <b>고급 설정</b>에서 직접 조정할 수 있습니다.</div>
+      <div class="form">
+        <div class="f"><label>기업명</label><input id="in-name" value="한빛정밀"></div>
+        <div class="f"><label>수입 / 수출</label><select id="in-pos"><option value="export">수출 (달러 받음)</option><option value="import">수입 (달러 지급)</option></select></div>
+        <div class="f"><label>결제 금액 (외화)</label><input id="in-amount" type="number" value="500000"></div>
+        <div class="f"><label>결제 만기 (영업일)</label><input id="in-horizon" type="number" value="63"></div>
+        <div class="f wide"><label>거래국</label><select id="in-country"><option>미국</option><option>베트남</option><option>중국</option><option>일본</option><option>기타</option></select></div>
+      </div>
+      <details class="advform">
+        <summary>고급 설정 <span class="sh">기준환율·통화·결제방식·품목·여신 등 · 프리셋/업로드로 자동 채워짐</span></summary>
+        <div class="form">
+          <div class="f"><label>기업 유형</label><select id="in-biz"><option value="corp">법인 (중소기업)</option><option value="sole">개인사업자 (글로벌셀러·소상공인)</option></select></div>
+          <div class="f"><label>회사 기준환율 (원)</label><input id="in-budget" type="number" value="1450"></div>
+          <div class="f"><label>결제 통화</label><select id="in-cur"><option value="USD">USD · 미국달러</option><option value="EUR">EUR · 유로</option><option value="JPY">JPY · 엔(100)</option><option value="CNY">CNY · 위안</option><option value="VND">VND · 동(100)</option></select></div>
+          <div class="f"><label>결제 방식</label><select id="in-pay"><option value="TT">T/T · 송금</option><option value="LC">L/C · 신용장</option><option value="DA">D/A · 인수도</option><option value="DP">D/P · 지급도</option><option value="OA">O/A · 무신용장 외상</option></select></div>
+          <div class="f wide"><label>품목 코드 <span style="font-weight:400;color:var(--ink-faint)">(모르면 비워도 됨)</span></label><select id="in-hs"><option value="8542">8542 · 반도체·집적회로</option><option value="8483">8483 · 기계·전동부품</option><option value="7408">7408 · 구리 선재</option><option value="6109">6109 · 의류(니트)</option><option value="ETC">기타 · 미분류</option></select></div>
+          <div class="f"><label>거래가 확정됐나요?</label><select id="in-cert"><option value="confirmed">확정 (인보이스 발행)</option><option value="provisional">가결제 (PO·취소가능)</option></select></div>
+          <div class="f"><label>여신 한도</label><select id="in-credit"><option value="yes">보유</option><option value="no">없음 (담보부족)</option></select></div>
+          <div class="f wide"><label>옵션 비용 낼 여유</label><select id="in-cash"><option value="ok">여유 있음</option><option value="tight">부담 (현금제약)</option></select></div>
+        </div>
+      </details>
+      <button class="go" id="go">분석 시작하기 →</button>
+    </section>
+  </div>
+
+  <!-- ───────── STEP 2 ───────── -->
+  <div class="sec-h"><span class="bn">2</span><div><h2>리스크 진단</h2><p>AI가 이탈확률·거래국 리스크·무역통계를 결합해 진단합니다.</p></div></div>
+  <div class="regime internal-only">
+    <div class="regime-l"><span class="lbl">시장 국면 · 스트레스 테스트</span><span class="regime-sub">과거 실측 변동성 국면(σ·경보성분)을 <b>현재 포지션</b>에 적용해 이탈확률·게이지가 어떻게 변하는지 봅니다 · 결제통화 현재가는 고정, 국면은 상대 변동성만 조정(USD 기준 배수) · <b>예: '2022 킹달러'를 누르면</b> 위험게이지가 경보로 치솟고 BBP가 급등해 헤지를 앞당길 구간이 됩니다 — 이 서비스의 진짜 가치는 급변기 대응</span></div>
+    <div class="regime-chips" id="regime-chips"></div>
+  </div>
+  <div class="grid3">
+    <section class="card hero">
+      <h3><span class="agent-n">①</span> 예산환율 이탈확률 (BBP) <span class="statechip" id="statechip"></span></h3>
+      <div class="gauge-wrap" role="img" aria-label="만기 이탈확률 BBP 게이지" id="bbp-gauge-wrap">
+        <svg viewBox="0 0 220 130" width="100%" aria-hidden="true">
+          <path class="track" d="M15 120 A 95 95 0 0 1 205 120" fill="none" stroke-width="15" stroke-linecap="round"/>
+          <path class="arc" id="arc" d="M15 120 A 95 95 0 0 1 205 120" fill="none" stroke-width="15" stroke-linecap="round"/>
+        </svg>
+        <div class="gauge-val"><div><span class="big" id="bbp">0</span><span class="pct">%</span></div><div class="cap" id="bbp-cap">만기 이탈확률</div></div>
+      </div>
+      <div class="hero-foot">
+        <div><div class="lbl">현재 예산 대비</div><div class="v" id="hf-dir" style="font-size:13px">–</div></div>
+        <div class="es"><div class="lbl">이탈 시 기대손실</div><div class="v" id="hf-es">–</div></div>
+      </div>
+      <div class="kv" id="ctx" style="margin-top:14px"></div>
+    </section>
+
+    <section class="card internal-only">
+      <h3><span class="agent-n">②</span> 위험 분해 · 프로필 민감도</h3>
+      <div class="lbl" style="margin-top:6px">FX-EWI 시장 위험게이지</div>
+      <div class="meter"><span class="mk" id="ewi-mk"></span></div>
+      <div class="meterscale"><span>0 정상</span><span>40</span><span>60</span><span>80</span><span>100 심각</span></div>
+
+      <div class="subhd">시장 공통 원인 <span class="tagm">FX-EWI 성분분해 · 전 고객 동일</span></div>
+      <div class="decomp" id="decomp-mkt"></div>
+      <div class="subhd">우리 회사 고유 노출 <span class="tagm">프로필 민감도 · 해석 보조</span></div>
+      <div class="decomp" id="decomp-own"></div>
+      <p class="narr" id="narr"></p>
+    </section>
+
+    <section class="card internal-only">
+      <h3><span class="agent-n">③</span> 거래국 매크로 + 결합</h3>
+      <div class="cty"><div class="rg" id="cty-rg">–</div><div><div class="nm" id="cty-nm">–</div><div class="sub" id="cty-sub">거래국 구조 리스크</div></div></div>
+      <div class="subhd">매크로 성분 <span class="tagm">FX-EWI와 별도 산출</span></div>
+      <div class="decomp" id="cty-rk"></div>
+      <div class="combine" id="cty-combine"></div>
+      <div class="stat" id="cty-stat"></div>
+      <div class="subhd">품목 무역통계 <span class="tagm" id="tradestat-hs">HS</span></div>
+      <div class="stat" id="tradestat"></div>
+      <div class="vnote" id="tradestat-note" style="margin-top:8px">–</div>
+      <div class="src" id="cty-src"></div>
+    </section>
+  </div>
+
+  <div class="grid2 internal-only" style="margin-top:16px">
+    <section class="card">
+      <h3><span class="agent-n">◇</span> BBP 민감도 (시나리오 재계산)</h3>
+      <table class="vtable" id="sens-table"></table>
+      <div class="sc" style="margin-top:8px">현재 입력 기준 실시간 재계산 — 환율·변동성·만기 변화가 이탈확률·기대손실·권고를 어떻게 움직이는지</div>
+    </section>
+    <section class="card">
+      <h3><span class="agent-n">◇</span> 거래 리스크 매트릭스</h3>
+      <svg id="matrix-svg" viewBox="0 0 300 200" width="100%" aria-label="리스크 매트릭스"></svg>
+      <div class="sc" id="matrix-note" style="margin-top:4px">–</div>
+    </section>
+  </div>
+
+  <!-- ───────── STEP 3 ───────── -->
+  <div class="sec-h" id="sec-routing"><span class="bn">3</span><div><h2>KB 상품 라우팅</h2><p>거래 정보를 KB 수입금융·수출금융·외환헤지·무역지원 서비스로 조건 기반 라우팅하고, 신청 가능성·조건을 판정합니다.</p></div></div>
+  <section class="card aibrief">
+    <h3><span class="agent-n">✦</span> AI 어드바이저 브리핑 <span class="ai-tag">LLM · Cloudflare Workers AI</span>
+      <button class="ai-gen" id="ai-gen">AI 브리핑 생성</button></h3>
+    <div class="ai-out" id="ai-out"><div class="ai-empty">아래 룰엔진이 계산한 <b>BBP·상품 후보</b>를 근거로, AI가 담당자용 <b>자연어 브리핑</b>을 생성합니다. 예측·투자권유가 아니라 이미 산출된 결과의 설명·정리입니다. 위 버튼을 누르면 실시간 생성됩니다.</div></div>
+    <div class="guard">※ 생성형 AI 출력은 제공된 계산값(FACTS)만 근거로 하며, 파생상품은 상담 후보입니다. 최종 상품 조건·계약은 KB 영업점·RM 확인 후 확정됩니다.</div>
+  </section>
+  <div class="grid2">
+    <section class="card">
+      <h3><span class="agent-n">④</span> KB 상품 라우팅 · 신청 가능성·조건 판정 <span style="margin-left:auto;font-weight:600;color:var(--ink-faint);text-transform:none;letter-spacing:0">수입금융 · 수출금융 · 외환헤지 · 무역지원</span></h3>
+      <div class="info" id="advisor"></div>
+      <div class="srclegend internal-only">
+        <span class="src official">KB 공식상품</span> 실제 판매 상품 ·
+        <span class="src service">KB 공식서비스</span> KB 운영 서비스 ·
+        <span class="src ext">외부기관/정책</span> K-SURE·정책자금 ·
+        <span class="src assume">데모 가정</span> 본선 전 확인
+      </div>
+      <div class="guard" id="guard"></div>
+    </section>
+
+    <section class="card locked" id="hedge-card">
+      <div class="lockmask" id="lockmask"><div><div class="li">🔒</div><div class="lm">외환헤지 상담 잠금</div><div class="ls">외국환거래법 실수요 원칙 — Step 1에서 인보이스를 업로드해 증빙을 확정하면 외환헤지 상담 정보가 활성화됩니다.</div></div></div>
+      <h3><span class="agent-n">⑤</span> 외환헤지 참고 정보</h3>
+      <div class="rec">
+        <div class="inst" id="h-inst">–</div>
+        <div class="prod" id="h-prod">–</div>
+        <div class="hedge-kv">
+          <div class="box"><div class="k">참고 헤지비율</div><div class="v" id="h-ratio">–</div></div>
+          <div class="box"><div class="k">헤지 금액</div><div class="v" id="h-notional">–</div></div>
+          <div class="box"><div class="k">선물환율 (CIP)</div><div class="v" id="h-fwd">–</div></div>
+          <div class="box"><div class="k">스왑포인트</div><div class="v" id="h-swap">–</div></div>
+        </div>
+        <div class="why" id="h-why"></div>
+      </div>
+      <div class="guard">※ 참고 헤지비율은 이탈확률 기반 MVP 규율(0/50/100%)입니다. 실제 대고객 비율은 한도·스프레드·기간·부분결제·헤지회계·위험성향을 반영한 산정으로 확장됩니다(로드맵). <b>헤지 금액은 실수요(결제금액) 상한 내로 제한</b>되어 과다헤지(투기적 초과)를 방지합니다(외국환거래법 실수요 원칙). 정보 제공이며 상담·계약 지시가 아닙니다.</div>
+    </section>
+  </div>
+
+  <!-- ───────── STEP 4 ───────── -->
+  <div class="sec-h"><span class="bn">4</span><div><h2>KB 상담 연결</h2><p>진단·추천 결과를 담당 RM에게 전달하고, 최종 확인·계약은 KB 영업점에서 진행합니다.</p></div></div>
+  <section class="card cta">
+    <div class="cta-l">
+      <div class="cta-t" id="cta-t">–</div>
+      <div class="cta-s">BBP 진단과 1순위 KB 상품 라우팅 결과(신청채널·필요서류·RM 확인사항)를 구조화해 담당 RM에게 전달합니다. 실수요 증빙·계약 효력의 최종 확인은 KB 영업점에서 진행됩니다.</div>
+    </div>
+    <button class="go cta-btn" id="book">영업점 상담 예약 요청 · RM 티켓 생성</button>
+  </section>
+  <section class="card ticket" id="ticket-card" style="display:none">
+    <div class="tk-top"><div class="tk-h">RM 전달 티켓 <span class="tk-id" id="tk-id"></span></div><div class="tk-st" id="tk-st">RM 검토 대기</div></div>
+    <div class="tk-grid" id="tk-grid"></div>
+    <div class="tk-docs" id="tk-docs"></div>
+    <div class="tk-foot" id="tk-foot"></div>
+  </section>
+
+  <!-- ───────── 진행 타임라인 · 기대효과 ───────── -->
+  <div class="sec-h"><span class="bn" style="background:var(--gold);color:#14130f">▸</span><div><h2>진행 타임라인 · 기대효과</h2><p>진단을 오늘 할 수 있는 진행 일정과 KB 업무효율로 연결합니다.</p></div></div>
+  <section class="card">
+    <h3><span class="agent-n">▸</span> 거래 진행 타임라인 <span id="tl-sub" style="margin-left:auto;font-weight:600;color:var(--ink-faint);text-transform:none;letter-spacing:0">영업일 기준</span></h3>
+    <div class="tl" id="timeline"></div>
+    <div class="guard">※ 일정은 결제 만기(영업일) 기준 데모 가이드이며, 실제 신청·심사 소요는 KB 영업점 확인에 따릅니다.</div>
+  </section>
+  <section class="card internal-only">
+    <h3><span class="agent-n">▸</span> Before → After <span style="margin-left:auto;font-weight:600;color:var(--ink-faint);text-transform:none;letter-spacing:0">발표용 — AI가 무엇을 결정 가능하게 했는가</span></h3>
+    <div class="ba" id="beforeafter"></div>
+  </section>
+  <section class="card internal-only">
+    <h3><span class="agent-n">▸</span> KB 내부 기대효과 <span style="margin-left:auto;font-weight:600;color:var(--ink-faint);text-transform:none;letter-spacing:0">파일럿 KPI 목표 · 확정 성과 아님</span></h3>
+    <div class="kpi" id="kb-kpi"></div>
+    <div class="guard">※ 수치는 실측 성과가 아닌 <b>파일럿 KPI 목표</b>입니다. 상품 후보 수·감지 건수는 현재 입력 기준 실시간 산출값입니다.</div>
+  </section>
+
+  <div class="internal-only">
+  <div class="sec-h" id="sec-verify" style="margin-bottom:6px"><span class="bn" style="background:var(--good)">✓</span><div><h2>모델 검증 (정직)</h2><p>USD/KRW 2018–2026 실데이터 무누수 백테스트. 좋은 결과와 한계를 함께 공개합니다.</p></div></div>
+  <section class="card judgecard">
+    <h3><span class="agent-n">✓</span> 심사위원용 한 장 요약 <span style="margin-left:auto;font-weight:600;color:var(--ink-faint);text-transform:none;letter-spacing:0">왜 안전한 AI인가</span></h3>
+    <div class="judge-qa">
+      <div class="q"><div class="qk">환율을 예측하나?</div><div class="qv">아니오 — 예측 알파는 walk-forward(OOS)에서 스스로 기각</div></div>
+      <div class="q"><div class="qk">무엇을 계산하나?</div><div class="qv">예산환율 이탈확률(BBP)·기대손실·부분헤지 참고치</div></div>
+      <div class="q"><div class="qk">검증 결과는?</div><div class="qv">ECE 0.034 · Brier 0.175 · PBO 0.20 (과최적화 아님)</div></div>
+      <div class="q"><div class="qk">실패 구간은?</div><div class="qv">2022 강달러·레짐 전환에서 꼬리위험 증가 — 부분헤지 규율로 보완</div></div>
+      <div class="q"><div class="qk">안전장치는?</div><div class="qv">0/50/100 부분헤지 · 실수요 증빙 게이트 · RM 최종 확인</div></div>
+      <div class="q"><div class="qk">AI가 하지 않는 것</div><div class="qv">수익 보장 · 매매 타이밍 · 파생상품 권유 · 계약 확정</div></div>
+    </div>
+  </section>
+  <div class="grid2">
+    <section class="card">
+      <h3><span class="agent-n">✓</span> BBP 캘리브레이션 심화</h3>
+      <div class="vsub">만기별 캘리브레이션 <span class="tagm">ECE 낮을수록 정합</span></div>
+      <table class="vtable" id="v-hor"></table>
+      <div class="vsub">Student-t 자유도 ν 민감도</div>
+      <table class="vtable" id="v-nu"></table>
+      <div class="vsub">부가 검증</div>
+      <table class="vtable" id="v-misc"></table>
+      <div class="vnote" id="v-limit"></div>
+    </section>
+    <section class="card">
+      <h3><span class="agent-n">✓</span> 정직 검증: 알파 기각 + 부분헤지 프론티어</h3>
+      <div class="vsub">Walk-forward OOS <span class="tagm">동적 타이밍 알파 기각</span></div>
+      <table class="vtable" id="v-oos"></table>
+      <div class="vsub">리스크–비용 프론티어 <span class="tagm">부분헤지가 양극단을 이김</span></div>
+      <svg class="frontier-svg" id="frontier-svg" viewBox="0 0 320 170" aria-label="부분헤지 프론티어"></svg>
+      <div class="vsub">추천 안전장치 (RAG·표현)</div>
+      <div class="ragcheck" id="v-rag"></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <h3><span class="agent-n">▤</span> 데이터 운영 상태 <span style="margin-left:auto;font-weight:600;color:var(--ink-faint);text-transform:none;letter-spacing:0">기준일·갱신주기·실패 처리</span></h3>
+    <div class="datastat">
+      <div class="d"><span class="dn"><b>USD/KRW 환율</b> · 기준 2026-07-06 · 실시간(데모 고정)</span><span class="dpill ok">정상 스냅샷</span></div>
+      <div class="d"><span class="dn"><b>스왑포인트</b> · CIP 산출 · 일중</span><span class="dpill assume">데모 가정</span></div>
+      <div class="d"><span class="dn"><b>거래국 지표</b> · IMF/WB/KITA · 월/분기</span><span class="dpill stale">stale — 기준일 초과, 리스크 점수 보류</span></div>
+      <div class="d"><span class="dn"><b>HS 무역통계</b> · KITA/관세청 · 월간</span><span class="dpill ok">대표 스냅샷</span></div>
+      <div class="d"><span class="dn"><b>제재 리스트</b> · OFAC/UN/EU · 일/수시</span><span class="dpill ok">최신 조회 완료(데모)</span></div>
+      <div class="d"><span class="dn"><b>KB 상품·요율</b> · 상품코드/약관 DB · 변경 시</span><span class="dpill assume">일부 가정 · RM 확인</span></div>
+    </div>
+    <div class="guard">※ 실서비스 연동 시 각 피드의 <b>기준일·갱신주기·소유부서</b>가 표시되며, <b>stale/미확인/조회실패</b> 상태에서는 자동 추천 대신 산출 잠금 또는 RM 확인으로 폴백합니다(위 <b>거래국 지표 stale</b> = 폴백 예시).</div>
+  </section>
+
+  <div class="sec-h" id="sec-gov" style="margin-bottom:6px"><span class="bn" style="background:var(--ink-faint)">§</span><div><h2>거버넌스 · 준법 · 감사</h2><p>금융 AI 가이드라인·금소법 매핑, 준법 게이트, 제재 스크리닝, 세션 감사로그.</p></div></div>
+  <div class="grid2">
+    <section class="card">
+      <h3><span class="agent-n">§</span> 금융 AI 가이드라인 · 금소법 매핑</h3>
+      <div class="vsub">금융 AI 가이드라인 7대 원칙 → 이 서비스 대응</div>
+      <table class="vtable" id="gov-ai"></table>
+      <div class="vsub">금융소비자보호법 6대 판매원칙 → 대응</div>
+      <table class="vtable" id="gov-fcp"></table>
+    </section>
+    <section class="card">
+      <h3><span class="agent-n">§</span> 준법 게이트 · 제재 스크리닝</h3>
+      <div class="vsub">상담·계약 전 게이트 (통과해야 진행)</div>
+      <div class="gate-flow" id="gov-gate"></div>
+      <div class="vsub">AML · 제재 · 거래상대방 스크리닝</div>
+      <div class="screen" id="gov-aml"></div>
+      <div class="vnote" id="gov-note"></div>
+    </section>
+  </div>
+  <section class="card" style="margin-top:16px">
+    <h3><span class="agent-n">§</span> 감사로그 (세션 · 재현 가능)</h3>
+    <div class="audit" id="audit-log"></div>
+  </section>
+
+  <div class="roadmap">
+    <div class="sec-h" id="sec-roadmap" style="margin-bottom:6px"><span class="bn" style="background:var(--ink-faint)">▤</span><div><h2>데모 → 파일럿 로드맵 (운영 게이트)</h2><p>지금은 대회 데모입니다. 실배포까지 남은 은행 운영 게이트를 숨기지 않고 명시합니다.</p></div></div>
+    <div class="cap">이 표가 <b>데모의 경계</b>입니다. 화면의 숫자·검증은 실측이지만, 아래 게이트는 파일럿 단계에서 KB 인프라·준법과 함께 채워집니다.</div>
+    <div class="rt"><table>
+      <thead><tr><th>운영 게이트</th><th>데모 현재</th><th>파일럿 목표</th></tr></thead>
+      <tbody id="roadmap-body"></tbody>
+    </table></div>
+  </div>
+  </div><!-- /internal-only -->
+
+  <div class="foot">
+    <div class="h">이 코파일럿이 하지 않는 것 — 그리고 정직하게 검증한 것</div>
+    <p>우리는 처음에 <b>"자체 지표가 환율을 예측·타이밍한다"</b>는 가설을 세웠고, 무누수 walk-forward(OOS)로 <b>스스로 기각</b>했습니다. 그래서 이 화면은 환율을 맞히지 않습니다. 대신 이미 확정된 <b>예산환율·결제 스케줄·포지션</b>을 정량 이탈확률(BBP)과 적용 가능한 헤지 의사결정으로 <b>번역</b>합니다. 이 화면의 모든 수치는 그 검증을 통과한 것만 남긴 것입니다.</p>
+    <p><b>아키텍처 정직 고지:</b> 이 데모의 <b>이탈확률·기대손실·헤지 트리아지</b>는 브라우저 내 결정론 계산(실측)입니다. <b>OCR 추출과 자연어 설명은 데모 시뮬레이션</b>이며, LLM 생성은 본선 전 <code>agents.py</code> 어댑터 슬롯에 연결할 예정입니다.</p>
+    <div class="meta">
+      <span>· 데이터: USD/KRW 2018–2026 실데이터 · FRED 금리(CIP)</span>
+      <span>· 검증: walk-forward OOS · PBO 0.20 (예측 알파는 기각, 부분헤지 규율은 유효)</span>
+      <span>· 무여신 수출은 KB 특별출연 수출입 금융지원(K-SURE 보증 기반) 라우팅 — 한도·요율은 RM 확인</span>
+      <span>· 정보 제공이며 최종 확인·계약은 KB 영업점</span>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════ LLM Advisor (Cloudflare Workers AI) 연결 ══════════ */
+/* 배포 후 아래에 워커 주소를 넣으세요 (worker/README.md 참고). 비어 있으면 '설정 필요' 안내가 뜹니다. */
+const FX_ADVISOR_PROXY = ""; // 예: "https://fx-sentinel.planbesides.workers.dev"
+let _advisorPayload = null;  // compute()가 최신 컨텍스트를 여기 저장
+
+/* ══════════ Student-t 엔진 (bbp.py 포팅) ══════════ */
+function gammaln(x){
+  const c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+  let y=x,tmp=x+5.5; tmp-=(x+0.5)*Math.log(tmp); let ser=1.000000000190015;
+  for(let j=0;j<6;j++){y+=1;ser+=c[j]/y;} return -tmp+Math.log(2.5066282746310005*ser/x);
+}
+function betacf(a,b,x){
+  const MAXIT=200,EPS=3e-12,FPMIN=1e-30; let qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;
+  if(Math.abs(d)<FPMIN)d=FPMIN; d=1/d; let h=d;
+  for(let m=1;m<=MAXIT;m++){let m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));
+    d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;d=1/d;h*=d*c;
+    aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;d=1/d;
+    let del=d*c;h*=del;if(Math.abs(del-1)<EPS)break;} return h;
+}
+function betai(a,b,x){ if(x<=0)return 0; if(x>=1)return 1;
+  let bt=Math.exp(gammaln(a+b)-gammaln(a)-gammaln(b)+a*Math.log(x)+b*Math.log(1-x));
+  return x<(a+1)/(a+b+2)? bt*betacf(a,b,x)/a : 1-bt*betacf(b,a,1-x)/b;
+}
+function tcdf(t,nu){ let x=nu/(nu+t*t),ib=0.5*betai(nu/2,0.5,x); return t>=0?1-ib:ib; }
+let _seed=123456789;                 // 시드 고정 PRNG(mulberry32) — 같은 입력이면 ES가 항상 동일(2.4)
+function rand01(){ _seed=(_seed+0x6D2B79F5)|0; let t=Math.imul(_seed^(_seed>>>15),1|_seed); t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; }
+function randn(){ let u=0,v=0; while(u===0)u=rand01(); while(v===0)v=rand01();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+function standardT(nu){ let z=randn(),w=0; for(let i=0;i<nu;i++){let n=randn();w+=n*n;} return z/Math.sqrt(w/nu); }
+
+const TRADING=252, NU=5;
+function bbpProb(spot,K,sigAnn,hbd,pos,iz){
+  const tau=hbd/TRADING, denom=sigAnn*Math.sqrt(tau);
+  if(denom<=0)return NaN; const z=(Math.log(K)-Math.log(spot))/denom;
+  let p = pos==="export"? tcdf(z,NU) : 1-tcdf(z,NU); if(iz)p*=0.7;
+  return Math.min(Math.max(p,0),1);
+}
+function expShortfall(spot,K,sigAnn,hbd,pos){
+  _seed=987654321;                   // 결정론화: 매 호출 동일 시드에서 시작 → 재계산해도 ES 불변(2.4)
+  const tau=hbd/TRADING, sd=sigAnn*Math.sqrt(tau), scale=sd/Math.sqrt(NU/(NU-2)), n=12000; let s=0;
+  for(let i=0;i<n;i++){const t=standardT(NU),ST=spot*Math.exp(scale*t);
+    s+= pos==="export"?Math.max(K-ST,0):Math.max(ST-K,0);} return s/n;
+}
+function hedgeRatio(la){ return la<0.15?0:(la<0.35?0.5:1.0); }
+function gradeOf(e){ return e<40?"정상":(e<60?"주의":(e<80?"경계":"심각")); }
+function triage(cert,credit,cash){
+  if(cert==="provisional")return["제로코스트 칼라 / 환변동보험","KB 통화옵션 / K-SURE 환변동보험","가결제(취소가능) → 비대칭 청산(최대손실=프리미엄). 선물환 금지: 취소 시 반대매매 손실 노출"];
+  if(!credit)return["환변동보험 + KB 특별출연 수출입 금융지원","K-SURE 환변동보험 · KB 특별출연 수출입 금융지원","여신 사각지대 → 여신 없이 K-SURE 공적보험으로 환리스크 관리 + KB국민은행 특별출연 수출입 금융지원(K-SURE 보증 기반) 검토. 헤지 금액은 실수요 범위 내"];
+  if(cash)return["제로코스트 칼라","KB 통화옵션","여신 있음 + 프리미엄 현금부담 → 풋매수=콜매도 상쇄로 선납비용 0"];
+  return["선물환","KB 선물환(대고객)","여신 있음 + 현금 여유 → 표준 최저비용 헤지"];
+}
+
+/* ══════════ 시장 상태 · 거래국 · 프리셋 ══════════ */
+const MARKET={spot:1528.8,date:"2026-07-06",sigAnn:0.098,ewi:38,iz:0,shares:{V:79,J:0,C:21},rateDiffPct:-0.92,regimeName:"현재",regimeNote:"실측 기준일 · 평시"};
+const GCOL={"정상":"var(--good)","주의":"var(--warn)","경계":"var(--elev)","심각":"var(--crit)"};
+// 과거 실측 국면(state/fx_ewi_timeseries.csv) — σ·EWI·성분·개입을 현재 포지션에 스트레스로 적용
+const REGIMES=[
+  {key:"현재",     date:"2026-07-06", sigAnn:0.098, ewi:38, iz:0, shares:{V:79,J:0, C:21}, note:"실측 기준일 · 평시"},
+  {key:"평온",     date:"2019-07-25", sigAnn:0.058, ewi:12, iz:0, shares:{V:61,J:0, C:39}, note:"저변동성 안정 국면"},
+  {key:"COVID 쇼크", date:"2020-03-25", sigAnn:0.124, ewi:87, iz:0, shares:{V:48,J:10,C:42}, note:"팬데믹 급락 · 점프 동반"},
+  {key:"2022 킹달러", date:"2022-11-15", sigAnn:0.164, ewi:91, iz:0, shares:{V:44,J:8, C:48}, note:"최고 변동성 · 군집 심화"},
+  {key:"점프 급변",  date:"2021-03-03", sigAnn:0.099, ewi:98, iz:0, shares:{V:42,J:19,C:39}, note:"금리 발작 급변 · 점프 집중"}
+];
+// 다통화 레지스트리(fx.py 미러) — USD=실데이터, 그 외=대표 스냅샷. r_home=원화 3M
+const R_HOME=0.0282;
+// unit=호가단위(원/unit통화). ES 총액 = esUnit(원/unit) × amount / unit (26.4)
+const CUR={
+  USD:{label:"USD / KRW",   unit:1,  spot:1528.8, sig:0.098, rf:0.0374, budget:1500, amount:500000},
+  EUR:{label:"EUR / KRW",   unit:1,  spot:1662.0, sig:0.086, rf:0.0245, budget:1630, amount:460000},
+  JPY:{label:"JPY100 / KRW",unit:100,spot:982.0,  sig:0.112, rf:0.0055, budget:965,  amount:78000000},
+  CNY:{label:"CNY / KRW",   unit:1,  spot:210.5,  sig:0.058, rf:0.0190, budget:207,  amount:3600000},
+  VND:{label:"VND100 / KRW",unit:100,spot:6.20,   sig:0.049, rf:0.0460, budget:6.10, amount:12000000000}
+};
+function fmtRate(v){ return v>=100 ? v.toLocaleString(undefined,{maximumFractionDigits:1}) : v>=1 ? v.toFixed(2) : v.toPrecision(3); }
+function stableUnipass(name){ let h=0; for(let i=0;i<name.length;i++)h=(h*31+name.charCodeAt(i))>>>0; return "41029-26-70"+String(10000+h%89999); }
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }  // 26.16 XSS 방지
+// BBP 캘리브레이션 결과(calibrate_bbp.py 실측, 2018–2026 무누수 3,800건) — 예측 vs 실제 이탈빈도
+const CALIB={ece:0.034, brier:0.175, n:3800, base:0.50,
+  bins:[[0.06,0.08],[0.15,0.15],[0.25,0.20],[0.35,0.34],[0.45,0.54],[0.55,0.47],[0.65,0.66],[0.75,0.80],[0.85,0.85],[0.94,0.92]]};
+// 거래국 매크로(country.py 미러) — FX-EWI와 별도 산출하는 국가 구조 리스크 입력값
+const COUNTRY={
+  "미국":  {rating:"AA+",growth:2.0,inflation:2.8,current_acct:-3.0,political:82,demand:["+3.1%","up"], gdp:["+2.0%","up"],fx:"DXY 103.2",     credit:"AA+ / 안정적",src:"S&P·IMF·World Bank·KITA(대표 스냅샷)"},
+  "베트남":{rating:"BB+",growth:5.7,inflation:3.5,current_acct: 2.0,political:55,demand:["+14.2%","up"],gdp:["+5.7%","up"],fx:"USD/VND 24,650",credit:"BB+ / 안정적",src:"S&P·IMF·World Bank·KITA(대표 스냅샷)"},
+  "중국":  {rating:"A+", growth:4.6,inflation:0.8,current_acct: 1.5,political:60,demand:["-1.2%","dn"], gdp:["+4.6%","up"],fx:"USD/CNY 7.24",  credit:"A+ / 부정적",src:"S&P·IMF·World Bank·KITA(대표 스냅샷)"},
+  "일본":  {rating:"A+", growth:0.9,inflation:2.2,current_acct: 3.5,political:85,demand:["+1.8%","up"], gdp:["+0.9%","up"],fx:"USD/JPY 152.6", credit:"A+ / 안정적",src:"S&P·IMF·World Bank·KITA(대표 스냅샷)"},
+  "기타":  {rating:null, demand:["N/A",""],gdp:["N/A",""],fx:"—",credit:"미상 — 확인 필요",src:"거래국 지표 미확보 — KITA·IMF 확인 필요"}
+};
+const _RATING={AAA:5,"AA+":12,AA:18,"AA-":24,"A+":30,A:38,"A-":44,"BBB+":50,BBB:56,"BBB-":62,"BB+":68,BB:75,"BB-":80,"B+":85,B:90};
+const _WM={"신용등급":0.35,"경상수지":0.20,"정치안정":0.20,"물가":0.15,"성장":0.10};
+const _clampM=x=>Math.max(0,Math.min(100,x));
+const GRADE_COL={"양호":"var(--good)","보통":"var(--warn)","주의":"var(--elev)","경계":"var(--crit)"};
+// 품목 무역통계(HS 코드별) — 대표 스냅샷(KITA·관세청). YoY·한국점유율·3년CAGR·계절성
+const TRADE_STATS={
+  "8542":{name:"반도체·집적회로",yoy:["+11.4%","up"],share:["19.2%","up"],cagr:"+8.7%",season:"Q3 집중",src:"KITA·관세청(대표 스냅샷)"},
+  "8483":{name:"기계·전동부품",yoy:["+3.1%","up"],share:["6.8%",""],cagr:"+2.4%",season:"연중 균등",src:"KITA·관세청(대표 스냅샷)"},
+  "7408":{name:"구리 선재",yoy:["-2.6%","dn"],share:["4.1%","dn"],cagr:"+1.1%",season:"Q2 집중",src:"KITA·관세청(대표 스냅샷)"},
+  "6109":{name:"의류(니트)",yoy:["+5.8%","up"],share:["2.3%",""],cagr:"+3.9%",season:"Q4 집중",src:"KITA·관세청(대표 스냅샷)"},
+  "ETC":{name:"미분류",yoy:["N/A",""],share:["N/A",""],cagr:"N/A",season:"—",src:"품목 지표 미확보 — 확인 필요"}
+};
+function macroGrade(s){ return s<30?"양호":s<45?"보통":s<60?"주의":"경계"; }
+function riskCol(v){ return v<30?"var(--good)":v<45?"var(--warn)":v<60?"var(--elev)":"var(--crit)"; }
+function macroScore(name){
+  const c=COUNTRY[name]||COUNTRY["기타"];
+  if(!c || c.rating==null) return {name:name,score:null,grade:"정보 확인 필요",components:{}};
+  const comp={
+    "신용등급":(_RATING[c.rating]??60),
+    "경상수지":_clampM(50-c.current_acct*6),
+    "정치안정":_clampM(100-c.political),
+    "물가":_clampM(20+Math.abs(c.inflation-2.5)*18),
+    "성장":_clampM(80-c.growth*10)};
+  const score=Object.keys(_WM).reduce((s,k)=>s+_WM[k]*comp[k],0);
+  const cr={}; Object.keys(comp).forEach(k=>cr[k]=Math.round(comp[k]));
+  return {name:name,score:Math.round(score*10)/10,grade:macroGrade(score),rating:c.rating,components:cr};
+}
+function combineRisk(fx,macro){ const cc=0.5*fx+0.5*macro;
+  return {combined:Math.round(cc*10)/10,grade:macroGrade(cc),fx_axis:Math.round(fx*10)/10,macro_axis:Math.round(macro*10)/10}; }
+const PRESETS=[
+  {label:"한빛정밀 · 수출확정",name:"한빛정밀",pos:"export",budget:1450,amount:500000,horizon:63,country:"미국",pay:"LC",hs:"8542",cert:"confirmed",credit:"yes",cash:"ok",biz:"corp",size:"sme",party:"Hanbit America LLC",unipass:"41029-26-7004821"},
+  {label:"대성무역 · 가결제",name:"대성무역",pos:"export",budget:1480,amount:300000,horizon:63,country:"베트남",pay:"TT",hs:"8483",cert:"provisional",credit:"yes",cash:"tight",biz:"corp",size:"sme",party:"Dae-sung Vina Co.",unipass:"—(PO 단계)"},
+  {label:"소망전자 · 무여신",name:"소망전자",pos:"export",budget:1500,amount:200000,horizon:42,country:"중국",pay:"OA",hs:"8542",cert:"confirmed",credit:"no",cash:"ok",biz:"corp",size:"small",party:"Somang Semicon HK",unipass:"41029-26-7009914"},
+  {label:"나래상사 · 수입",name:"나래상사",pos:"import",budget:1500,amount:400000,horizon:63,country:"베트남",pay:"TT",hs:"7408",cert:"confirmed",credit:"yes",cash:"ok",biz:"corp",size:"sme",party:"Narae Materials Import",unipass:"41055-26-7012036"},
+  {label:"하늘샵 · 글로벌셀러",name:"하늘샵",pos:"export",budget:1420,amount:80000,horizon:14,country:"미국",pay:"OA",hs:"6109",cert:"confirmed",credit:"no",cash:"tight",biz:"sole",size:"micro",party:"Amazon Marketplace Settlement",unipass:"플랫폼 정산명세"}
+];
+
+/* ══════════ 상태 ══════════ */
+let gate=false, gateInfo={party:"–",unipass:"–"};
+let _ticket={};  // Tier2 RM 티켓 데이터(compute에서 갱신)
+let _presetSize="sme";  // 기업규모(프리셋 힌트) micro/small/sme — 7.6 규모별 분기
+// Tier2 리스크 매트릭스(환율변동성 × 거래국구조)
+function renderMatrix(vol,macro,country){
+  const W=300,H=200,L=32,B=24,T=10,R=12, X=v=>L+(v/100)*(W-L-R), Y=v=>T+(1-v/100)*(H-T-B);
+  let g='<rect x="'+L+'" y="'+T+'" width="'+(W-L-R)+'" height="'+(H-T-B)+'" fill="none" stroke="var(--line-solid)"/>';
+  g+='<line x1="'+X(50)+'" y1="'+T+'" x2="'+X(50)+'" y2="'+(H-B)+'" stroke="var(--line-solid)" stroke-dasharray="3 3"/>';
+  g+='<line x1="'+L+'" y1="'+Y(50)+'" x2="'+(W-R)+'" y2="'+Y(50)+'" stroke="var(--line-solid)" stroke-dasharray="3 3"/>';
+  const q=[[X(25),Y(75),"안정"],[X(75),Y(75),"환율 우선"],[X(25),Y(25),"거래국 우선"],[X(75),Y(25),"양면 경계"]];
+  q.forEach(c=>g+='<text x="'+c[0].toFixed(0)+'" y="'+c[1].toFixed(0)+'" font-size="8" fill="var(--ink-faint)" text-anchor="middle">'+c[2]+'</text>');
+  g+='<circle cx="'+X(vol).toFixed(0)+'" cy="'+Y(macro).toFixed(0)+'" r="5" fill="var(--gold)" stroke="var(--panel)" stroke-width="1.5"/>';
+  g+='<text x="'+((L+W-R)/2)+'" y="'+(H-6)+'" font-size="8" fill="var(--ink-faint)" text-anchor="middle">환율 변동성(FX-EWI) →</text>';
+  g+='<text x="10" y="'+((T+H-B)/2)+'" font-size="8" fill="var(--ink-faint)" text-anchor="middle" transform="rotate(-90 10 '+((T+H-B)/2)+')">거래국 구조 ↑</text>';
+  $("matrix-svg").innerHTML=g;
+  const vh=vol>=60, mh=macro>=45;
+  const msg=vh&&mh?"환율·거래국 모두 높음 — 결제환율 방어 + 보증/신용장 강화 병행":
+    vh?"환율 리스크 우선 — 헤지(선물환/옵션) 중심, 거래국은 모니터링":
+    mh?"거래국 구조 리스크 우선 — 보증·신용장 강화, 환율은 부분헤지":
+    "안정 — 모니터링 중심, 급변 국면 진입 시 재점검";
+  $("matrix-note").textContent=country+": 환율 변동성 "+Math.round(vol)+" × 거래국 구조 "+Math.round(macro)+" → "+msg;
+}
+// Tier2 RM 전달 티켓 렌더
+function renderTicket(){ const t=_ticket; if(!t.name)return;
+  $("tk-id").textContent="#RMT-"+stableUnipass(t.name).slice(-5);
+  // 1. 고객·거래 요약
+  $("tk-grid").innerHTML=[
+    ["고객",esc(t.name)],["업무",t.pos+" 대금 · KB 상품 라우팅"],["거래국·결제",esc(t.country)+" · "+t.pay],
+    ["거래금액",t.amount.toLocaleString()+" "+t.cur],["결제 만기",t.horizon+"영업일"],["BBP · 기대손실",t.bbp.toFixed(1)+"% · "+won(t.es)]
+  ].map(r=>'<div class="c"><div class="k">'+r[0]+'</div><div class="v">'+r[1]+'</div></div>').join("");
+  // 2. 1순위 KB 상품 블록
+  const p=t.primary; let h='';
+  if(p){
+    const stc=ST_COL[p.st]||"var(--ink-mut)";
+    h+='<div class="tk-prod"><div class="tk-prod-h"><span class="tk-rank">1순위 KB 상품</span> <b>'+esc(p.t)+'</b>'
+      +' <span class="src '+(SRC_CLASS[p.src]||"ext")+'">'+esc(p.src)+'</span>'
+      +' <span class="chip" style="color:'+stc+';border-color:color-mix(in srgb,'+stc+' 45%,transparent)">'+esc(p.st)+'</span>'
+      +(p.fit?' <span class="tk-fit">적합도 '+p.fit.score+'</span>':'')+'</div>';
+    h+='<div class="tk-line"><b>추천 사유</b> '+p.why.map(esc).join(" · ")+'</div>';
+    if(p.channels&&p.channels.length) h+='<div class="tk-line"><b>신청채널</b> '+p.channels.map(esc).join(" · ")+'</div>';
+    if(p.readiness){ const rd=p.readiness;
+      h+='<div class="tk-line"><b>서류 준비 '+rd.n+'/'+rd.m+'</b> 확인 '+(rd.confirmed.map(esc).join(", ")||"–")+(rd.missing.length?' · <span style="color:var(--elev)">필요 '+rd.missing.map(esc).join(", ")+'</span>':'')+'</div>'; }
+    else if(p.docs&&p.docs.length) h+='<div class="tk-line"><b>필요서류</b> '+p.docs.map(esc).join(", ")+'</div>';
+    if(p.rmChecks&&p.rmChecks.length) h+='<div class="tk-line"><b>RM 확인사항</b> '+p.rmChecks.map(esc).join(" · ")+'</div>';
+    if(p.block) h+='<div class="tk-line" style="color:var(--crit)"><b>'+esc(p.st)+' 사유</b> '+esc(p.block.reason)+' — 해제조건: '+esc(p.block.unlock)+'</div>';
+    if(p.note) h+='<div class="tk-line" style="color:var(--ink-faint)">'+esc(p.note)+'</div>';
+    if(p.kbPath) h+='<div class="tk-line" style="color:var(--ink-faint);font-family:var(--mono);font-size:10.5px">'+esc(p.kbPath)+'</div>';
+    h+='</div>';
+  }
+  // 3. 외환헤지 참고 + 감사
+  const hr=t.hedgeRef;
+  h+='<div class="tk-line"><b>외환헤지 참고</b> '+(hr?esc(hr.t)+' · '+esc(hr.st):esc(t.inst.split(" / ")[0]))+' '+Math.round(t.ratio*100)+'%'+(t.ratio>0?" · "+t.notional.toLocaleString()+" "+t.cur:"")+' — 실제 고시 스왑포인트·대고객 스프레드 RM 확인</div>';
+  h+='<div class="tk-line" style="color:var(--ink-faint)"><b>감사·근거</b> BBP Student-t(ν5) 결정론 계산 · 출처 KB기업뱅킹/K-SURE/실측 스냅샷 · 상품 후보 '+t.propose+'개 · 모델 FX-EWI v0.1</div>';
+  $("tk-docs").innerHTML=h;
+  $("tk-foot").textContent="※ 정보 제공 티켓이며 계약 효력은 KB 영업점 확인 후 확정됩니다. 생성 "+new Date().toLocaleString("ko-KR",{hour12:false});
+}
+const $=id=>document.getElementById(id);
+function readForm(){
+  return {name:$("in-name").value||"입력기업", pos:$("in-pos").value, budget:+$("in-budget").value||0,
+    amount:+$("in-amount").value||0, horizon:+$("in-horizon").value||1, country:$("in-country").value,
+    currency:$("in-cur").value, pay:$("in-pay").value, hs:$("in-hs").value,
+    cert:$("in-cert").value, credit:$("in-credit").value, cash:$("in-cash").value, biz:$("in-biz").value};
+}
+function won(n){ if(!isFinite(n))return"–"; if(Math.abs(n)>=1e8)return(n/1e8).toFixed(2)+"억원"; return Math.round(n/1e4).toLocaleString()+"만원"; }
+function bbpColor(v){ return v<20?"var(--good)":v<40?"var(--warn)":v<60?"var(--elev)":"var(--crit)"; }
+const ARC=Math.PI*95;
+
+/* ══════════ 렌더 ══════════ */
+function compute(){
+  const f=readForm(), m=MARKET;
+  const cur=CUR[f.currency]||CUR.USD;
+  m.spot=cur.spot;                                    // 통화별 현재가
+  const regMult=REGIMES[regimeIdx].sigAnn/0.098;      // 국면 = USD 기준 상대 변동성 배수
+  const sigEff=cur.sig*regMult;                       // 통화 baseline σ × 국면 배수
+  const bbp=bbpProb(m.spot,f.budget,sigEff,f.horizon,f.pos,m.iz)*100;
+  const esUnit=expShortfall(m.spot,f.budget,sigEff,f.horizon,f.pos);
+  const esTotal=esUnit*f.amount/cur.unit;            // 26.4: 호가단위 보정(JPY/VND unit=100)
+  const la=(m.ewi/100)*(bbp/100), hr=hedgeRatio(la); // LossAlert=(EWI/100)×BBP
+  const alert=(m.ewi>=60)||(bbp>=40);                // 26.1: agents.py SentinelAgent와 동일 경보 임계
+  const badBudget = f.pos==="export"? m.spot<f.budget : m.spot>f.budget;  // 예산 대비 불리 여부(단일 정의)
+
+  // 상단 티커(통화·국면 반영)
+  $("whoami-co").textContent="(주)"+f.name;   // 26.7: 로그인 법인 = 선택 기업 동기화
+  $("tk-pair").textContent="현재 "+cur.label;
+  $("tk-spot").textContent=fmtRate(cur.spot);
+  $("tk-sig").textContent=(sigEff*100).toFixed(1)+"%";
+  const gEwi=gradeOf(m.ewi);
+  $("tk-ewi").innerHTML=Math.round(m.ewi)+' <span style="font-size:12px;color:'+GCOL[gEwi]+'">'+gEwi+'</span>';
+
+  // ① BBP gauge
+  const col=bbpColor(bbp); const arc=$("arc");
+  arc.style.stroke=col; arc.style.strokeDasharray=ARC; arc.style.strokeDashoffset=ARC*(1-bbp/100);
+  const be=$("bbp"); be.style.color=col; animNum(be,bbp,1);
+  const band=bbp<20?"낮음":bbp<40?"보통":bbp<60?"높음":"매우 높음";
+  $("bbp-cap").textContent="만기 이탈확률 · "+band;
+  const sc=$("statechip"); sc.textContent=alert?"🔔 능동 헤지 구간":"모니터링";
+  sc.style.background=alert?"color-mix(in srgb,var(--crit) 18%,transparent)":"var(--panel-2)";
+  sc.style.color=alert?"var(--crit)":"var(--ink-mut)";
+  // 26.3: '현재 이미 불리' 상태를 '만기 이탈확률(BBP)'과 분리 표기
+  const gapWon=m.spot-f.budget;  // +면 현재가가 예산 상회
+  $("hf-dir").textContent=(badBudget?"이미 불리 ":"여유 ")+(gapWon>=0?"+":"")+fmtRate(Math.abs(gapWon))+(gapWon>=0?" 상회":" 이내");
+  $("hf-es").textContent=won(esTotal);
+
+  // context
+  const certK=f.cert==="confirmed"?"확정 (인보이스)":"가결제 (취소가능)";
+  $("ctx").innerHTML=[
+    ["현재환율 / 예산환율",'<span class="'+(badBudget?"dir":"")+'">'+fmtRate(m.spot)+" / "+fmtRate(f.budget)+"</span>"],
+    ["결제 규모",f.amount.toLocaleString()+" "+f.currency],
+    ["결제 만기",f.horizon+" 영업일"],
+    ["익스포저 확실성",certK],
+    ["여신 한도",f.credit==="yes"?"보유":"없음 (담보부족)"]
+  ].map(r=>'<div class="r"><span class="k">'+r[0]+'</span><span class="val">'+r[1]+'</span></div>').join("");
+
+  // ② XAI — 시장 공통 (V/J/C)
+  $("ewi-mk").style.left="calc("+m.ewi+"% - 1.5px)";
+  const nm={V:"변동성 국면",J:"점프 집중",C:"변동성 군집"};
+  $("decomp-mkt").innerHTML=Object.keys(nm).map(k=>
+    '<div class="row"><span>'+nm[k]+'</span><div class="bar"><div class="fill mkt" style="width:'+m.shares[k]+'%"></div></div><span class="num">'+m.shares[k]+'%</span></div>').join("");
+  // ② XAI — 우리 회사 고유 노출 (프로필별 상이)
+  const tau=f.horizon/TRADING, sigStep=sigEff*Math.sqrt(tau)*m.spot;  // 26.2: BBP와 동일 σ(sigEff) 사용
+  const cushion=(f.pos==="export"? (m.spot-f.budget) : (f.budget-m.spot)); // +면 여유
+  const gapInt=Math.round(Math.min(Math.max(50-(cushion/sigStep)*45,4),100));   // 이격이 불리할수록↑
+  const horInt=Math.round(Math.min(Math.max(100*f.horizon/90,6),100));          // 만기 길수록↑
+  const dirInt=Math.round(Math.min(Math.max(bbp,4),100));                        // 방향 노출=이탈확률
+  const own={"예산환율 이격":gapInt,"결제 만기":horInt,"방향 노출":dirInt};
+  $("decomp-own").innerHTML=Object.keys(own).map(k=>
+    '<div class="row"><span>'+k+'</span><div class="bar"><div class="fill own" style="width:'+own[k]+'%"></div></div><span class="num">'+own[k]+'</span></div>').join("");
+  const proact = (m.regimeName!=="현재" && m.ewi>=60) ? " 이 국면이었다면 게이지가 ["+gEwi+"]로 치솟아 경보가 먼저 발동, 헤지를 앞당길 구간입니다." : "";
+  $("narr").textContent="["+m.regimeName+" 국면 · "+f.currency+" σ "+(sigEff*100).toFixed(1)+"%] 시장 위험게이지 "+Math.round(m.ewi)+"/100 ["+gEwi+"] — 전 고객 공통. "+f.name+"은(는) 예산 "+fmtRate(f.budget)+" 대비 현재 "+fmtRate(m.spot)+"이라 "+(badBudget?"이미 불리 구간":"아직 여유 구간")+", 만기 "+f.horizon+"영업일 노출로 이탈확률 "+bbp.toFixed(1)+"%."+proact;
+
+  // ③ 거래국 매크로 점수(FX-EWI와 별도) + 결합 표시
+  const c=COUNTRY[f.country]||COUNTRY["기타"];
+  const ms=macroScore(f.country);
+  const gcol=GRADE_COL[ms.grade]||"var(--ink-mut)";
+  $("cty-rg").textContent=ms.score!=null?Math.round(ms.score):"–";
+  $("cty-rg").style.borderColor=gcol; $("cty-rg").style.color=gcol;
+  $("cty-nm").textContent=f.country+" · "+ms.grade;
+  $("cty-sub").textContent="거래국 구조 리스크 "+(ms.score!=null?ms.score+"/100":"— 정보 확인 필요");
+  // 매크로 성분 분해(신용·경상수지·정치·물가·성장)
+  $("cty-rk").innerHTML=Object.keys(ms.components).map(k=>{const v=ms.components[k];
+    return '<div class="row"><span>'+k+'</span><div class="bar"><div class="fill" style="width:'+v+'%;background:'+riskCol(v)+'"></div></div><span class="num">'+v+'</span></div>';}).join("")
+    || '<div class="num" style="text-align:left">거래국 지표 미확보 — 확인 필요</div>';
+  // 결합: 환율 변동성 축(FX-EWI) × 거래국 구조 축(매크로)
+  const cb=combineRisk(m.ewi, ms.score==null?50:ms.score);
+  $("cty-combine").innerHTML='환율 변동성 <b>'+Math.round(cb.fx_axis)+'</b> × 거래국 구조 <b>'+Math.round(cb.macro_axis)+'</b> &nbsp;→&nbsp; 결합 <b style="color:'+(GRADE_COL[cb.grade]||"var(--ink)")+'">'+cb.combined+' ['+cb.grade+']</b>';
+  const statCells=[
+    '<div class="b"><div class="k">거래국 수입수요(YoY)</div><div class="v '+(c.demand[1]||"")+'">'+c.demand[0]+'</div></div>',
+    '<div class="b"><div class="k">GDP 성장률</div><div class="v '+(c.gdp[1]||"")+'">'+c.gdp[0]+'</div></div>',
+    '<div class="b"><div class="k">USD 환율</div><div class="v" style="font-size:13px">'+c.fx+'</div></div>',
+    '<div class="b"><div class="k">국가신용등급(S&P)</div><div class="v" style="font-size:13px">'+c.credit+'</div></div>'
+  ];
+  $("cty-stat").innerHTML=statCells.join("");
+  $("cty-src").textContent="출처: "+c.src;
+
+  // ④ Hedge
+  const[inst,prod,why]=triage(f.cert,f.credit==="yes",f.cash==="tight");
+  const fwd=cur.spot*(1+R_HOME*tau)/(1+cur.rf*tau), swap=fwd-cur.spot;   // CIP: 통화별 상대국 금리
+  $("h-inst").textContent=inst; $("h-prod").textContent="→ "+prod;
+  const ratio = hr;  // 26.1: LossAlert 규율 단일화(BBP≥50 이중게이트 삭제 — bbp.assess와 일치)
+  $("h-ratio").textContent=Math.round(ratio*100)+"%";
+  $("h-notional").textContent=ratio? Math.round(Math.min(f.amount*ratio,f.amount)).toLocaleString()+" "+f.currency : "–";  // 26.21 실수요 상한
+  $("h-fwd").textContent=fmtRate(fwd); $("h-swap").textContent=(swap>=0?"+":"−")+fmtRate(Math.abs(swap));
+  $("h-why").textContent = why + (alert? "  이탈확률 "+bbp.toFixed(0)+"%·기대손실 "+won(esTotal)+"으로 능동 커버리지 참고(정보 · 부분 "+Math.round(hr*100)+"%부터)." : "  이탈확률이 낮아 즉시 헤지는 불필요 — 모니터링 지속.")+"  LossAlert=(EWI/100)×BBP="+la.toFixed(2)+" → 참고비율 "+Math.round(hr*100)+"%.";
+
+  // ⑤ Advisor — KB 수출입금융 상품 라우팅(카테고리 세그먼트 + 구조화 카드 + 자격/서류/차단)
+  const recs=recommendPackage(f,{bbp:bbp,alert:alert,badBudget:badBudget,macroGrade:ms.grade,gate:gate});
+  const propose=recs.filter(x=>["추천","상담후보","RM확인"].includes(x.st));
+  const _bannerPrimary=primaryProduct(recs,f.biz);
+  const kbFirst=propose.slice().sort((a,b)=>{
+    if(a===_bannerPrimary)return -1; if(b===_bannerPrimary)return 1;
+    return (a.src==="KB 공식상품"?0:1)-(b.src==="KB 공식상품"?0:1); });
+  const pkgItems=kbFirst.map(x=>x.t.split("(")[0].split(" /")[0].trim()).slice(0,4);
+  const pkgName=f.pos==="import"?"수입기업 결제·원가방어 패키지":(f.credit==="no"?"수출기업 여신사각지대 패키지":"수출기업 표준 수출금융·헤지 패키지");
+  const pkgBanner='<div class="it" style="border-color:var(--gold-dim);background:var(--panel-2);margin-bottom:12px"><div class="t">📦 '+pkgName+' <span class="chip A">'+propose.length+'개 제안</span></div><div class="s">'+(pkgItems.length?pkgItems.map(esc).join(" + "):"조건 확인 필요")+'</div></div>';
+  renderAdvisor(recs,f);
+  $("advisor").insertAdjacentHTML("afterbegin",pkgBanner);
+  $("guard").textContent="※ 정보 제공(조건 기반 후보 라우팅)이며 확정 자문·최종 판정이 아닙니다. 파생상품은 투자권유가 아닌 상담 후보이며, 상품 자격·요율·한도는 시점에 따라 변동합니다. 최종 확인·계약은 KB 영업점·해당 기관을 통해 진행하세요.";
+
+  // 진행 타임라인 · Before/After · KB 내부 KPI
+  const _tlCtx={recs:recs, bbp:bbp, es:esTotal, inst:inst, ratio:ratio, spot:m.spot, propose:propose.length};
+  renderTimeline(f,_tlCtx); renderBeforeAfter(f,_tlCtx); renderKPI(f,_tlCtx); renderNextSteps(f,_tlCtx);
+
+  // LLM Advisor용 최신 컨텍스트 저장(1순위 우선 정렬 상품 후보 포함)
+  const _prodPrimary=primaryProduct(recs,f.biz);
+  const _prodOrdered=recs.slice().sort((a,b)=>(a===_prodPrimary?-1:b===_prodPrimary?1:0)).slice(0,6)
+    .map(x=>({t:x.t,cat:x.cat,st:x.st,src:x.src,why:x.why}));
+  _advisorPayload={
+    profile:{name:f.name,pos:f.pos,biz:f.biz,country:f.country,currency:f.currency,pay:f.pay,amount:f.amount,horizon:f.horizon,budget:f.budget},
+    risk:{bbp:bbp,expectedLossKRW:esTotal,ewi:Math.round(m.ewi),macroGrade:ms.grade,alert:alert},
+    products:_prodOrdered,
+    hedge:{inst:inst.split(" / ")[0],ratio:ratio}
+  };
+
+  // ⑥ Step4 요약
+  $("cta-t").textContent=f.name+" · 권고 수단: "+inst+(alert?"  (능동 헤지 구간)":"  (모니터링)");
+
+  // ★ Decision Hero (첫 화면 결과 요약) — 이미 산출된 값 승격
+  const posK=f.pos==="export"?"수출":"수입";
+  $("hd-co").textContent=f.name+" · "+posK+" · "+f.country+" · "+f.amount.toLocaleString()+" "+f.currency+" · "+f.horizon+"영업일";
+  const hs=$("hd-state"); hs.textContent=alert?"🔔 능동 헤지 구간":"모니터링";
+  hs.style.background=alert?"color-mix(in srgb,var(--crit) 16%,transparent)":"var(--panel-2)";
+  hs.style.color=alert?"var(--crit)":"var(--ink-mut)";
+  const hb=$("hd-bbp"); hb.textContent=bbp.toFixed(1)+"%"; hb.style.color=bbpColor(bbp);
+  $("hd-es").textContent=won(esTotal);
+  $("hd-hedge").textContent=inst.split(" / ")[0]+" "+Math.round(ratio*100)+"%"+(ratio>0?" · "+Math.round(f.amount*ratio).toLocaleString()+" "+f.currency:"");
+  const hc=$("hd-combine"); hc.textContent=(cb.combined)+" ["+cb.grade+"]"; hc.style.color=GRADE_COL[cb.grade]||"var(--ink)";
+  $("hd-why").textContent="근거: 현재환율 "+fmtRate(m.spot)+"이 예산환율 "+fmtRate(f.budget)+" 대비 "+(badBudget?"불리 구간":"여유 구간")+" · 만기 이탈확률 "+bbp.toFixed(0)+"% · "+(alert?"부분헤지 참고":"모니터링 권고")+".";
+
+  // §12 이 화면의 결론(1문장)
+  const _cP=primaryProduct(recs,f.biz), _cH=recs.find(r=>r.cat==="외환헤지"&&["추천","상담후보"].includes(r.st));
+  $("conclusion-txt").innerHTML=esc(f.name)+"은(는) "+f.horizon+"영업일 뒤 "+esc(f.currency)+" "+(f.pos==="import"?"결제":"회수")+"에서 <b>BBP "+bbp.toFixed(1)+"%</b>이며, <b>"+esc(_cP?_cP.t.split("(")[0].split(" /")[0].trim():"KB 수출입금융")+"</b>"+(_cH?" · "+esc(_cH.t.split("(")[0].trim())+" 상담 후보":"")+"를 <b>RM 검토 티켓</b>으로 전달합니다.";
+
+  // ── Tier2 ◇ BBP 민감도(시나리오 실시간 재계산)
+  const shk=m.spot*0.02;
+  const scen=[["현재",m.spot,sigEff,f.horizon],["환율 +2%",m.spot+shk,sigEff,f.horizon],["환율 −2%",m.spot-shk,sigEff,f.horizon],["변동성 ×1.5",m.spot,sigEff*1.5,f.horizon],["만기 절반",m.spot,sigEff,Math.max(5,Math.round(f.horizon/2))]];
+  $("sens-table").innerHTML='<thead><tr><th>시나리오</th><th>BBP</th><th>기대손실</th><th>참고</th></tr></thead><tbody>'
+    +scen.map(s=>{const b=bbpProb(s[1],f.budget,s[2],s[3],f.pos,m.iz)*100, e=expShortfall(s[1],f.budget,s[2],s[3],f.pos)*f.amount/cur.unit;
+      const r2=hedgeRatio((m.ewi/100)*(b/100)), rec=b>=50?("부분 "+Math.round(r2*100)+"%"):"모니터링";
+      return '<tr><td>'+s[0]+'</td><td style="text-align:right;color:'+bbpColor(b)+';font-weight:700">'+b.toFixed(1)+'%</td><td style="text-align:right">'+won(e)+'</td><td style="text-align:right;color:var(--ink-mut)">'+rec+'</td></tr>';}).join("")+'</tbody>';
+
+  // ── Tier2 ◇ 리스크 매트릭스 (환율변동성 × 거래국구조)
+  renderMatrix(m.ewi, ms.score==null?50:ms.score, f.country);
+
+  // ── Tier2 4-agent 실시간 출력
+  $("a4-1").textContent="BBP "+bbp.toFixed(0)+"% · EWI "+Math.round(m.ewi)+" · 게이트 "+(gate?"확정":"미확정");
+  $("a4-2").textContent=m.regimeName+" 국면 · 거래국 "+(ms.score!=null?Math.round(ms.score):"–")+"/100";
+  $("a4-3").textContent=propose.length+"개 제안 · 조건 판정";
+  $("a4-4").textContent=inst.split(" / ")[0]+" "+Math.round(ratio*100)+"% · 선물환 "+fmtRate(fwd);
+
+  // ── Tier2 RM 티켓 데이터 갱신
+  const _primary = primaryProduct(recs,f.biz);
+  const _hedgeRef = recs.find(r=>r.cat==="외환헤지"&&["추천","상담후보"].includes(r.st));
+  _ticket={name:f.name,pos:posK,country:f.country,amount:f.amount,cur:f.currency,horizon:f.horizon,budget:f.budget,spot:m.spot,bbp:bbp,es:esTotal,inst:inst,ratio:ratio,notional:Math.round(Math.min(f.amount*ratio,f.amount)),pay:f.pay,primary:_primary,hedgeRef:_hedgeRef,propose:propose.length};
+
+  // ── Tier2 품목 무역통계 (HS 코드별)
+  const ts=TRADE_STATS[f.hs]||TRADE_STATS["ETC"];
+  $("tradestat-hs").textContent="HS "+f.hs+" · "+ts.name;
+  $("tradestat").innerHTML=[["거래국 품목 수요(YoY)",ts.yoy],["한국 점유율",ts.share],["3년 CAGR",[ts.cagr,""]],["계절성",[ts.season,""]]]
+    .map(r=>'<div class="b"><div class="k">'+r[0]+'</div><div class="v '+(r[1][1]||"")+'" style="font-size:13px">'+r[1][0]+'</div></div>').join("");
+  const tImpact = f.pos==="import"
+    ? (ts.yoy[1]==="up"?"수입수요 견조하나 환율 변동성 상존 — 결제원가 방어 우선":"수입수요 둔화 — 물량·환율 동반 점검")
+    : (ts.yoy[1]==="up"?"수출수요 증가 — 대금 조기화(매입)·환헤지 병행 유리":"수출수요 둔화 — 보수적 헤지·보험 병행");
+  $("tradestat-note").innerHTML='<b>영향:</b> '+esc(f.country)+' '+ts.name+' 수요 '+ts.yoy[0]+', 한국 점유율 '+ts.share[0]+'. '+tImpact+'. <span style="color:var(--ink-faint)">출처: '+ts.src+'</span>';
+
+  // ── Tier3 AML·제재 스크리닝(거래국·품목 기반)
+  // §8 제재/거래국 리스크 4단계: 정상(조회완료)·주의(RM검토)·미확인(조회실패/기준초과)·차단(리스트 일치)
+  const SANC={"미국":["데모 스냅샷: 정상 예시","var(--good)"],"베트남":["데모 스냅샷: 정상 예시","var(--good)"],"중국":["주의 · 이중용도 확인(RM 검토)","var(--warn)"],"일본":["데모 스냅샷: 정상 예시","var(--good)"],"기타":["미확인 · 조회 필요(추천 보류)","var(--elev)"]};
+  const sc2=SANC[f.country]||SANC["기타"], dual=(f.hs==="8542")?["주의 · 전략물자(반도체) 확인","var(--warn)"]:["해당 없음","var(--good)"];
+  $("gov-aml").innerHTML=[["거래국 제재(OFAC/UN/EU)",sc2],["거래상대방 watchlist",["데모 스냅샷: 일치 없음","var(--good)"]],["이중용도 품목(HS "+f.hs+")",dual]]
+    .map(r=>'<div class="r"><span>'+r[0]+'</span><span class="pill" style="background:color-mix(in srgb,'+r[1][1]+' 18%,transparent);color:'+r[1][1]+'">'+r[1][0]+'</span></div>').join("");
+  $("gov-note").innerHTML='<b>제재 스크리닝(4단계):</b> <b style="color:var(--good)">정상</b>=최신 조회 완료·일치 없음 · <b style="color:var(--warn)">주의</b>=거래국/품목 리스크 상승·RM 검토 · <b style="color:var(--elev)">미확인</b>=조회 실패/기준일 초과·자동 추천 보류 · <b style="color:var(--crit)">차단</b>=제재 리스트 일치/전략물자 고위험. 데모는 <b>대표 스냅샷</b>이며 실서비스는 실시간 OFAC/UN/EU·내부 AML 연동.';
+
+  applyGate();
+}
+
+const ST_COL={"추천":"var(--good)","상담후보":"var(--gold)","RM확인":"var(--elev)","검토":"var(--warn)","확인필요":"var(--elev)","보류":"var(--elev)","제외":"var(--ink-faint)","차단":"var(--crit)"};
+const SRC_CLASS={"KB 공식상품":"official","KB 공식서비스":"service","외부기관(K-SURE)":"ext","외부 정책자금":"ext","데모 가정":"assume","일반 외환 실무":"ext","외국환거래법 실수요 원칙":"ext"};
+const SEG_ORDER=["외환헤지","수입금융","수출금융","무역지원"];
+// KB 상품 라우팅 렌더 — 카테고리 세그먼트 탭 + 구조화 카드
+function renderAdvisor(recs,f){
+  const cont=$("advisor"); if(!cont)return;
+  const groups={}; SEG_ORDER.forEach(s=>groups[s]=[]);
+  recs.forEach(r=>{ (groups[r.cat]||(groups[r.cat]=[])).push(r); });
+  const active=SEG_ORDER.filter(s=>groups[s].length);
+  const _prim=primaryProduct(recs,f.biz);
+  // 1순위 KB 상품을 해당 탭의 맨 앞으로 — 탭 열자마자 첫눈에 보이게
+  if(_prim && groups[_prim.cat]){ const g=groups[_prim.cat], i=g.indexOf(_prim); if(i>0){ g.splice(i,1); g.unshift(_prim); } }
+  // 기본 활성 세그먼트: 1순위 KB 상품의 카테고리를 열어 화면 전체 "1순위" 메시지 일치
+  let def = (_prim||{}).cat;
+  if(!def || !groups[def] || !groups[def].length) def = f.pos==="import"?"수입금융":"수출금융";
+  if(!groups[def]||!groups[def].length) def=active[0]||"외환헤지";
+  const card=r=>{
+    const stc=ST_COL[r.st]||"var(--ink-mut)", srcCls=SRC_CLASS[r.src]||"ext";
+    let h='<div class="it"><div class="t">'+esc(r.t)
+      +'<span class="src '+srcCls+'">'+esc(r.src)+'</span>'
+      +'<span class="chip" style="color:'+stc+';border-color:color-mix(in srgb,'+stc+' 45%,transparent)">'+esc(r.st)+'</span></div>';
+    h+='<div class="s">'+r.why.map(esc).join(" · ")+'</div>';
+    if(r.fit){ const p=Math.max(0,Math.min(100,r.fit.score));
+      h+='<div class="fitrow"><span class="lbl" style="letter-spacing:.04em">적합도</span><div class="fitbar"><i style="width:'+p+'%"></i></div>'
+        +'<span class="fs">'+p+'</span>'+((r.fit.unknown&&r.fit.unknown.length)?'<span class="fu">미확인 '+r.fit.unknown.length+'</span>':'')+'</div>';
+      if(r.fit.pass&&r.fit.pass.length) h+='<div class="metaline"><b>충족</b> '+r.fit.pass.map(esc).join(" · ")+'</div>';
+      if(r.fit.unknown&&r.fit.unknown.length) h+='<div class="metaline rm"><b>미확인</b> '+r.fit.unknown.map(esc).join(" · ")+'</div>';
+    }
+    if(r.block){ h+='<div class="blockbox"><b>'+esc(r.st)+' · '+esc(r.block.reason)+'</b><br>'+esc(r.block.detail)
+      +'<br><span style="color:var(--ink-mut)">해제조건: '+esc(r.block.unlock)+'</span></div>'; }
+    if(r.readiness){ const rd=r.readiness;
+      h+='<div class="metaline"><b>서류 준비 '+rd.n+'/'+rd.m+'</b>'
+        +(rd.confirmed.length?' · 확인 '+rd.confirmed.map(esc).join(", "):'')
+        +(rd.missing.length?' · <span style="color:var(--elev)">필요 '+rd.missing.map(esc).join(", ")+'</span>':'')+'</div>'; }
+    else if(r.docs&&r.docs.length){ h+='<div class="metaline"><b>필요서류</b> '+r.docs.map(esc).join(", ")+'</div>'; }
+    if(r.channels&&r.channels.length) h+='<div class="metaline"><b>신청채널</b> '+r.channels.map(esc).join(" · ")+'</div>';
+    if(r.rmChecks&&r.rmChecks.length) h+='<div class="metaline rm"><b>RM 확인사항</b> '+r.rmChecks.map(esc).join(" · ")+'</div>';
+    if(r.note) h+='<div class="metaline">'+esc(r.note)+'</div>';
+    h+='<div class="metaline"><b>다음</b> '+esc(r.next)+'</div>';
+    if(r.kbPath) h+='<div class="kbpath">'+esc(r.kbPath)+(r.ref?' · <a href="'+esc(r.ref)+'" target="_blank" rel="noopener">KB 안내</a>':'')+'</div>';
+    return h+'</div>';
+  };
+  const tabs=active.map(s=>'<button class="seg-tab'+(s===def?' on':'')+'" data-seg="'+s+'">'+s+'<span class="cnt">'+groups[s].length+'</span></button>').join("");
+  const panes=active.map(s=>'<div class="seg-pane'+(s===def?' on':'')+'" data-pane="'+s+'">'+groups[s].map(card).join("")+'</div>').join("");
+  cont.innerHTML='<div class="seg-tabs">'+tabs+'</div>'+panes;
+  cont.querySelectorAll(".seg-tab").forEach(b=>b.addEventListener("click",()=>{
+    const s=b.getAttribute("data-seg");
+    cont.querySelectorAll(".seg-tab").forEach(x=>x.classList.toggle("on",x===b));
+    cont.querySelectorAll(".seg-pane").forEach(p=>p.classList.toggle("on",p.getAttribute("data-pane")===s));
+  }));
+}
+// 7.5 거래 진행 타임라인 — 결제 만기(영업일) 기준 마일스톤
+function flagshipName(recs,biz){ const p=primaryProduct(recs,biz); return p?p.t.split("(")[0].split(" /")[0].trim():"KB 수출입금융"; }
+// 1순위 KB 상품 선정 — RM 티켓·다음단계·타임라인 공유
+function primaryProduct(recs,biz){
+  return (biz==="sole" && recs.find(r=>r.t==="KB 글로벌셀러 우대서비스"))
+    || recs.find(r=>r.src==="KB 공식상품"&&["추천","RM확인"].includes(r.st))
+    || recs.find(r=>r.src==="KB 공식상품")
+    || recs.find(r=>["추천","RM확인","상담후보"].includes(r.st))
+    || recs[0];
+}
+// 7. 고객 화면 "오늘 가능한 다음 단계" 다음 단계 요약
+function renderNextSteps(f,ctx){
+  const p=primaryProduct(ctx.recs,f.biz), hr=ctx.recs.find(r=>r.cat==="외환헤지"&&["추천","상담후보"].includes(r.st));
+  const items=[];
+  if(p){ const verb=(p.st==="보류"||p.block)?"조건 확인 필요":(["추천","RM확인"].includes(p.st)?"신청 가능 여부 확인":"검토");
+    items.push("<b>"+esc(p.t)+"</b> "+verb+(p.block?" — "+esc(p.block.reason):"")); }
+  if(p&&p.readiness){ const rd=p.readiness; items.push("필요서류 <b>"+rd.n+"/"+rd.m+"</b> 준비"+(rd.missing.length?" · 남은 서류 "+esc(rd.missing.slice(0,2).join(", ")):"")); }
+  else items.push("실수요 증빙(인보이스·계약서) 업로드로 서류 확정");
+  if(p&&p.rmChecks&&p.rmChecks.length) items.push("RM 확인 필요: <b>"+esc(p.rmChecks.slice(0,3).join(", "))+"</b>");
+  else items.push("RM 확인 필요: 한도·요율·자격 요건");
+  items.push("외환헤지("+esc(hr?hr.t:(ctx.inst||"").split(" / ")[0])+")는 <b>상담 후보</b> — 계약은 KB 영업점 확인 후 진행");
+  $("nextsteps").innerHTML='<div class="ns-h">오늘 가능한 다음 단계 <span class="tag">고객 다음 단계 요약</span></div><div class="ns-list">'
+    +items.map((t,i)=>'<div class="ns-item"><span class="num">'+(i+1)+'</span><div>'+t+'</div></div>').join("")+'</div>';
+}
+function renderTimeline(f,ctx){
+  const H=Math.max(5,f.horizon|0), imp=f.pos==="import", flag=flagshipName(ctx.recs,f.biz);
+  const endLbl=imp?"수입대금 결제/상환":"수출대금 회수";
+  const credStep=(f.credit==="no")?"K-SURE 보증 가능 여부·한도 확인":"여신·한도 확인";
+  const docStep=imp?"수입계약서·Invoice·운송서류 확인":"수출계약서·Invoice·선적서류 확인";
+  const rows=[
+    {d:"D-"+H, t:"오늘 · BBP "+Math.round(ctx.bbp)+"% · "+flag+" 검토", now:true},
+    {d:"D-"+Math.round(H*0.82), t:docStep},
+    {d:"D-"+Math.round(H*0.6), t:credStep},
+    {d:"D-"+Math.round(H*0.4), t:flag+" 신청 또는 조건 검토"},
+    {d:"D-"+Math.max(3,Math.round(H*0.18)), t:"헤지 상담 여부 RM 재판정"},
+    {d:"D-Day", t:endLbl}
+  ];
+  $("timeline").innerHTML=rows.map(r=>'<div class="n'+(r.now?' now':'')+'"><div class="dm">'+r.d+'</div><div class="bar"></div><div class="dt">'+esc(r.t)+'</div></div>').join("");
+  $("tl-sub").textContent=f.name+" · "+(imp?"수입":"수출")+" · 만기 "+H+"영업일";
+}
+// 7.7 Before → After (발표용)
+function renderBeforeAfter(f,ctx){
+  const imp=f.pos==="import", flag=flagshipName(ctx.recs,f.biz);
+  const hedge=ctx.inst.split(" / ")[0]+" "+Math.round(ctx.ratio*100)+"%";
+  const rd=(ctx.recs.find(x=>x.readiness)||{}).readiness;
+  const docs=rd?("필요서류 "+rd.n+"/"+rd.m):"필요서류 정리";
+  const before='<div class="col"><div class="bl">Before</div><div class="bt">현재환율 <b>'+fmtRate(ctx.spot)+'원</b>. '+f.horizon+'영업일 뒤 '+(imp?'결제':'회수')+'. <b>막연히 불안.</b></div></div>';
+  const after='<div class="col after"><div class="bl">After · KB Star FX 코파일럿</div><div class="bt">'
+    +'만기 이탈확률 <b>'+ctx.bbp.toFixed(1)+'%</b> · 이탈 시 기대손실 <b>'+won(ctx.es)+'</b><br>'
+    +'1순위 <b>'+esc(flag)+'</b> 검토 · 헤지 <b>'+esc(hedge)+'</b> 상담후보<br>'
+    +esc(docs)+' · <b>RM 티켓</b> 생성 준비</div></div>';
+  $("beforeafter").innerHTML=before+'<div class="arrow">→</div>'+after;
+}
+// 7.8 KB 내부 기대효과 KPI (파일럿 목표 + 실시간 산출)
+function renderKPI(f,ctx){
+  let miss=0; ctx.recs.forEach(r=>{ if(r.readiness) miss+=r.readiness.missing.length; });
+  const rows=[
+    {v:"−40%", l:"상담 준비시간 단축(목표)"},
+    {v:miss+"건", l:"서류 누락 사전감지(현재 입력)"},
+    {v:ctx.propose+"개", l:"상품 후보 자동 라우팅"},
+    {v:"자동", l:"적합성·설명의무 기록 생성"}
+  ];
+  $("kb-kpi").innerHTML=rows.map(r=>'<div class="k"><div class="kv">'+r.v+'</div><div class="kl">'+r.l+'</div></div>').join("");
+}
+// 상품 자격요건 룰엔진 — 결제방식×확실성×여신×현금×거래국 → 추천/검토/제외/차단 + 사유·서류·다음액션
+function recommendPackage(f,ctx){
+  const R=[], imp=f.pos==="import", exp=f.pos==="export", pay=f.pay;
+  const bbpN=Math.round(ctx.bbp), cur=f.currency||"USD", hs=f.hs||"";
+  const usanceCur=["USD","EUR","JPY","CNY"].includes(cur);
+  const seller = f.biz==="sole" || /marketplace|셀러|amazon|정산|플랫폼/i.test((f.party||"")+" "+(f.name||""));
+  const recvRisk = exp && (pay==="OA"||pay==="DA"||pay==="DP");
+  const macroWarn = ctx.macroGrade==="주의"||ctx.macroGrade==="경계";
+  const gateOn = !!ctx.gate;
+  // 서류 준비율 데모 규칙: 게이트 확정 시 앞쪽 서류 확인, 미확정 시 부분
+  const readiness = docs => { if(!docs||!docs.length) return null;
+    const n = gateOn ? Math.min(docs.length, Math.max(2, Math.ceil(docs.length*0.6))) : Math.min(docs.length, 1);
+    return {n:n, m:docs.length, confirmed:docs.slice(0,n), missing:docs.slice(n)}; };
+
+  /* ═══ 1) 거래유형별 KB 수출입금융 상품 (라우팅 주인공) ═══ */
+  if(imp){
+    if(usanceCur){
+      const confirmed=f.cert==="confirmed", termOk=f.horizon<=126;   // 6개월(약 126영업일) 이내 자격 조건
+      const usSt = !termOk ? "보류" : (confirmed?"추천":"검토");
+      const rec={t:"KB Payment Usance", cat:"수입금융", st:usSt, src:"KB 공식상품",
+        kbPath:"기업뱅킹 › 외환 › 수출입 › KB Payment Usance", ref:"https://obiz.kbstar.com/quics?page=C102065",
+        why:["수입 "+(confirmed?"확정":"진행")+" 건 · "+(pay==="TT"?"T/T 송금방식":pay)+" · "+cur+" 결제","결제 만기 "+f.horizon+"영업일"+(termOk?" · 신청일로부터 6개월 이내":" · 기본 6개월 초과 가능")],
+        docs:["신청서","수입계약서","Invoice","운송서류"],
+        channels:["영업점","기업인터넷뱅킹","전자무역(EDI)"],
+        rmChecks:["포괄외화지급보증 한도","금리","인수수수료·전신료","내부 신용심사"],
+        next:termOk?"KB Payment Usance 한도·요율 확인":"만기 조건 재확인 또는 대체 수입금융 검토"};
+      if(!termOk){ rec.block={reason:"기간 조건 확인 필요", detail:"입력 만기 "+f.horizon+"영업일은 기본 6개월(약 126영업일) 이내 조건을 초과할 수 있음 — 최장 1년 이내 연장 가능 여부는 RM 확인 필요", unlock:"만기 조건 재확인 또는 대체 수입금융 검토"}; }
+      else { rec.fit={score:confirmed?86:70, pass:["사전/사후 송금방식 수입기업","신청통화 "+cur,"6개월 이내 충족"], unknown:["포괄외화지급보증 한도","내부 신용심사"]}; }
+      R.push(rec);
+    } else {
+      R.push({t:"KB Payment Usance", cat:"수입금융", st:"보류", src:"KB 공식상품",
+        kbPath:"기업뱅킹 › 외환 › 수출입 › KB Payment Usance", ref:"https://obiz.kbstar.com/quics?page=C102065",
+        why:["수입 · "+cur+" 결제"],
+        block:{reason:"신청통화 미지원", detail:cur+" 결제는 KB Payment Usance 신청통화(USD/EUR/JPY/CNY) 범위 밖 — 별도 수입금융 또는 해외송금 검토 필요", unlock:"USD/EUR/JPY/CNY 결제 전환 또는 대체 수입금융 확인"},
+        next:"대체 수입금융/해외송금 검토"});
+    }
+    if(pay==="LC"){
+      R.push({t:"수입신용장(L/C) 개설", cat:"수입금융", st:"추천", src:"KB 공식상품",
+        kbPath:"기업뱅킹 › 외환 › 수출입 › 수입신용장", why:["수입 + L/C — 대금지급 보장·개설"],
+        docs:["개설신청서","수입계약서","사업자등록증"], channels:["영업점","기업인터넷뱅킹"],
+        rmChecks:["개설 한도","개설수수료","담보/여신"], next:"L/C 개설 한도 검토"});
+      R.push({t:"운송서류인수(L/G)", cat:"수입금융", st:"검토", src:"KB 공식상품",
+        why:["선적서류 도착 전 통관 필요 시 수입화물선취보증"], docs:["L/G 신청서","B/L 사본"], next:"L/G 발급 조건 확인"});
+    }
+  }
+  if(exp){
+    if(f.credit==="no" && f.biz!=="sole"){
+      R.push({t:"KB국민은행 특별출연 수출입 금융지원", cat:"수출금융", st:"RM확인", src:"KB 공식상품",
+        kbPath:"기업뱅킹 › 외환 › 수출입 › 특별출연 수출입 금융지원", ref:"https://obiz.kbstar.com/quics?page=C101674",
+        why:["여신 부족 수출기업 · 확정 수출채권","K-SURE 보증서 기반 수출입금융 검토"],
+        fit:{score:64, pass:["수출기업","확정 수출채권"], unknown:["보증종목","수출실적 요건","KB 내부 신용심사","금리/수수료/한도"]},
+        docs:["수출계약서","Invoice","선적서류","수출실적","K-SURE 보증서 또는 심사결과"],
+        channels:["영업점"], rmChecks:["보증종목","수출실적 요건","KB 내부 신용심사","금리/수수료/한도"],
+        note:"연계 가능 업무: 무신용장 수출환어음매입 · 무역금융 · 원화대출 · 일반운전자금대출",
+        next:"K-SURE 보증 가능 여부 + KB 특별출연 한도 확인"});
+    }
+    if(pay==="OA"){
+      const sole=f.biz==="sole";  // 개인 마켓플레이스 셀러는 수출환어음매입이 부적합 → 검토로 강등, 글로벌셀러 우대가 1순위
+      R.push({t:"수출환어음매입 / O/A 매입", cat:"수출금융", st:sole?"검토":"추천", src:"KB 공식상품",
+        kbPath:"기업뱅킹 › 외환 › 수출입 › 수출환어음매입",
+        why:sole?["플랫폼 정산은 전통적 수출환어음과 성격이 달라 적용 여부 확인 필요"]:["수출 + O/A(무신용장) — 수출채권 조기 대금화"],
+        docs:["수출계약서","선적서류","Invoice"], channels:["영업점","기업인터넷뱅킹"],
+        rmChecks:["매입 한도","매입 요율","상환청구 조건"], next:sole?"플랫폼 정산 건 매입 가능 여부 확인":"매입 한도·요율 확인"});
+    } else if(pay==="LC"){
+      R.push({t:"수출환어음매입(L/C Nego)", cat:"수출금융", st:"추천", src:"KB 공식상품",
+        kbPath:"기업뱅킹 › 외환 › 수출입 › 수출환어음매입", why:["수출 + L/C — Nego(매입) 통한 조기 회수"],
+        docs:["신용장 원본","선적서류","환어음"], channels:["영업점"], rmChecks:["Nego 한도","하자 여부","환가료"], next:"Nego 한도·하자 확인"});
+    } else if(pay==="DA"||pay==="DP"){
+      R.push({t:"추심결제("+(pay==="DA"?"D/A 인수도":"D/P 지급도")+") 무역금융", cat:"수출금융", st:"검토", src:"KB 공식상품",
+        why:["추심방식 — 대금회수 시점 리스크, 자금·보험 병행"], docs:["추심지시서","선적서류"], next:"추심 조건·보험 병행 검토"});
+    } else if(pay==="TT"){
+      R.push({t:"무역금융(수출)", cat:"수출금융", st:"검토", src:"KB 공식상품",
+        why:["수출 + T/T — 생산·구매자금 무역금융 검토"], docs:["수출계약","수출실적"], next:"무역금융 한도 검토"});
+    }
+  }
+
+  /* ═══ 2) 외환 헤지 ═══ */
+  if(f.cert==="provisional"){
+    R.push({t:"제로코스트 칼라(통화옵션)", cat:"외환헤지", st:"상담후보", src:"일반 외환 실무",
+      why:["가결제(취소가능) — 비대칭 청산(최대손실=프리미엄)","이탈확률 "+bbpN+"%"], docs:["PO/발주서","옵션 적합성 확인"],
+      rmChecks:["프리미엄·증거금","손실구조 설명","적합성"], next:"KB 통화옵션 상담"});
+    R.push({t:"선물환", cat:"외환헤지", st:"차단", src:"외국환거래법 실수요 원칙",
+      why:["가결제 단계 — 실수요 미확정"],
+      block:{reason:"실수요 미확정", detail:"PO 단계 거래는 취소 가능성이 있어 선물환 체결 시 반대매매 손실이 발생할 수 있음", unlock:"인보이스 확정 + 실수요 증빙 OCR/HITL 완료"},
+      next:"인보이스 확정 후 재검토"});
+  } else if(f.credit==="no"){
+    R.push({t:"환변동보험(K-SURE)", cat:"외환헤지", st:"추천", src:"외부기관(K-SURE)",
+      why:["여신 한도 없음 — 은행 여신 없이 공적보험으로 환리스크 관리"], docs:["수출계약/Invoice","수출신고필증","K-SURE 보험 대상 확인"],
+      rmChecks:["보험료","보장범위","가입 요건"], next:"K-SURE 환변동보험 상담"});
+    R.push({t:"선물환", cat:"외환헤지", st:"제외", src:"일반 외환 실무",
+      why:["선물환 여신 한도 없음"],
+      block:{reason:"여신 한도 부재", detail:"선물환은 여신(선물환 한도)이 필요 — 무여신 상태에서는 체결 불가", unlock:"KB 특별출연/보증 기반 여신 확보 시 적용"},
+      next:"여신 확보 시 적용"});
+  } else if(f.cash==="tight"){
+    R.push({t:"제로코스트 칼라", cat:"외환헤지", st:"상담후보", src:"일반 외환 실무",
+      why:["프리미엄 현금부담 — 풋매수=콜매도 상쇄로 선납비용 0"], docs:["옵션 적합성","숏콜 여신 한도"],
+      rmChecks:["증거금·여신","손실구조 설명"], next:"KB 통화옵션 상담"});
+    R.push({t:"선물환", cat:"외환헤지", st:"검토", src:"일반 외환 실무",
+      why:["여신 보유 — 표준 최저비용, 현금흐름 확인 필요","이탈확률 "+bbpN+"%"], docs:["인보이스/계약서","여신 한도"],
+      rmChecks:["실제 고시 스왑포인트","대고객 스프레드"], next:"RM 고시 스왑포인트 확인"});
+  } else {
+    R.push({t:"선물환", cat:"외환헤지", st:"추천", src:"일반 외환 실무",
+      why:["확정 익스포저 + 여신 보유 — 표준 최저비용 헤지","이탈확률 "+bbpN+"%"], docs:["인보이스/계약서","수출입신고필증","여신 한도"],
+      rmChecks:["실제 고시 스왑포인트","대고객 스프레드","실수요 상한"], next:"RM 고시 스왑포인트 확인"});
+  }
+  R.push({t:"KB Star FX 환율 알림·모니터링", cat:"외환헤지", st:"추천", src:"KB 공식서비스",
+    kbPath:"KB Star FX › 환율 알림 / 환율픽", why:["목표환율 도달·급변 알림, 예약주문(환율픽) 연계"], next:"KB Star FX 환율 알림 설정"});
+
+  /* ═══ 3) 무역지원 ═══ */
+  if(recvRisk){
+    R.push({t:"해외거래처신용조사", cat:"무역지원", st:"추천", src:"KB 공식서비스", ref:"https://obiz.kbstar.com/quics?page=C101670",
+      kbPath:"기업뱅킹 › 외환 › 수출입지원제도 › 해외거래처신용조사",
+      why:[(pay==="OA"?"O/A":pay)+" 방식 · 대금회수 리스크 — 거래상대방 신용 확인 필요"],
+      docs:["거래상대방 상호/소재국","사업자 정보"], next:"조사 가능 국가·수수료 확인",
+      note:"확인 정보: 회사연혁·경영자·재무상태·소송/체납·대외결제 이력·신용상태"});
+  }
+  R.push({t:"수출입통관상담서비스", cat:"무역지원", st:(hs==="8542")?"확인필요":"검토", src:"KB 공식서비스", ref:"https://obiz.kbstar.com/quics?page=C101673",
+    kbPath:"기업뱅킹 › 외환 › 수출입지원제도 › 수출입통관상담",
+    why:[(hs==="8542"?"HS "+hs+" 반도체 — 전략물자/이중용도 확인 필요":"HS "+hs+" · 통관/FTA/원산지/관세환급 확인")],
+    docs:["품목·HS코드","원산지 정보"], next:"파트너 관세사 상담 또는 KB Wise 컨설팅 연결",
+    note:"상담 범위: 통관 절차·관세환급·FTA/원산지·AEO·세관 조사"});
+  R.push({t:"파트너관세사", cat:"무역지원", st:"검토", src:"KB 공식서비스", ref:"https://obiz.kbstar.com/quics?page=C101672",
+    kbPath:"기업뱅킹 › 외환 › 수출입지원제도 › 파트너관세사",
+    why:["통관/관세 전문 상담 — 외환거래 금리/수수료 우대 추천서 연계"], next:"파트너 관세사 연결"});
+  if(seller){
+    R.push({t:"KB 글로벌셀러 우대서비스", cat:"무역지원", st:"추천", src:"KB 공식서비스",
+      kbPath:"KB Star FX · 기업뱅킹 › 글로벌셀러 우대서비스",
+      why:["개인사업자·소상공인 글로벌셀러 — 해외 마켓플레이스 매출대금 수취","정산 환율·타발송금 수수료·환전 타이밍 부담"],
+      docs:["플랫폼 정산명세","사업자등록증"], channels:["영업점","KB Star FX"],
+      note:"업무 플로우: Amazon/Shopify 정산명세 → KB 외화계좌 수취 → 타발송금·환전 수수료 우대 → 정산주기 기반 환전 타이밍 알림 → 필요 시 수출금융·정책자금 연결 · KB 효익: 외화예금 유입·환전 전환·글로벌셀러 신규 고객",
+      next:"글로벌셀러 우대 요건·수수료 확인"});
+  }
+  if(macroWarn){
+    R.push({t:"거래국 리스크 대응(보증·보험·신용장 강화)", cat:"무역지원", st:"검토", src:"데모 가정",
+      why:[f.country+" 구조 리스크 "+ctx.macroGrade+" — 결제보장 수단 강화 권고"], docs:["거래상대 신용조사"], next:"보증/보험 병행 검토"});
+  }
+  R.push({t:"수출바우처 · 정책자금", cat:"무역지원", st:"확인필요", src:"외부 정책자금",
+    why:["업종·규모·수출실적 자격요건 필요 — 현재 입력만으론 판정 불가"], docs:["사업자등록증","수출실적","재무제표"], next:"기업마당 공고·자격 확인"});
+
+  // 서류 준비율 부착(주요 상품)
+  R.forEach(r=>{ if(r.docs && r.st!=="차단" && r.st!=="제외" && r.st!=="보류") r.readiness=readiness(r.docs); });
+  return R;
+}
+
+// 거래유형별 실수요 증빙 라벨·OCR 단계 (수입/수출/글로벌셀러)
+function evidenceLabel(f){
+  if(f.biz==="sole") return {row:"플랫폼 정산명세", legal:"플랫폼 정산명세·해외마켓 매출내역"};
+  if(f.pos==="import") return {row:"수입신고/운송서류·Invoice", legal:"수입계약서·Invoice·운송서류"};
+  return {row:"수출신고필증(UNIPASS)", legal:"인보이스·수출신고필증"};
+}
+function evidenceSteps(f){
+  if(f.biz==="sole") return [[25,"플랫폼 정산내역 추출 중…"],[55,"입금 통화·정산일 인식 중…"],[80,"해외마켓 매출내역 대조…"],[100,"정산 증빙 확인 완료"]];
+  if(f.pos==="import") return [[25,"거래처·통화 추출 중…"],[55,"결제 금액·만기 인식 중…"],[80,"Invoice·운송서류 대조…"],[100,"실수요 확정 · HITL 서명 검증 완료"]];
+  return [[25,"거래처·통화 추출 중…"],[55,"결제 금액·만기 인식 중…"],[80,"수출신고필증 번호 대조…"],[100,"실수요 확정 · HITL 서명 검증 완료"]];
+}
+function applyGate(){
+  const locked=!gate, f=readForm(), ev=evidenceLabel(f);
+  $("lockmask").style.display=locked?"grid":"none";
+  $("g-party").textContent=(!gate||gateInfo.party==="–")?"업로드 전":maskPII(gateInfo.party)+" · 사업자 123-45-●●●●● (PII 마스킹)";
+  $("g-amt").textContent=gate?((+$("in-amount").value||0).toLocaleString()+" "+$("in-cur").value+" · "+($("in-horizon").value)+"영업일"):"업로드 전";
+  $("g-evidence-value").textContent=gate?gateInfo.unipass:"업로드 전";
+  $("g-ev-label").textContent=ev.row;
+  $("gate-note").innerHTML='외국환거래법상 기업의 선물환·옵션 헤지는 <b>실수요 증빙('+esc(ev.legal)+')</b>이 있어야 은행이 헤지 계약을 진행할 수 있습니다. OCR 자동추출은 초안이며, 최종 확정은 담당자 서명 검증(HITL)과 KB 영업점 KYC로 완료됩니다.';
+  const gh=$("gate-h"), gc=$("gate");
+  if(gate){gh.textContent="🔓 실수요 확정 — 외환헤지 상담 가능"; gc.classList.add("ok");}
+  else{gh.textContent="🔒 실수요 미확정 — 외환헤지 상담 잠금"; gc.classList.remove("ok");}
+}
+
+function animNum(el,to,dec){
+  if(matchMedia("(prefers-reduced-motion:reduce)").matches){el.textContent=to.toFixed(dec);return;}
+  const from=parseFloat(el.textContent)||0,t0=performance.now(),D=600;
+  (function step(t){const p=Math.min(1,(t-t0)/D),e=1-Math.pow(1-p,3);el.textContent=(from+(to-from)*e).toFixed(dec);if(p<1)requestAnimationFrame(step);})(performance.now());
+}
+
+/* ══════════ 상단 마켓 티커 (spot 고정 · σ·게이지는 국면별로 compute에서 갱신) ══════════ */
+$("tk-spot").textContent=MARKET.spot.toFixed(1);
+
+/* ══════════ 시장 국면 스트레스 토글 ══════════ */
+let regimeIdx=0;
+function setRegime(i){ const r=REGIMES[i]; regimeIdx=i;
+  MARKET.sigAnn=r.sigAnn; MARKET.ewi=r.ewi; MARKET.iz=r.iz; MARKET.shares=r.shares;
+  MARKET.regimeName=r.key; MARKET.regimeNote=r.note; MARKET.regimeDate=r.date;
+  document.querySelectorAll(".rchip").forEach((el,k)=>el.classList.toggle("on",k===i)); }
+function applyRegime(i){ setRegime(i); compute(); logAudit("시장 국면 스트레스", REGIMES[i].key); }
+$("regime-chips").innerHTML=REGIMES.map((r,i)=>{ const g=gradeOf(r.ewi);
+  return '<button class="rchip" data-i="'+i+'"><span class="rk"><span class="gdot" style="background:'+GCOL[g]+'"></span>'+r.key+'</span><span class="rd">σ '+(r.sigAnn*100).toFixed(1)+'% · EWI '+r.ewi+'</span></button>';}).join("");
+document.querySelectorAll(".rchip").forEach(el=>el.addEventListener("click",()=>applyRegime(+el.dataset.i)));
+
+/* ══════════ 프리셋 ══════════ */
+$("presets").innerHTML=PRESETS.map((p,i)=>'<button class="pchip" data-i="'+i+'">'+p.label+'</button>').join("");
+function fillPreset(p){
+  $("in-name").value=p.name; $("in-pos").value=p.pos; $("in-budget").value=p.budget;
+  $("in-amount").value=p.amount; $("in-horizon").value=p.horizon; $("in-country").value=p.country;
+  $("in-cert").value=p.cert; $("in-credit").value=p.credit; $("in-cash").value=p.cash;
+  $("in-biz").value=p.biz||"corp"; _presetSize=p.size||"sme";
+  $("in-cur").value="USD";  // 프리셋은 USD 결제 기준
+  $("in-pay").value=p.pay||"TT"; $("in-hs").value=p.hs||"ETC";
+  gate = false;  // 은행 규칙: 확정건도 실수요 증빙(OCR) 확정 전 헤지 잠금 — 업로드로 활성(Item4)
+  gateInfo={party:p.party,unipass:p.unipass};
+  compute();
+}
+document.querySelectorAll(".pchip").forEach(el=>el.addEventListener("click",()=>fillPreset(PRESETS[+el.dataset.i])));
+
+// 결제 통화 변경 → 예산·금액을 해당 통화 기본값으로 갱신 후 재계산
+$("in-cur").addEventListener("change",()=>{ const c=CUR[$("in-cur").value]; $("in-budget").value=c.budget; $("in-amount").value=c.amount; compute(); });
+
+// 26.6: 입력을 손으로 바꾸면 즉시 재계산(디바운스) — "숫자가 그대로" 시연사고 방지
+let _dbT; function recompute(){ clearTimeout(_dbT); _dbT=setTimeout(compute,250); }
+["in-name","in-pos","in-biz","in-budget","in-amount","in-horizon","in-country","in-pay","in-hs","in-cert","in-credit","in-cash"]
+  .forEach(id=>{ const el=$(id); el.addEventListener("input",recompute); el.addEventListener("change",recompute); });
+
+/* ══════════ OCR 업로드 시뮬레이션 ══════════ */
+$("drop").addEventListener("click",()=>{
+  const f=readForm(); const scan=$("scan"),fill=$("scanfill"),txt=$("scantxt");
+  scan.classList.add("on"); fill.style.width="0%";
+  const steps=evidenceSteps(f);
+  let k=0;
+  const iv=setInterval(()=>{ const[w,t]=steps[k]; fill.style.width=w+"%"; txt.textContent=t; k++;
+    if(k>=steps.length){clearInterval(iv);
+      const party=f.name+" 거래처", uni=f.cert==="provisional"?"—(PO 단계, 확정 시 발급)":stableUnipass(f.name);  // 26.8: 클릭마다 난수 → 회사별 결정론(감사 가능)
+      gate = f.cert!=="provisional"; gateInfo={party:party,unipass:uni};
+      setTimeout(()=>{scan.classList.remove("on"); compute();
+        if(!gate){ $("gate-h").textContent="🔒 가결제(PO) — 실수요 확정 전, 옵션형만 활성"; }
+      },500);
+    }
+  },420);
+});
+
+$("go").addEventListener("click",compute);
+$("hd-cta").addEventListener("click",()=>document.querySelector(".cta").scrollIntoView({behavior:"smooth",block:"center"}));
+
+/* ══════════ LLM Advisor 브리핑 생성 ══════════ */
+async function generateAdvisorBrief(){
+  const out=$("ai-out"), btn=$("ai-gen");
+  if(!FX_ADVISOR_PROXY){
+    out.innerHTML='<div class="ai-empty">⚙ <b>AI 브리핑을 쓰려면 워커 주소 설정이 필요합니다.</b><br>Cloudflare에 <code>worker/fx-advisor.js</code>를 배포하고(무료 Workers AI), 스크립트 상단 <code>FX_ADVISOR_PROXY</code>에 배포 주소를 넣으세요. (worker/README.md 참고)</div>';
+    return;
+  }
+  if(!_advisorPayload){ out.innerHTML='<div class="ai-empty">먼저 위에서 분석을 실행하세요.</div>'; return; }
+  btn.disabled=true; const bt=btn.textContent; btn.textContent="생성 중…";
+  out.innerHTML='<div class="ai-loading"><span class="dot"></span><span class="dot"></span><span class="dot"></span> KB Star FX AI 어드바이저가 브리핑을 작성 중…</div>';
+  try{
+    const res=await fetch(FX_ADVISOR_PROXY.replace(/\/$/,"")+"/advisor",{
+      method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(_advisorPayload)});
+    const data=await res.json();
+    if(data && data.reply){
+      out.innerHTML='<div class="ai-reply">'+esc(data.reply).replace(/\n/g,"<br>")+'</div>'
+        +'<div class="ai-meta">생성 모델 '+esc(data.model||"Workers AI")+' · 근거: 위 룰엔진 BBP·상품 후보(FACTS) · '+new Date().toLocaleTimeString("ko-KR",{hour12:false})+'</div>';
+      logAudit("AI 어드바이저 브리핑 생성", (_advisorPayload.profile.name||"")+" · "+(data.model||""));
+    } else {
+      out.innerHTML='<div class="ai-empty">⚠ 생성 실패'+(data && data.error?' ('+esc(data.error)+')':'')+'. 잠시 후 다시 시도하거나 워커의 <code>AI</code> 바인딩을 확인하세요.</div>';
+    }
+  }catch(e){
+    out.innerHTML='<div class="ai-empty">⚠ 워커 호출 실패 — 주소·배포 상태를 확인하세요. ('+esc(String(e && e.message||e))+')</div>';
+  }finally{ btn.disabled=false; btn.textContent=bt; }
+}
+$("ai-gen").addEventListener("click",generateAdvisorBrief);
+
+// BBP 캘리브레이션 신뢰도 곡선(예측 vs 실제) — 대각선 = 완벽 정합
+(function(){ const P=12,S=96, X=v=>P+v*S, Y=v=>P+(1-v)*S;
+  let g='<line x1="'+X(0)+'" y1="'+Y(0)+'" x2="'+X(1)+'" y2="'+Y(1)+'" stroke="var(--ink-faint)" stroke-dasharray="3 3" stroke-width="1"/>';
+  g+='<polyline fill="none" stroke="var(--good)" stroke-width="1.6" points="'+CALIB.bins.map(b=>X(b[0]).toFixed(1)+","+Y(b[1]).toFixed(1)).join(" ")+'"/>';
+  g+=CALIB.bins.map(b=>'<circle cx="'+X(b[0]).toFixed(1)+'" cy="'+Y(b[1]).toFixed(1)+'" r="2.3" fill="var(--good)"/>').join("");
+  g+='<text x="'+X(0)+'" y="116" font-size="7" fill="var(--ink-faint)">예측 BBP →</text>';
+  $("calib-svg").innerHTML=g;
+  $("calib-stamp").textContent="데이터 기준 2026-07-06 · BBP Student-t ν=5 · 헤지규율 0/50/100 MVP · 생성 "+new Date().toLocaleString("ko-KR",{hour12:false});
+})();
+$("book").addEventListener("click",()=>{ renderTicket(); const tc=$("ticket-card"); tc.style.display=""; tc.scrollIntoView({behavior:"smooth",block:"center"});
+  const b=$("book"); b.textContent="✓ RM 티켓 생성됨 — 아래 확인"; b.disabled=true; b.style.opacity=.75;
+  setTimeout(()=>{b.textContent="영업점 상담 예약 요청 · RM 티켓 생성"; b.disabled=false; b.style.opacity=1;},2600); });
+
+/* ══════════ 데모 → 파일럿 로드맵(운영 게이트) ══════════ */
+const ROADMAP=[
+  ["① 인증·세션","목업 로그인 문구","KB 기업뱅킹 SSO·전자서명"],
+  ["② 익스포저 연동","수기 입력·프리셋","결제예정·L/C·포지션 원장 API"],
+  ["③ 실시간 시세·스왑","고정 스냅샷 + 국면 배수","실시간 고시·스왑 피드 이중화"],
+  ["④ 여신·한도·담보","드롭다운 보유/없음","여신원장 실시간 조회"],
+  ["⑤ 실수요 증빙","OCR 시뮬레이션","실 OCR·관세청 UNIPASS 연동·HITL"],
+  ["⑥ 상담·계약 경로","RM 티켓 생성 시뮬","KB CRM/RM 업무함 연동·상담예약·상품별 서류 체크리스트 전달"],
+  ["⑦ 감사로그·리포트","세션 내 감사로그 UI 구현","서버 저장 — 사용자·입력·상품추천·모델버전·출처·동의 영구 보관"],
+  ["⑧ 모델 리스크 관리","연구 검증 문서","버전·모니터링·재검증 주기(월 배치)"],
+  ["⑨ 장애·폴백·SLA","로컬 HTML","MSA 서버·폴백·SLA"],
+  ["⑩ 개인정보·망분리","미설계","문서 보관정책·망분리 설계"],
+  ["⑪ 준법 문구","데모 고지(초안)","법무·준법 승인본"],
+  ["⑫ 상품·요율·협약","데모 가정 라벨(거래국 스냅샷 등)","KB 상품코드·요율·협약 확정"]
+];
+$("roadmap-body").innerHTML=ROADMAP.map(r=>'<tr><td class="g">'+r[0]+'</td><td class="now">'+r[1]+'</td><td class="goal">'+r[2]+'</td></tr>').join("");
+
+/* ══════════ Tier3 거버넌스·감사·모드 ══════════ */
+const GOV_AI=[["책임성·거버넌스","결정론 코어 + 모델버전 스탬프 + RM 최종확인"],["투명성·설명가능성","XAI 성분분해 · LossAlert 공식 · 산출근거 공개"],["공정성","조건기반 룰 — 무여신 SME도 K-SURE 대안 라우팅"],["견고성·안전성","무누수 백테스트·캘리브레이션·실패사례 공개"],["데이터 관리","기준일·출처·실데이터/스냅샷/가정 구분"],["프라이버시","OCR PII 로컬 마스킹·최소수집"],["인간 감독","준법 게이트·RM 티켓·영업점 최종확정"]];
+const GOV_FCP=[["적합성","위험성향·익스포저 기반 상품 판정"],["적정성","부적합 상품 제외/차단 사유 표시"],["설명의무","근거·리스크·한계 고지(캘리브레이션·실패사례)"],["불공정영업금지","끼워팔기 없음 — 조건기반 후보만"],["부당권유금지","수익보장·투자권유·확정예측 표현 배제"],["광고규제","'정보제공·투자자문 아님' 상시 고지"]];
+const GOV_GATE=[["적합성 확인","고객 위험성향·익스포저·여신 상태 확인"],["설명의무 이행","BBP·기대손실·한계·상품조건 고지"],["실수요 증빙","OCR·수출입신고 — 선물환·옵션 상담/계약 전 요건(외국환거래법 실수요 원칙)"],["기록 보존","산출근거·모델버전·입력 감사로그"],["계약 확정","RM 티켓 → 영업점 최종 확인·계약"]];
+$("gov-ai").innerHTML='<thead><tr><th>7대 원칙</th><th>이 서비스 대응</th></tr></thead><tbody>'+GOV_AI.map(r=>'<tr><td>'+r[0]+'</td><td style="text-align:left;color:var(--ink-mut)">'+r[1]+'</td></tr>').join("")+'</tbody>';
+$("gov-fcp").innerHTML='<thead><tr><th>6대 판매원칙</th><th>대응</th></tr></thead><tbody>'+GOV_FCP.map(r=>'<tr><td>'+r[0]+'</td><td style="text-align:left;color:var(--ink-mut)">'+r[1]+'</td></tr>').join("")+'</tbody>';
+$("gov-gate").innerHTML=GOV_GATE.map((g,i)=>'<div class="g"><span class="gn">'+(i+1)+'</span><span class="gt"><b>'+g[0]+'</b> — '+g[1]+'</span></div>').join("");
+
+// 감사로그
+let _audit=[];
+function logAudit(ev,detail){ const t=new Date().toLocaleTimeString("ko-KR",{hour12:false}); _audit.unshift({t:t,ev:ev,d:detail||""}); _audit=_audit.slice(0,9); renderAudit(); }
+function renderAudit(){ $("audit-log").innerHTML=_audit.map(a=>'<div class="a"><span class="at">'+a.t+'</span><span class="ae">'+esc(a.ev)+(a.d?' · '+esc(a.d):'')+'</span></div>').join("")||'<div class="a"><span class="at">–</span><span class="ae">기록 없음</span></div>'; }
+
+// PII 마스킹
+function maskPII(s){ s=String(s); return s.length<=2?s:s.slice(0,2)+"●".repeat(Math.max(2,Math.min(8,s.length-2))); }
+
+// 내부RM ↔ 고객 화면 모드 — 버튼은 '다음 동작(전환 대상)'을 표시
+function setMode(m){ const r=document.documentElement; r.setAttribute("data-mode",m);
+  // 고객 모드면 클릭 시 RM으로, RM 모드면 클릭 시 고객으로
+  $("modebtn").textContent = m==="customer" ? "👤 RM 내부 화면 보기" : "🙍 고객 화면 보기";
+  // §6 CTA는 고객 행동 언어 vs 내부 업무 용어로 전환
+  const cust = m==="customer";
+  if($("hd-cta")) $("hd-cta").textContent = cust ? "KB 상담 요청하기 →" : "다음 액션: RM 검토 티켓 →";
+  if($("book")) $("book").textContent = cust ? "KB 상담 요청하기" : "영업점 상담 예약 요청 · RM 티켓 생성"; }
+$("modebtn").addEventListener("click",()=>{ const cur=document.documentElement.getAttribute("data-mode")||"internal";
+  const nx=cur==="customer"?"internal":"customer"; setMode(nx); logAudit("화면 모드 전환",nx==="customer"?"고객용":"내부 RM용"); });
+setMode("internal");  // 발표 데모 기본 = RM 내부 화면(검증·거버넌스 노출)
+
+/* ══════════ 모델 검증 (validate_bbp.py / validation_p2.json / run_s7 실측) ══════════ */
+// 만기별 캘리브레이션
+$("v-hor").innerHTML='<thead><tr><th>만기</th><th>표본</th><th>ECE</th><th>Brier</th></tr></thead><tbody>'
+  +[["1개월(21d)","3,884","0.036","0.113"],["3개월(63d)","3,800","0.034","0.175"],["6개월(126d)","3,674","0.084","0.166"]]
+    .map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td'+(r[0][0]==="6"?'':' class="best"')+'>'+r[2]+'</td><td>'+r[3]+'</td></tr>').join("")+'</tbody>';
+// ν 민감도
+$("v-nu").innerHTML='<thead><tr><th>ν</th><th>3</th><th>5(채택)</th><th>8</th><th>≈정규(30)</th></tr></thead><tbody>'
+  +'<tr><td>ECE</td><td>0.048</td><td class="best">0.034</td><td class="best">0.031</td><td>0.037</td></tr></tbody>';
+// 부가검증
+$("v-misc").innerHTML='<thead><tr><th>항목</th><th>결과</th><th>해석</th></tr></thead><tbody>'
+  +[["σ 정합(엔진 vs 실현)","편의 −0.001","거의 무편의"],["ES 꼬리(예측 vs 실제)","17.4 vs 9.4원/$","1.9× 보수적"],["실패사례(BBP&lt;20%)","10.6% 큰손실","전부 2022 킹달러"]]
+    .map(r=>'<tr><td>'+r[0]+'</td><td style="text-align:right">'+r[1]+'</td><td style="text-align:right;color:var(--ink-mut)">'+r[2]+'</td></tr>').join("")+'</tbody>';
+$("v-limit").innerHTML='<b>정직 한계:</b> 풀링 캘리브레이션은 정합(ECE 0.034)이나, 방향별로는 편의가 있습니다 — 2018–2026 원화 약세 추세로 <b>수입 이탈률 74.5%</b>. drift=0 가정 탓이며, 그래서 BBP를 <b>방향 예측이 아니라 리스크 번역</b>으로 씁니다. 6개월·regime break(킹달러)에선 꼬리 실패가 늘어 <b>부분헤지 규율</b>로 보완합니다.';
+
+// Walk-forward OOS 패배표 (validation_p2.json)
+$("v-oos").innerHTML='<thead><tr><th>정책</th><th>Sortino</th><th>하방분산</th></tr></thead><tbody>'
+  +[["고정 30% 헤지","5.22","46.7",true],["무헤지(P0)","3.16","170.3",false],["FX-EWI 동적(P2)","2.17","213.9",false],["상시 100%(P1)","1.24","324.3",false]]
+    .map(r=>'<tr><td>'+r[0]+'</td><td'+(r[3]?' class="best"':'')+'>'+r[1]+'</td><td'+(r[3]?' class="best"':'')+'>'+r[2]+'</td></tr>').join("")
+  +'</tbody>';
+// 부분헤지 프론티어 SVG (하방분산 U자)  x=헤지비율, y=하방분산
+(function(){ const W=320,H=170,L=44,B=28,T=12,R=12;
+  const pts=[[0,759],[50,460],[100,571]], ymax=800;
+  const X=v=>L+(v/100)*(W-L-R), Y=v=>T+(1-v/ymax)*(H-T-B);
+  let g='';
+  [0,200,400,600,800].forEach(v=>{g+='<line x1="'+L+'" y1="'+Y(v).toFixed(0)+'" x2="'+(W-R)+'" y2="'+Y(v).toFixed(0)+'" stroke="var(--line-solid)" stroke-width="0.5"/><text x="'+(L-4)+'" y="'+(Y(v)+3).toFixed(0)+'" font-size="8" fill="var(--ink-faint)" text-anchor="end">'+v+'</text>';});
+  g+='<polyline fill="none" stroke="var(--gold)" stroke-width="2" points="'+pts.map(p=>X(p[0]).toFixed(0)+","+Y(p[1]).toFixed(0)).join(" ")+'"/>';
+  pts.forEach((p,i)=>{const best=i===1; g+='<circle cx="'+X(p[0]).toFixed(0)+'" cy="'+Y(p[1]).toFixed(0)+'" r="'+(best?4:3)+'" fill="'+(best?"var(--good)":"var(--gold)")+'"/>'
+    +'<text x="'+X(p[0]).toFixed(0)+'" y="'+(Y(p[1])-8).toFixed(0)+'" font-size="8.5" fill="'+(best?"var(--good)":"var(--ink-mut)")+'" text-anchor="middle" font-weight="'+(best?700:400)+'">'+p[1]+(best?" ◎":"")+'</text>';});
+  ["0%","50%","100%"].forEach((t,i)=>g+='<text x="'+X(i*50).toFixed(0)+'" y="'+(H-8)+'" font-size="8.5" fill="var(--ink-faint)" text-anchor="middle">'+t+'</text>');
+  g+='<text x="'+((L+W-R)/2)+'" y="'+(H+0)+'" font-size="8" fill="var(--ink-faint)" text-anchor="middle"></text>';
+  g+='<text x="'+L+'" y="'+(T-2)+'" font-size="8" fill="var(--ink-faint)">하방분산 ↓ (수출 SME, 2019–2026, 비용차감)</text>';
+  $("frontier-svg").innerHTML=g;
+})();
+// 추천 안전장치
+$("v-rag").innerHTML=[
+  "금지표현 배제 — 수익보장·투자권유·확정 예측 표현 없음(정보 제공 톤)",
+  "출처·상태 명시 — 모든 상품 카드에 출처 + 추천/검토/제외/차단 판정",
+  "가정 라벨 — 거래국 리스크 스냅샷·데모 가정 항목은 '데모 가정/확인 필요'로 표기, KB 공식상품과 구분",
+  "준법 게이트 — 실수요 증빙(OCR) 전 헤지 상담 잠금 + 실수요 상한(과다헤지 방지)",
+  "입력 안전 — 사용자 입력 XSS 이스케이프, 최종 판정·계약은 KB 영업점"
+].map(t=>'<div class="r"><span class="ok">✓</span><span>'+t+'</span></div>').join("");
+
+/* ══════════ 테마 (기본 라이트) ══════════ */
+document.documentElement.setAttribute("data-theme","light");
+$("themebtn").addEventListener("click",()=>{
+  const r=document.documentElement, cur=r.getAttribute("data-theme")||"light";
+  r.setAttribute("data-theme",cur==="dark"?"light":"dark");
+});
+
+/* 초기 = 현재 국면 + 나래상사(수입·이탈압력) — 첫 화면에서 리스크 상태를 보여준다(2.2) */
+setRegime(0);
+fillPreset(PRESETS[3]);
+</script>
+</body>
+</html>

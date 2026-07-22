@@ -1,0 +1,7 @@
+# 캐시·런타임 산출물 — 커밋하지 않는다.
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# 서버 런타임(감사 DB·제재 리스트 캐시)은 server/.gitignore 가 var/ 로 제외한다.

@@ -1,0 +1,75 @@
+{
+  "by_horizon": {
+    "1M": {
+      "N": 21,
+      "n": 3884,
+      "ece": 0.0355,
+      "brier": 0.1131
+    },
+    "3M": {
+      "N": 63,
+      "n": 3800,
+      "ece": 0.0344,
+      "brier": 0.1754
+    },
+    "6M": {
+      "N": 126,
+      "n": 3674,
+      "ece": 0.0844,
+      "brier": 0.1657
+    }
+  },
+  "symmetry": {
+    "export": {
+      "n": 1900,
+      "ece": 0.1387,
+      "breach_rate": 0.255
+    },
+    "import": {
+      "n": 1900,
+      "ece": 0.1387,
+      "breach_rate": 0.745
+    }
+  },
+  "nu_sensitivity": {
+    "3": 0.0478,
+    "5": 0.0344,
+    "8": 0.0313,
+    "30": 0.0368
+  },
+  "sigma_check": {
+    "n": 1899,
+    "corr": 0.394,
+    "mean_sigma_hat": 0.0851,
+    "mean_realized": 0.0865,
+    "mean_bias": -0.0014
+  },
+  "es_check": {
+    "n": 1900,
+    "mean_pred_es": 17.39,
+    "mean_realized_loss": 9.36,
+    "ratio": 1.857
+  },
+  "failure_analysis": {
+    "safe_n": 539,
+    "fail_n": 57,
+    "fail_rate": 0.1058,
+    "examples": [
+      {
+        "date": "2022-10-11",
+        "bbp": 0.025,
+        "excess_krw_per_usd": 2.7
+      },
+      {
+        "date": "2022-10-12",
+        "bbp": 0.026,
+        "excess_krw_per_usd": 17.3
+      },
+      {
+        "date": "2022-10-13",
+        "bbp": 0.023,
+        "excess_krw_per_usd": 17.5
+      }
+    ]
+  }
+}

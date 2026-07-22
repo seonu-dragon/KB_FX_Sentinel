@@ -1,0 +1,29 @@
+﻿=== TODO-like ===
+817 <input id="rm-pass" type="password" class="auth-in" placeholder="passcode ?낅젰" autocomplete="off" inputmode="numeric">
+2562 +'<input class="searchbox" id="trade-q" placeholder="湲곗뾽紐끒룰굅?섍뎅 寃?? value="'+esc(_tradeQ)+'"></div>';
+2600 h+='<div class="filterbar">'+cats.map(c=>'<button class="fchip'+(_prodCat===c?" on":"")+'" data-c="'+c+'">'+(c==="all"?"?꾩껜":c)+'</button>').
+2634 h+='<section class="card"><h3><span class="agent-n">?뵒</span> 紐⑺몴?섏쑉 ?뚮┝</h3><div class="alertset"><div class="f"><label>?듯솕</label><select id="f
+2797 +'<div class="f"><label>?댁슜</label><textarea id="sup-text" rows="4" style="background:var(--panel-2);border:1px solid var(--line-solid);borde
+=== errors/console ===
+=== password/auth ===
+812 <div class="authmask" id="rm-auth" role="dialog" aria-modal="true" aria-label="RM ?묎렐 ?몄쬆">
+813 <div class="authbox">
+814 <div class="auth-h">?뵍 RM ?대? ?붾㈃ ?묎렐 ?몄쬆</div>
+815 <div class="auth-s">?대? ?붾㈃(紐⑤뜽 寃利씲룰굅踰꾨꼳?ㅒ룰컧?щ줈洹맞룰퀬媛??곗씠??? <b>沅뚰븳 ?덈뒗 吏곸썝留?/b> ?대엺?????덉뒿?덈떎. ?ㅼ꽌鍮꾩뒪?먯꽌??<b>湲곗뾽諭낇궧 SSO쨌?꾩옄?쒕챸쨌?쒕쾭 RBAC</b>濡??멸??⑸땲???곕え???쒕??덉씠??.</div
+816 <label class="auth-l" for="rm-pass">吏곸썝 passcode<span class="auth-hint">?곕え: 1234</span></label>
+817 <input id="rm-pass" type="password" class="auth-in" placeholder="passcode ?낅젰" autocomplete="off" inputmode="numeric">
+818 <div class="auth-err" id="rm-pass-err">passcode媛 ?щ컮瑜댁? ?딆뒿?덈떎. ?ㅼ떆 ?쒕룄?섏꽭??</div>
+819 <div class="auth-act"><button class="authbtn" id="rm-auth-cancel">痍⑥냼</button><button class="authbtn pri" id="rm-auth-ok">?몄쬆</button></div>
+2320 let _rmAuthed=false; const RM_PASS="1234";  // ?곕え passcode (?ㅼ꽌鍮꾩뒪??湲곗뾽諭낇궧 SSO쨌?쒕쾭 RBAC)
+2325 if(nx==="internal" && !_rmAuthed){ openRmAuth(); return; }   // 誘몄씤利앹씠硫?RM 吏꾩엯 李⑤떒
+2328 function openRmAuth(){ $("rm-auth").classList.add("on"); $("rm-pass").value=""; $("rm-pass-err").style.display="none";
+2329 setTimeout(()=>$("rm-pass").focus(),50); logAudit("RM ?몄쬆 ?붿껌","passcode ?꾨＼?꾪듃"); }
+2330 function closeRmAuth(){ $("rm-auth").classList.remove("on"); }
+2331 function submitRmAuth(){
+2332 if($("rm-pass").value===RM_PASS){ _rmAuthed=true; closeRmAuth(); setMode("internal"); updateRoleBadge();
+2334 else { $("rm-pass-err").style.display="block"; if($("rm-pass").select)$("rm-pass").select(); logAudit("RM ?묎렐 ?몄쬆 ?ㅽ뙣","passcode 遺덉씪移?); }
+2340 $("rm-pass").addEventListener("keydown",e=>{ if(e.key==="Enter")submitRmAuth(); });
+2341 $("rm-auth").addEventListener("click",e=>{ if(e.target===$("rm-auth"))closeRmAuth(); });
+2343 $("rm-auth").addEventListener("keydown",e=>{
+2344 if(e.key==="Escape"){ closeRmAuth(); return; }
+2346 const f=[$("rm-pass"),$("rm-auth-cancel"),$("rm-auth-ok")], first=f[0], last=f[f.length-1];

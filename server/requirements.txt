@@ -1,0 +1,17 @@
+# FX Sentinel API 서버
+# 엔진(fx_sentinel)은 상위 디렉터리에서 import 하므로 numpy/scipy/pandas 가 함께 필요하다.
+
+fastapi>=0.104
+uvicorn[standard]>=0.24
+pydantic>=2.0
+PyJWT[crypto]>=2.8          # OIDC/JWT 검증 (RS256 에는 cryptography 필요)
+rapidfuzz>=3.0              # 제재 리스트 퍼지 이름매칭
+httpx>=0.24                 # 제재 리스트 수집 + 테스트 클라이언트
+
+# 엔진 의존성
+numpy>=1.24
+scipy>=1.10
+pandas>=2.0
+
+# 테스트
+pytest>=7.0

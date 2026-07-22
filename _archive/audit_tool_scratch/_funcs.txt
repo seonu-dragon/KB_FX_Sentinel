@@ -1,0 +1,251 @@
+﻿==== recommendPackage len 11568 ====
+function recommendPackage(f,ctx){
+  const R=[], imp=f.pos==="import", exp=f.pos==="export", pay=f.pay;
+  const bbpN=Math.round(ctx.bbp), cur=f.currency||"USD", hs=f.hs||"";
+  const usanceCur=["USD","EUR","JPY","CNY"].includes(cur);
+  const seller = eligible("湲濡쒕쾶???,f);            // ?먭꺽 ?먯젙? ELIG ?⑥씪 ?뚯뒪
+  const recvRisk = exp && (pay==="OA"||pay==="DA"||pay==="DP");
+  const macroWarn = ctx.macroGrade==="二쇱쓽"||ctx.macroGrade==="寃쎄퀎";
+  const gateOn = !!ctx.gate;
+  // ?쒕쪟 以鍮꾩쑉 ?곕え 洹쒖튃: 寃뚯씠???뺤젙 ???욎そ ?쒕쪟 ?뺤씤, 誘명솗????遺遺?
+  const readiness = docs => { if(!docs||!docs.length) return null;
+    const n = gateOn ? Math.min(docs.length, Math.max(2, Math.ceil(docs.length*0.6))) : Math.min(docs.length, 1);
+    return {n:n, m:docs.length, confirmed:docs.slice(0,n), missing:docs.slice(n)}; };
+
+  /* ?먥븧??1) 嫄곕옒?좏삎蹂?KB ?섏텧?낃툑???곹뭹 (?쇱슦??二쇱씤怨? ?먥븧??*/
+  if(imp){
+    if(usanceCur){
+      const confirmed=f.cert==="confirmed", termOk=f.horizon<=126;   // 6媛쒖썡(??126?곸뾽?? ?대궡 ?먭꺽 議곌굔
+      const usSt = !termOk ? "蹂대쪟" : (confirmed?"異붿쿇":"寃??);
+      const rec={t:"KB Payment Usance", cat:"?섏엯湲덉쑖", st:usSt, src:"KB 怨듭떇?곹뭹",
+        kbPath:"湲곗뾽諭낇궧 ???명솚 ???섏텧????KB Payment Usance", ref:"https://obiz.kbstar.com/quics?page=C102065",
+        why:["?섏엯 "+(confirmed?"?뺤젙":"吏꾪뻾")+" 嫄?쨌 "+(pay==="TT"?"T/T ?↔툑諛⑹떇":pay)+" 쨌 "+cur+" 寃곗젣","寃곗젣 留뚭린 "+f.horizon+"?곸뾽??+(termOk?" 쨌 ?좎껌?쇰줈遺??6媛쒖썡 ?대궡":" 쨌 湲곕낯 6媛쒖썡 珥덇낵 媛??)],
+        docs:["?좎껌??,"?섏엯怨꾩빟??,"Invoice","?댁넚?쒕쪟"],
+        channels:["?곸뾽??,"湲곗뾽?명꽣?룸콉??,"?꾩옄臾댁뿭(EDI)"],
+        rmChecks:["?ш큵?명솕吏湲됰낫利??쒕룄","湲덈━","?몄닔?섏닔猷뙿룹쟾?좊즺","?대? ?좎슜?ъ궗"],
+        next:termOk?"KB Payment Usance ?쒕룄쨌?붿쑉 ?뺤씤":"留뚭린 議곌굔 ?ы솗???먮뒗 ?泥??섏엯湲덉쑖 寃??};
+      if(!termOk){ rec.block={reason:"湲곌컙 議곌굔 ?뺤씤 ?꾩슂", detail:"?낅젰 留뚭린 "+f.horizon+"?곸뾽?쇱? 湲곕낯 6媛쒖썡(??126?곸뾽?? ?대궡 議곌굔??珥덇낵?????덉쓬 ??理쒖옣 1???대궡 ?곗옣 媛???щ???RM ?뺤씤 ?꾩슂", unlock:"留뚭린 議곌굔 ?ы솗???먮뒗 ?泥??섏엯湲덉쑖 寃??}; }
+      else { Object.assign(rec, _fitBlock(f,["pos","pay"],
+        ["?ш큵?명솕吏湲됰낫利??쒕룄","湲덈━","?몄닔?섏닔猷뙿룹쟾?좊즺","?대? ?좎슜?ъ궗"]));
+        rec.fit.pass.push("?좎껌?듯솕 "+cur+" 吏??); }
+      R.push(rec);
+    } else {
+      R.push({t:"KB Payment Usance", cat:"?섏엯湲덉쑖", st:"蹂대쪟", src:"KB 怨듭떇?곹뭹",
+        kbPath:"湲곗뾽諭낇궧 ???명솚 ???섏텧????KB Payment Usance", ref:"https://obiz.kbstar.com/quics?page=C102065",
+        why:["?섏엯 쨌 "+cur+" 寃곗젣"],
+        block:{reason:"?좎껌
+...
+
+==== triage len 1066 ====
+function triage(f){
+  if(!eligible("?좊Ъ??,f) && f.cert==="provisional")
+    return["?쒕줈肄붿뒪??移쇰씪 / ?섎??숇낫??,"KB ?듯솕?듭뀡 / K-SURE ?섎??숇낫??,"媛寃곗젣(痍⑥냼媛?? ??鍮꾨?移?泥?궛(理쒕??먯떎=?꾨━誘몄뾼). ?좊Ъ??湲덉?: "+denyReason("?좊Ъ??,f)];
+  if(f.credit==="no"){
+    if(eligible("?밸퀎異쒖뿰",f))
+      return["?섎??숇낫??+ KB ?밸퀎異쒖뿰 ?섏텧??湲덉쑖吏??,"K-SURE ?섎??숇낫??쨌 KB ?밸퀎異쒖뿰 ?섏텧??湲덉쑖吏??,"?ъ떊 ?ш컖吏? ???ъ떊 ?놁씠 K-SURE 怨듭쟻蹂댄뿕?쇰줈 ?섎━?ㅽ겕 愿由?+ KB援??????밸퀎異쒖뿰 ?섏텧??湲덉쑖吏??K-SURE 蹂댁쬆 湲곕컲) 寃?? 愿由?湲덉븸? ?ㅼ닔??踰붿쐞 ??];
+    // ?밸퀎異쒖뿰 遺?곹빀(媛쒖씤?ъ뾽?????댁뼱???섏텧?대㈃ 怨듭쟻蹂댄뿕? ?⑤뒗?????먭꺽? ELIG ???꾩엫.
+    // ?섏엯 + 臾댁뿬?좎? ?좊Ъ???ъ떊 ?꾩슂)???섎??숇낫???섏텧 ?꾩슜)?????섎?濡??ㅼ? ?섎떒???녿떎 ??
+    // ?녿뒗 ?곹뭹??吏?대궡吏 ?딄퀬 ?좏뻾 怨쇱젣瑜?留먰븳??
+    if(!eligible("?섎??숇낫??,f))
+      return["?ъ떊 ?쒕룄 ?뺣낫 ???좊Ъ??,"RM ?곷떞 쨌 ?ъ떊 ?쒕룄 ?묒쓽",
+             denyReason("?섎??숇낫??,f)+" 쨌 ?좊Ъ?섏? ?ъ떊 ?꾩슂 ???섏엯 寃곗젣 嫄댁? ?ъ떊 ?쒕룄쨌?대낫 ?묒쓽媛 ?좏뻾"];
+    // ?꾨낫???꾨땶 ?곹뭹???ъ쑀???멸툒?섎㈃ ?몄씠利덈떎(?쒖쇅 ?ъ쑀???곹뭹 ?쇱슦??移대뱶媛 ?ㅻ챸?쒕떎).
+    return["?섎??숇낫??,"K-SURE ?섎??숇낫??,(f.biz==="sole"?"媛쒖씤?ъ뾽?먃?:"")+"?ъ떊 誘몃낫????????ъ떊 ?놁씠 K-SURE 怨듭쟻蹂댄뿕?쇰줈 ?섎━?ㅽ겕 愿由? 愿由?湲덉븸? ?ㅼ닔??踰붿쐞 ??];
+  }
+  if(f.cash==="tight")return["?쒕줈肄붿뒪??移쇰씪","KB ?듯솕?듭뀡","?ъ떊 ?덉쓬 + ?꾨━誘몄뾼 ?꾧툑遺?????뗫ℓ??肄쒕ℓ???곸뇙濡??좊궔鍮꾩슜 0"];
+  return["?좊Ъ??,"KB ?좊Ъ???怨좉컼)","?ъ떊 ?덉쓬 + ?꾧툑 ?ъ쑀 ???쒖? 理쒖?鍮꾩슜 ?ㅼ?"];
+}
+...
+
+==== eligible len 74 ====
+function eligible(key,f){ const r=ELIG[key]; return r? !!r.ok(f) : true; }
+...
+
+==== validateForm len 560 ====
+function validateForm(){
+  const errs=[];
+  Object.keys(FIELD_RULES).forEach(id=>{
+    const el=$(id); if(!el)return;
+    const r=FIELD_RULES[id], raw=String(el.value).trim(), v=Number(raw);
+    let msg="";
+    if(raw==="" || !isFinite(v)) msg=josa(r.label,"?꾨?")+" ?レ옄濡??낅젰?섏꽭??";
+    else if(r.int && !Number.isInteger(v)) msg=r.msg;
+    else if(v<r.min || v>r.max) msg=r.msg;
+    if(msg) errs.push({id:id, msg:msg});
+  });
+  // 遺꾪븷 ?ㅼ?以꾩씠 紐⑥닚?대㈃(?⑷퀎 100% ?댁긽쨌留뚭린 ??닚 ?? 怨꾩궛??硫덉텣?????レ옄瑜?吏?대궡吏 ?딅뒗??
+  schedErrs().forEach(m=>errs.push({id:"in-split", msg:m}));
+  return errs;
+}
+...
+
+==== localBrief len 935 ====
+function localBrief(p){
+  const pr=p.profile, r=p.risk, prim=(p.products||[])[0], posK=pr.pos==="import"?"?섏엯":"?섏텧";
+  const lines=[
+    esc(pr.name)+" 쨌 "+posK+" 쨌 "+esc(pr.country)+" "+pr.amount.toLocaleString()+" "+esc(pr.currency)
+      +" 쨌 寃곗젣 留뚭린 "+pr.horizon+"?곸뾽??嫄곕옒?낅땲??",
+    "?덉궛?섏쑉 "+fmtRate(pr.budget)+"??珥덇낵 媛?μ꽦? <b>"+r.bbp.toFixed(1)+"%</b>, 珥덇낵 ??遺?댁븸?(蹂댁닔???곹븳) <b>"
+      +won(r.expectedLossKRW)+"</b>?낅땲?? ?쒖옣 ?꾪뿕寃뚯씠吏 "+r.ewi+"/100 쨌 嫄곕옒援?援ъ“ 由ъ뒪??"+esc(r.macroGrade)+".",
+    r.alert
+      ? "吏湲덉? <b>?λ룞 ?ㅼ? 寃??援ш컙</b>?낅땲????"+esc(p.hedge.inst)+" 湲곗? 遺遺?<b>"+Math.round(p.hedge.ratio*100)
+        +"%</b>媛 李멸퀬 愿由щ쾾?꾩씠硫? ?ㅼ젣 鍮꾩쑉쨌鍮꾩슜? ?곷떞?먯꽌 ?뺤젙?⑸땲??"
+      : "珥덇낵 媛?μ꽦????븘 吏湲덉? <b>紐⑤땲?곕쭅</b>???곸젅??援ш컙?낅땲?? 湲됰? ???뚮┝쨌?ъ쭊?⑥쑝濡???묓빀?덈떎."
+  ];
+  if(prim) lines.push("1?쒖쐞 ?꾨낫??<b>"+esc(prim.t)+"</b> ("+esc(prim.st)+") ??"+(prim.why||[]).map(esc).join(" 쨌 ")+".");
+  lines.push("?쒕룄쨌?붿쑉쨌?섏닔猷????ㅼ젣 議곌굔怨?怨꾩빟? KB ?곸뾽???곷떞?먯꽌 ?뺤젙?⑸땲??");
+  return lines.map(t=>"쨌 "+t).join("<br>");
+}
+...
+
+==== compute len 20269 ====
+function compute(){
+  const f=readForm(), m=MARKET;
+  // 寃利??ㅽ뙣 ??怨꾩궛 以묐떒 ???由?媛믪쑝濡?BBP쨌遺?댁븸??留뚮뱾??蹂댁뿬二쇱? ?딅뒗??
+  const _errs=validateForm();
+  renderFieldErrors(_errs);
+  if(_errs.length){ showInputGuard(_errs); return; }
+  const cur=CUR[f.currency]||CUR.USD;
+  m.spot=cur.spot;                                    // ?듯솕蹂??꾩옱媛
+  /* 援?㈃ ? = 洹??듯솕媛 洹??좎쭨???ㅼ젣濡?蹂댁씤 ?? (諛곗닔 ?놁쓬).
+     ?덉쟾??sigEff = cur.sig 횞 (USD援?㈃?/0.098) ?댁뿀????USD 諛곗닔瑜??⑥쓽 ?듯솕??怨깊븯??援ъ“??
+     ?듯솕瑜?紐??댁뿀?? ?댁젣 ?듯솕蹂?援?㈃?쒖뿉??諛붾줈 ?쎌쑝誘濡?怨깊븷 諛곗닔 ?먯껜媛 ?녿떎. */
+  const rg=regimesOf(f.currency)[regimeIdx] || regimesOf("USD")[regimeIdx];
+  m.sigAnn=rg.sigAnn; m.ewi=rg.ewi; m.iz=rg.iz; m.shares=rg.shares;
+  m.regimeName=rg.key; m.regimeNote=rg.note; m.regimeDate=rg.date;
+  const sigEff=rg.sigAnn;                             // ?듯솕蹂??ㅼ륫 ??
+  // 遺꾪븷 寃곗젣硫??뚯감蹂꾨줈 怨꾩궛??湲덉븸媛以??⑹궛 ???쇱떆遺덉씠硫??⑥씪 ?뚯감??湲곗〈怨?媛숈? 媛믪씠??
+  const bbp=bbpOf(f,m.spot,sigEff,m.iz)*100;
+  const esUnit=expShortfall(m.spot,f.budget,sigEff,f.horizon,f.pos);   // 理쒖쥌 留뚭린 湲곗? ?⑥쐞 遺??誘쇨컧?꽷룹눥???쒖떆??
+  const esTotal=esOf(f,m.spot,sigEff,cur.unit);      // 26.4: ?멸??⑥쐞 蹂댁젙(JPY/VND unit=100)
+  const la=(m.ewi/100)*(bbp/100), hr=hedgeRatio(la); // LossAlert=(EWI/100)횞BBP
+  const alert=(m.ewi>=60)||(bbp>=40);                // 26.1: agents.py SentinelAgent? ?숈씪 寃쎈낫 ?꾧퀎
+  const badBudget = f.pos==="export"? m.spot<f.budget : m.spot>f.budget;  // ?덉궛 ?鍮?遺덈━ ?щ?(?⑥씪 ?뺤쓽)
+
+  // ?곷떒 ?곗빱(?듯솕쨌援?㈃ 諛섏쁺)
+  $("whoami-co").textContent="(二?"+f.name;   // 26.7: 濡쒓렇??踰뺤씤 = ?좏깮 湲곗뾽 ?숆린??
+  $("tk-pair").textContent=rateLbl()+" "+cur.label;
+  $("tk-spot").textContent=fmtRate(cur.spot);
+  $("tk-sig").textContent=(sigEff*100).toFixed(1)+"%";
+  const gEwi=gradeOf(m.ewi);
+  $("tk-ewi").innerHTML=Math.round(m.ewi)+' <span style="font-size:var(--fs-1);color:'+GCOL[gEwi]+'">'+gEwi+'</span>';
+
+  // ??BBP gauge
+  const col=bbpColor(bbp); const arc=$("arc");
+  arc.style.stroke=col; arc.style.strokeDasharray=ARC; arc.style.strokeDashoffset=ARC*(1-bbp/100);
+  const be=$("bbp"); be.style.color=col; animNum(be,bbp,1);
+  const band=bbp<20?"??쓬":bbp<40?"蹂댄넻":bbp<60?"?믪쓬":"留ㅼ슦 ?믪쓬";
+  $("bbp-cap").textContent="?덉궛?섏쑉 珥덇낵 媛?μ꽦 쨌 "+band;
+  $("bbp-gauge-wrap").setAttribute("aria-label","?덉궛?섏쑉 珥덇낵 媛?μ꽦 "+bbp.toFixed(1)+"?쇱꽱?? "+band+(alert?", ?ㅼ? 寃??沅뚯옣":", ?덉젙"));
+  const sc=$("statechip"); 
+...
+
+==== renderAdvisor len 4750 ====
+function renderAdvisor(recs,f){
+  const cont=$("advisor"); if(!cont)return;
+  const groups={}; SEG_ORDER.forEach(s=>groups[s]=[]);
+  recs.forEach(r=>{ (groups[r.cat]||(groups[r.cat]=[])).push(r); });
+  const active=SEG_ORDER.filter(s=>groups[s].length);
+  const _prim=primaryProduct(recs,f.biz);
+  // 1?쒖쐞 KB ?곹뭹???대떦 ??쓽 留??욎쑝濡??????댁옄留덉옄 泥ル늿??蹂댁씠寃?
+  if(_prim && groups[_prim.cat]){ const g=groups[_prim.cat], i=g.indexOf(_prim); if(i>0){ g.splice(i,1); g.unshift(_prim); } }
+  // 湲곕낯 ?쒖꽦 ?멸렇癒쇳듃: 1?쒖쐞 KB ?곹뭹??移댄뀒怨좊━瑜??댁뼱 ?붾㈃ ?꾩껜 "1?쒖쐞" 硫붿떆吏 ?쇱튂
+  let def = (_prim||{}).cat;
+  if(!def || !groups[def] || !groups[def].length) def = f.pos==="import"?"?섏엯湲덉쑖":"?섏텧湲덉쑖";
+  if(!groups[def]||!groups[def].length) def=active[0]||"?명솚?ㅼ?";
+  const card=r=>{
+    const stc=ST_COL[r.st]||"var(--ink-mut)", srcCls=SRC_CLASS[r.src]||"ext";
+    let h='<div class="it"><div class="t">'+esc(r.t)
+      +'<span class="src '+srcCls+'">'+esc(r.src)+'</span>'
+      +'<span class="chip" style="color:'+stc+';border-color:color-mix(in srgb,'+stc+' 45%,transparent)">'+esc(r.st)+'</span></div>';
+    h+='<div class="s">'+r.why.map(esc).join(" 쨌 ")+'</div>';
+    // '?곹빀??86' 媛숈? ?먯닔??洹쇨굅 ?녿뒗 ?뺣??꾩??????ㅼ젣濡??뺤씤???먭꺽?붽굔 ???ъ떎)濡??泥?
+    if(r.fit){ const _f=fitCount(r), p=_f.pct;
+      h+='<div class="fitrow"><span class="lbl" style="letter-spacing:.04em">?먭꺽?붽굔 ?뺤씤</span><div class="fitbar"><i style="width:'+p+'%"></i></div>'
+        +'<span class="fs">'+_f.np+'/'+_f.tot+'</span>'+(_f.nu?'<span class="fu">誘명솗??'+_f.nu+'</span>':'')+'</div>';
+      if(r.fit.pass&&r.fit.pass.length) h+='<div class="metaline"><b>異⑹”</b> '+r.fit.pass.map(esc).join(" 쨌 ")+'</div>';
+      if(r.fit.unknown&&r.fit.unknown.length) h+='<div class="metaline rm"><b>誘명솗??/b> '+r.fit.unknown.map(esc).join(" 쨌 ")+'</div>';
+    }
+    if(r.block){ h+='<div class="blockbox"><b>'+esc(r.st)+' 쨌 '+esc(r.block.reason)+'</b><br>'+esc(r.block.detail)
+      +'<br><span style="color:var(--ink-mut)">?댁젣議곌굔: '+esc(r.block.unlock)+'</span></div>'; }
+    if(r.readiness){ const rd=r.readiness;
+      h+='<div class="metaline"><b>?쒕쪟 以鍮?'+rd.n+'/'+rd.m+'</b>'
+        +(rd.confirmed.length?' 쨌 ?뺤씤 '+rd.confirmed.map(esc).join(", "):'')
+        +(rd.missing.length?' 쨌 <span style="color:var(--elev)">?꾩슂 '+
+...
+
+==== renderLifecycle len 2185 ====
+function renderLifecycle(f,ctx){
+  const host=$("lc-body"), card=$("lc-card"); if(!host||!card) return;
+  const h=HEDGED[f.name];
+  if(!h){
+    host.innerHTML='<div class="metaline">???뚯궗??<b>泥닿껐???ㅼ?媛 ?놁뒿?덈떎</b> ???곷떞쨌怨꾩빟 ?????먮━?먯꽌 留뚭린쨌?ㅼ닔?붋룸·?ㅻ쾭瑜?愿由ы빀?덈떎.</div>';
+    return;
+  }
+  const need=+f.amount||0, over=h.amount-need, ratio=need? (h.amount/need*100):0;
+  const rollBd=(+f.horizon||0)-h.dueBd;          // 寃곗젣媛 ?ㅼ? 留뚭린蹂대떎 ??쑝硫?洹?李⑥씠留뚰겮 濡ㅼ삤踰?
+  let rows=[
+    ["泥닿껐 ?곹뭹", esc(h.instr)+' <span style="color:var(--ink-faint)">'+esc(h.tradeDate)+' 泥닿껐</span>'],
+    ["泥닿껐 湲덉븸 쨌 ?섏쑉", h.amount.toLocaleString()+" "+esc(h.ccy)+" @ "+fmtRate(h.rate)+"??],
+    ["?ㅼ? 留뚭린", "D+"+h.dueBd+"?곸뾽??],
+    ["?꾩옱 ?ㅼ닔??寃곗젣湲덉븸)", need.toLocaleString()+" "+esc(h.ccy)],
+    ["?ㅼ? 鍮꾩쑉", ratio.toFixed(0)+"% <span style=\"color:var(--ink-faint)\">(泥닿껐湲덉븸 첨 ?ㅼ닔??</span>"]
+  ];
+  let hh='<div class="dwrap"><table class="spectable"><tbody>'
+    + rows.map(r=>'<tr><td class="k">'+r[0]+'</td><td>'+r[1]+'</td></tr>').join("")
+    + '</tbody></table></div>';
+  const acts=[];
+  if(over>0){
+    acts.push(['李⑤떒','?ㅼ닔??珥덇낵 '+over.toLocaleString()+' '+esc(h.ccy),
+      '寃곗젣湲덉븸??泥닿껐 ?ㅼ?蹂대떎 ?묒븘議뚯뒿?덈떎 ??珥덇낵遺꾩? <b>遺遺꾪빐吏</b> ??곸엯?덈떎(?멸뎅?섍굅?섎쾿 ?ㅼ닔???먯튃). '
+      +'?댁? ?뺤궛湲덉? 怨좎떆 ?ㅼ솑?ъ씤?맞룸?怨좉컼 ?ㅽ봽?덈뱶媛 ?꾩슂?????붾㈃?먯꽌 怨꾩궛?섏? ?딆뒿?덈떎 ??<b>RM ?뺤씤</b>.']);
+  } else if(over<0){
+    acts.push(['二쇱쓽','誘명뿤吏 ?붾웾 '+Math.abs(over).toLocaleString()+' '+esc(h.ccy),
+      '?ㅼ닔?붽? 泥닿껐 ?ㅼ?蹂대떎 留롮뒿?덈떎 ???붾웾? ?ъ쟾???섏쑉???몄텧???덉뒿?덈떎. 異붽? ?ㅼ????ㅼ닔??踰붿쐞 ?덉뿉?쒕쭔 媛?ν빀?덈떎.']);
+  } else {
+    acts.push(['?뺤긽','?ㅼ닔??= 泥닿껐 ?ㅼ?','珥덇낵쨌?붾웾 ?놁씠 留욎뒿?덈떎. 留뚭린??洹몃?濡??댄뻾?섎㈃ ?⑸땲??']);
+  }
+  if(rollBd>0){
+    acts.push(['二쇱쓽','濡ㅼ삤踰?寃??'+rollBd+'?곸뾽??,
+      '寃곗젣?쇱씠 ?ㅼ? 留뚭린蹂대떎 <b>'+rollBd+'?곸뾽????뒿?덈떎</b> ??洹?援ш컙? ?ㅼ?媛 ?딄퉩?덈떎. '
+      +'?명솚?ㅼ솑?쇰줈 留뚭린瑜?誘몃（??寃껋씠 ?쒖??대ŉ, ?ㅼ솑?ъ씤??議곌굔? <b>RM ?뺤씤</b>?낅땲??']);
+  } else if(rollBd<0){
+    acts.push(['?뺤긽','寃곗젣媛 ?ㅼ? 留뚭린蹂대떎 ?대쫫','?ㅼ? 留뚭린 ?꾩뿉 寃곗젣媛 ?앸궔?덈떎 ???붿뿬 援ш컙? 議곌린 ?뺤궛 ??곸엯?덈떎(議곌굔? RM ?뺤씤).']);
+  }
+  hh+=acts.map(a=>{
+    const col = a[0]==='李⑤떒' ? 'var(--crit)' : (a[0]==='二쇱쓽' ? 'var(--elev)' : 'var(--ok)');
+    return '<div class="metaline" style="max-width:44em"><b style="color:'+col+'">'+a[0]+' 쨌 '+a[1]+'</b><br>'+a[2]+'</div>';
+  }).join("");
+  hh+='<div class="guard">???댁? ?뺤궛湲댟룹뒪?묓룷?명듃쨌?섏닔猷뚮뒗 怨좎떆 議곌굔???꾩슂??<b>RM쨌?곸뾽?먯씠 ?뺤젙</b>?⑸땲??</div>';
+  host.innerHTML=hh;
+}
+...
+
+==== renderNextSteps len 896 ====
+function renderNextSteps(f,ctx){
+  const p=primaryProduct(ctx.recs,f.biz), hr=ctx.recs.find(r=>r.cat==="?명솚?ㅼ?"&&["異붿쿇","?곷떞?꾨낫"].includes(r.st));
+  const items=[];
+  if(p){ const verb=(p.st==="蹂대쪟"||p.block)?"議곌굔 ?뺤씤 ?꾩슂":(["異붿쿇","RM?뺤씤"].includes(p.st)?"?좎껌 媛???щ? ?뺤씤":"寃??);
+    items.push("<b>"+esc(p.t)+"</b> "+verb+(p.block?" ??"+esc(p.block.reason):"")); }
+  if(p&&p.readiness){ const rd=p.readiness; items.push("?꾩슂?쒕쪟 <b>"+rd.n+"/"+rd.m+"</b> 以鍮?+(rd.missing.length?" 쨌 ?⑥? ?쒕쪟 "+esc(rd.missing.slice(0,2).join(", ")):"")); }
+  else items.push("?ㅼ닔??利앸튃(?몃낫?댁뒪쨌怨꾩빟?? ?낅줈?쒕줈 ?쒕쪟 ?뺤젙");
+  items.push("KB ?대떦?먭? <b>?쒕룄쨌湲덈━ ??議곌굔</b>???뺤씤???쒕┰?덈떎");
+  items.push("?섎━?ㅽ겕 愿由щ뒗 <b>KB ?곷떞</b>?먯꽌 ?덈궡?⑸땲????怨꾩빟? ?곸뾽???뺤씤 ??吏꾪뻾");
+  $("nextsteps").innerHTML='<div class="ns-h">?ㅻ뒛 媛?ν븳 ?ㅼ쓬 ?④퀎</div><div class="ns-list">'
+    +items.map((t,i)=>'<div class="ns-item"><span class="num">'+(i+1)+'</span><div>'+t+'</div></div>').join("")+'</div>';
+}
+...
+
+==== primaryProduct len 440 ====
+function primaryProduct(recs,biz){
+  // ?명솕?덇툑쨌?명솕?異쒖? ?섏텧??湲덉쑖???밸뒗 蹂댁“ ?곹뭹?대떎. ?ш린???ｌ? ?딆쑝硫?
+  // 二쇰젰 ?곹뭹??'寃????嫄댁뿉???섏랬怨꾩쥖媛 "?ㅻ뒛???ㅼ쓬 ?④퀎" ?먮━瑜?李⑥??쒕떎(??깅Т??.
+  const main=recs.filter(r=>r.cat!=="?명솕?곹뭹");
+  return (biz==="sole" && recs.find(r=>r.t==="KB 湲濡쒕쾶????곕??쒕퉬??))
+    || main.find(r=>r.src==="KB 怨듭떇?곹뭹"&&["異붿쿇","RM?뺤씤"].includes(r.st))
+    || main.find(r=>r.src==="KB 怨듭떇?곹뭹")
+    || main.find(r=>["異붿쿇","RM?뺤씤","?곷떞?꾨낫"].includes(r.st))
+    || main[0] || recs[0];
+}
+...
+

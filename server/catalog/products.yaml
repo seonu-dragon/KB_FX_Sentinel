@@ -1,0 +1,255 @@
+# FX Sentinel — KB 상품 마스터 (외부화된 마스터)
+# ═══════════════════════════════════════════════════════════════════════
+#
+# ■ 왜 이 파일이 있는가
+# 상품 정보가 데모 HTML 의 JS 배열 안에 문자열로 박혀 있었다. 상품 담당자가 문안 한 줄을
+# 고치려면 4,000행짜리 HTML 을 열어 따옴표 사이를 편집해야 했다. 그건 유지보수가 아니다.
+#
+# ■ 이 파일이 마스터다
+# 서버는 이 파일을 읽고, `scripts/sync_demo_products.py --check` 가 데모 HTML 의
+# KB_PRODUCTS 와 일치하는지 검사한다(테스트가 CI 로 강제). 갈라지면 죽는다.
+# `--write` 로 데모 쪽 JS 블록을 이 파일에서 재생성할 수도 있다.
+#
+# ■ 요율·한도는 여기 없다 (의도)
+# KB 상품/약관 DB·가격엔진이 미연동이므로 금리·수수료·한도를 적지 않는다.
+# 지어낸 요율은 고객이 계약 조건으로 오해할 수 있다. 요율은 RM 견적으로 넘긴다.
+#
+# eligibility_key: server/app/elig.py 의 ELIG 키와 연결된다(빈 값 = 자격 게이트 없음).
+
+version: "2026-07-19"
+source_note: "KB 공식 상품·서비스 문안 기준. 요율·한도는 미포함(RM 견적 사항)."
+rate_policy: "연동 전까지 요율·한도를 제공하지 않는다. 상품 후보 제시 + RM 견적 요청까지만."
+
+categories:
+  - 수입금융
+  - 수출금융
+  - 외환헤지
+  - 외화상품
+  - 무역지원
+
+products:
+  # ── 수입금융 ────────────────────────────────────────────────────
+  - code: IMP-USANCE
+    category: 수입금융
+    name: KB Payment Usance
+    source: KB 공식상품
+    description: 수입 결제자금을 지원합니다(사전·사후 송금 방식).
+    requirement: 수입기업 · USD/EUR/JPY/CNY 결제 · 만기 6개월 이내
+    documents: 수입계약서·인보이스·운송서류
+    channels: 영업점·기업뱅킹·전자무역(EDI)
+    kb_path: 기업뱅킹 › 외환 › 수출입 › KB Payment Usance
+    reference: https://obiz.kbstar.com/quics?page=C102065
+    # 아래 제약은 recommendPackage 의 판정 근거와 같은 값이다(코드에도 동일 상수 존재).
+    constraints:
+      position: import
+      currencies: [USD, EUR, JPY, CNY]
+      max_horizon_bd: 126        # 기본 6개월 ≈ 126 영업일
+    rm_checks: [포괄외화지급보증 한도, 금리, 인수수수료·전신료, 내부 신용심사]
+
+  - code: IMP-LC
+    category: 수입금융
+    name: 수입신용장(L/C) 개설
+    source: KB 공식상품
+    description: 수입 대금 지급을 보장하는 신용장을 개설합니다.
+    requirement: 수입 · L/C 방식
+    documents: 개설신청서·수입계약서·사업자등록증
+    channels: 영업점·기업뱅킹
+    kb_path: 기업뱅킹 › 외환 › 수출입 › 수입신용장
+    constraints:
+      position: import
+      payment_terms: [LC]
+    rm_checks: [개설 한도, 개설수수료, 담보/여신]
+
+  - code: IMP-LG
+    category: 수입금융
+    name: 운송서류인수(L/G)
+    source: KB 공식상품
+    description: 선적서류 도착 전 통관이 필요할 때 화물선취보증을 제공합니다.
+    requirement: 수입 · 선적서류 미도착
+    documents: L/G 신청서·B/L 사본
+    channels: 영업점
+    kb_path: 기업뱅킹 › 외환 › 수출입 › 수입화물선취보증
+    constraints:
+      position: import
+      payment_terms: [LC]
+    rm_checks: [L/G 발급 한도, 담보/여신, 발급수수료]
+
+  # ── 수출금융 ────────────────────────────────────────────────────
+  - code: EXP-NEGO
+    category: 수출금융
+    name: 수출환어음매입
+    source: KB 공식상품
+    description: 수출 채권을 조기에 대금화합니다(O/A·L/C Nego).
+    requirement: 수출 · 확정 수출채권
+    documents: 수출계약서·선적서류·인보이스
+    channels: 영업점·기업뱅킹
+    kb_path: 기업뱅킹 › 외환 › 수출입 › 수출환어음매입
+    constraints:
+      position: export
+    rm_checks: [매입 한도, 환가료율, 부도상환 조건]
+
+  - code: EXP-SPECIAL
+    category: 수출금융
+    name: KB 특별출연 수출입 금융지원
+    source: KB 공식상품
+    description: 여신이 부족한 수출기업에 K-SURE 보증 기반 자금을 지원합니다.
+    requirement: 수출기업 · 담보/여신 부족 · K-SURE 보증
+    documents: 수출계약서·인보이스·선적서류·수출실적
+    channels: 영업점
+    kb_path: 기업뱅킹 › 외환 › 수출입 › 특별출연 수출입 금융지원
+    reference: https://obiz.kbstar.com/quics?page=C101674
+    eligibility_key: 특별출연
+    rm_checks: [보증종목, 수출실적 요건, KB 내부 신용심사, 금리/수수료/한도]
+
+  - code: EXP-TRADEFIN
+    category: 수출금융
+    name: 무역금융(수출)
+    source: KB 공식상품
+    description: 수출 생산·구매 자금을 지원합니다.
+    requirement: 수출 · T/T 등
+    documents: 수출계약·수출실적
+    channels: 영업점
+    kb_path: 기업뱅킹 › 외환 › 수출입 › 무역금융
+    constraints:
+      position: export
+    rm_checks: [융자한도, 금리, 수출실적 증빙]
+
+  # ── 외환헤지 ────────────────────────────────────────────────────
+  - code: FX-FORWARD
+    category: 외환헤지
+    name: 선물환
+    source: KB 외환
+    description: 미래 결제 환율을 미리 고정해 환리스크를 관리합니다.
+    requirement: 확정 거래 · 여신 한도 보유
+    documents: 인보이스·계약서·수출입신고 서류
+    channels: 영업점·RM
+    kb_path: KB Star FX › 외환파생 상담
+    eligibility_key: 선물환
+    rm_checks: [선물환 한도, 스프레드, 실수요 증빙]
+
+  - code: FX-FLEX-FORWARD
+    category: 외환헤지
+    name: 기간형 선물환(윈도우 포워드)
+    source: KB 외환
+    description: 결제일이 특정일이 아니라 기간(범위)일 때 그 기간 안에서 나눠 인출하며 환율을 고정합니다.
+    requirement: 확정 거래 · 결제일 미확정(기간) · 여신 한도 보유
+    documents: 인보이스·계약서(선적/검수 일정)·수출입신고 서류
+    channels: 영업점·RM
+    kb_path: KB Star FX › 외환파생 상담(기간형)
+    eligibility_key: 기간형선물환
+    rm_checks: [선물환 한도, 인출 기간·최소 인출단위, 스프레드, 실수요 증빙]
+
+  - code: FX-RANGE-FORWARD
+    category: 외환헤지
+    name: 범위선물환(레인지 포워드)
+    source: KB 외환
+    description: 선납 비용 없이 환율 상·하단 밴드를 정해 밴드 안에서는 시장환율로, 벗어나면 밴드가로 정산합니다(상단 이익 일부 유지). 수출·무여신은 K-SURE 범위제한 선물환으로 연계합니다.
+    requirement: 확정 거래 · 수출은 K-SURE 범위형 가능 · 수입은 여신 한도 보유
+    documents: 인보이스·계약서·(수출) 수출신고 서류
+    channels: 영업점·RM·(수출) K-SURE 연계
+    kb_path: KB Star FX › 통화옵션·범위형 상담 / 무역보험공사 K-SURE(범위제한 선물환)
+    eligibility_key: 범위선물환
+    rm_checks: [밴드 상·하단 행사가, (은행형) 옵션 적합성·여신, (K-SURE형) 보험종목·청약 한도]
+
+  - code: FX-COLLAR
+    category: 외환헤지
+    name: 제로코스트 칼라(통화옵션)
+    source: KB 외환
+    description: 선납 비용 없이 환율 상·하단을 설정해 관리합니다(가결제·현금부담 시).
+    requirement: 옵션 적합성 확인
+    documents: PO/발주서·옵션 적합성
+    channels: 영업점·RM
+    kb_path: KB Star FX › 통화옵션 상담
+    eligibility_key: 칼라
+    rm_checks: [옵션 적합성, 행사가 밴드, 한도]
+
+  - code: FX-KSURE
+    category: 외환헤지
+    name: 환변동보험(K-SURE)
+    source: 외부기관(K-SURE)
+    description: 수출 거래 전용 — 은행 여신 없이 공적보험으로 환리스크를 관리합니다.
+    requirement: 수출계약·수출신고 서류
+    documents: 수출계약/인보이스·수출신고 서류
+    channels: K-SURE·영업점 연계
+    kb_path: 무역보험공사 K-SURE
+    eligibility_key: 환변동보험
+    rm_checks: [보험종목, 청약 한도, 보험료율]
+
+  - code: FX-ALERT
+    category: 외환헤지
+    name: KB Star FX 환율 알림
+    source: KB 공식서비스
+    description: 목표환율 도달·급변 알림과 예약주문(환율픽)을 제공합니다.
+    requirement: —
+    documents: —
+    channels: KB Star FX
+    kb_path: KB Star FX › 환율 알림 / 환율픽
+
+  # ── 외화상품 ────────────────────────────────────────────────────
+  - code: CUR-DEPOSIT
+    category: 외화상품
+    name: 외화보통예금(외화 수취계좌)
+    source: KB 공식상품
+    description: 수출대금·플랫폼 정산금을 외화로 받아 보유합니다 — 환전 시점을 분산할 수 있습니다(환율 고정 아님).
+    requirement: 수출·외화 수취 건 · 사업자등록증
+    documents: 사업자등록증·외국환거래 신고(해당 시)
+    channels: 영업점·기업뱅킹
+    kb_path: 기업뱅킹 › 외환 › 외화예금
+    eligibility_key: 외화예금
+    # 헤지가 아니다 — 환율을 고정하지 않는다. 반대로 움직일 수 있음을 함께 고지해야 한다.
+    not_a_hedge: true
+
+  - code: CUR-TIME-DEPOSIT
+    category: 외화상품
+    name: 외화정기예금
+    source: KB 공식상품
+    description: 수취한 외화를 당장 쓰지 않을 때 예치 기간 동안 이자를 받습니다.
+    requirement: 외화계좌 · 예치 기간 계획
+    documents: 외화계좌
+    channels: 영업점
+    kb_path: 기업뱅킹 › 외환 › 외화예금 › 외화정기예금
+    not_a_hedge: true
+
+  - code: CUR-LOAN
+    category: 외화상품
+    name: 외화대출(수입 결제자금)
+    source: KB 공식상품
+    description: 수입 결제자금을 외화로 조달합니다 — 외화로 상환하면 환전 횟수를 줄일 수 있습니다.
+    requirement: 수입 건 · 여신 한도 보유
+    documents: 수입계약서·Invoice·여신 한도
+    channels: 영업점
+    kb_path: 기업뱅킹 › 외환 › 외화대출
+    eligibility_key: 외화대출
+    not_a_hedge: true
+
+  # ── 무역지원 ────────────────────────────────────────────────────
+  - code: TRD-CREDIT-CHECK
+    category: 무역지원
+    name: 해외거래처신용조사
+    source: KB 공식서비스
+    description: 거래상대방의 대금회수 리스크를 사전에 확인합니다.
+    requirement: 거래상대방 정보
+    documents: 상호·소재국·사업자 정보
+    channels: 영업점
+    kb_path: 기업뱅킹 › 수출입지원제도 › 해외거래처신용조사
+
+  - code: TRD-CUSTOMS
+    category: 무역지원
+    name: 수출입통관상담·파트너관세사
+    source: KB 공식서비스
+    description: 통관·FTA·원산지·관세환급을 전문 관세사와 상담합니다.
+    requirement: 품목·HS코드
+    documents: 품목·원산지 정보
+    channels: 영업점·파트너관세사
+    kb_path: 기업뱅킹 › 수출입지원제도 › 통관상담
+
+  - code: TRD-GLOBAL-SELLER
+    category: 무역지원
+    name: KB 글로벌셀러 우대서비스
+    source: KB 공식서비스
+    description: 해외 마켓플레이스 매출대금 수취·환전 우대를 지원합니다.
+    requirement: 개인사업자·소상공인 글로벌셀러
+    documents: 플랫폼 정산명세·사업자등록증
+    channels: 영업점·KB Star FX
+    kb_path: KB Star FX › 글로벌셀러 우대서비스
+    eligibility_key: 글로벌셀러
