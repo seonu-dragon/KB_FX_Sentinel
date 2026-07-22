@@ -55,9 +55,27 @@ class MarketOverride(BaseModel):
     iz: Optional[int] = Field(default=None, ge=0, le=1)
 
 
+class ConsumerInput(BaseModel):
+    """고객(사람) 쪽 정보 — 금소법 적정성 확인 입력.
+
+    거래(TradeInput)와 분리한 이유: 거래는 건마다 바뀌지만 이건 고객마다 바뀐다.
+    선택 필드다 — 보내지 않으면 가장 보수적인 기본값(경험 없음·이해 미확인)이 적용되어
+    파생 권유가 막힌다. **비워두면 통과하는 게 아니라 막히는 쪽**이 안전한 기본값이다.
+    """
+    deriv_exp: Literal["none", "limited", "experienced"] = "none"
+    prior_loss: Literal["yes", "no"] = "no"
+    loss_tolerance_krw: float = Field(default=0.0, ge=0, le=1e13,
+                                      description="감내 가능 손실(원) — 고객 자기신고")
+    understands: Literal["yes", "no"] = "no"
+    pro_declared: bool = False
+    # 여신 실행일로부터의 경과일(음수=실행 예정). 꺾기 점검용. 미상이면 None.
+    credit_exec_days: Optional[int] = Field(default=None, ge=-365, le=365)
+
+
 class AssessRequest(BaseModel):
     trade: TradeInput
     market: Optional[MarketOverride] = None
+    consumer: Optional[ConsumerInput] = None
 
 
 class EligDecision(BaseModel):
@@ -84,6 +102,48 @@ class HedgeSchedule(BaseModel):
     note: str
 
 
+class SuitItemOut(BaseModel):
+    key: str
+    question: str
+    met: bool
+    detail: str
+    # 필수(knock-out) 항목인가 — 점수로 상쇄되지 않는다.
+    required: bool = False
+
+
+class SuitabilityOut(BaseModel):
+    met: int
+    total: int
+    verdict: str
+    advisable: bool
+    items: list[SuitItemOut] = Field(default_factory=list)
+    failed_knockout: list[str] = Field(default_factory=list)
+    required_tolerance_krw: int
+    note: str
+
+
+class WithheldOut(BaseModel):
+    """자격은 있으나 적정성으로 권유를 보류한 것.
+
+    '자격 없음'과 완전히 다른 말이라 필드를 분리한다 — 고객에게 이유를 갈라서 말해야 한다.
+    """
+    key: str
+    reason: str
+    remedy: str
+
+
+class SalesGateOut(BaseModel):
+    consumer_type: str
+    consumer_type_reason: str
+    suitability: SuitabilityOut
+    suitability_exempt: bool
+    advisable_keys: list[str] = Field(default_factory=list)
+    withheld: list[WithheldOut] = Field(default_factory=list)
+    scenarios: dict = Field(default_factory=dict)
+    kickback_flags: list[str] = Field(default_factory=list)
+    disclaimer: str
+
+
 class AssessResponse(BaseModel):
     # 리스크 번역 (엔진 산출)
     bbp_pct: float
@@ -100,6 +160,9 @@ class AssessResponse(BaseModel):
     rationale: str
     eligibility: list[EligDecision]
     blocked: list[str] = Field(default_factory=list)
+
+    # 금소법 판매프로세스 (F1) — 자격(ELIG) 통과분에 대해 '권유해도 되는가'를 판정한다.
+    sales_gate: Optional[SalesGateOut] = None
 
     # 추적성
     engine_version: str
@@ -267,6 +330,50 @@ class DealOut(BaseModel):
     allowed_transitions: list[str]
     history: list[dict]
     warnings: list[str] = Field(default_factory=list)
+
+
+class KeyFactsRequest(BaseModel):
+    """핵심설명서 생성 요청."""
+    trade: TradeInput
+    instrument: str = Field(min_length=1, max_length=40)
+    consumer: Optional[ConsumerInput] = None
+    band_pct: float = Field(default=2.0, gt=0, le=20,
+                            description="범위형 밴드폭 가정(%) — 계약 밴드가가 아님")
+
+
+class KeyFactsResponse(BaseModel):
+    instrument: str
+    consumer_type: str
+    risks: list[str]
+    scenario: dict
+    scenario_summary: str
+    margin_call: str
+    explain_duty: bool
+    # 이 해시를 이해확인 시 함께 보낸다 — '무엇을' 확인했는지 고정하기 위해.
+    sheet_hash: str
+    note: str
+    audit_id: str
+
+
+class AckRequest(BaseModel):
+    """설명의무 이행 기록 — 고객 이해확인.
+
+    `sheet_hash` 를 함께 받는 이유: 나중에 문안이 바뀌어도 '그때 그 문서'를 특정할 수 있어야
+    한다. 해시 없이 '확인함'만 남기면 무엇을 확인했는지 증명되지 않는다.
+    """
+    instrument: str = Field(min_length=1, max_length=40)
+    sheet_hash: str = Field(min_length=8, max_length=64)
+    understood: bool
+    customer_name: str = Field(default="", max_length=120)
+
+
+class AckResponse(BaseModel):
+    recorded: bool
+    instrument: str
+    sheet_hash: str
+    recorded_at: str
+    audit_id: str
+    note: str
 
 
 class ScreeningRequest(BaseModel):

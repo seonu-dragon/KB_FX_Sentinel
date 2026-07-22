@@ -26,17 +26,19 @@ from . import hedging
 from . import lifecycle
 from . import portfolio
 from . import screening as screening_mod
+from . import suitability as suit_mod
 from .adapters import UnavailableAdapter, UnconnectedLedger, status_report
 from .audit import get_log
 from .catalog import get_catalog
 from .auth import Principal, current_principal, require
 from .config import settings
-from .schemas import (AlertEvalRequest, AlertEvalResponse, AlertOut, AssessRequest,
-                      AssessResponse, DealCreate, DealOut, DealTransition, EligDecision,
-                      HedgeOp, HedgeSchedule, MarketResponse, PortfolioLeg,
+from .schemas import (AckRequest, AckResponse, AlertEvalRequest, AlertEvalResponse,
+                      AlertOut, AssessRequest, AssessResponse, ConsumerInput, DealCreate,
+                      DealOut, DealTransition, EligDecision, HedgeOp, HedgeSchedule,
+                      KeyFactsRequest, KeyFactsResponse, MarketResponse, PortfolioLeg,
                       PortfolioRequest, PortfolioResponse, ProductOut, ProductsResponse,
-                      RuleCreate, RuleOut, ScreeningRequest, ScreeningResponse,
-                      TicketRequest, TicketResponse)
+                      RuleCreate, RuleOut, SalesGateOut, ScreeningRequest,
+                      ScreeningResponse, TicketRequest, TicketResponse)
 
 log = logging.getLogger("fx_sentinel.api")
 
@@ -104,6 +106,30 @@ def integrations() -> dict:
     }
 
 
+def _consumer_profile(c, trade) -> suit_mod.ConsumerProfile:
+    """ConsumerInput(선택) + 거래 폼 → 적정성 판정 입력.
+
+    `cash`(현금 여유)는 거래 폼에 이미 있으므로 거기서 승계한다. 같은 사실을 두 번
+    입력받으면 두 값이 갈라지고, 갈라지면 어느 쪽이 맞는지 아무도 모른다.
+    """
+    if c is None:
+        # 미제출 = 확인 안 됨. 보수적 기본값이라 파생 권유가 막힌다(의도).
+        return suit_mod.ConsumerProfile(biz=trade.biz, cash=trade.cash)
+    return suit_mod.ConsumerProfile(
+        biz=trade.biz, cash=trade.cash,
+        deriv_exp=c.deriv_exp, prior_loss=c.prior_loss,
+        loss_tolerance_krw=c.loss_tolerance_krw,
+        understands=c.understands, pro_declared=c.pro_declared)
+
+
+def _sheet_hash(sheet: dict) -> str:
+    """핵심설명서 본문 해시 — 무엇을 확인했는지 고정한다."""
+    import hashlib
+    import json as _json
+    canon = _json.dumps(sheet, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canon.encode("utf-8")).hexdigest()[:32]
+
+
 # ── 진단 ────────────────────────────────────────────────────────────
 @app.post("/v1/assess", response_model=AssessResponse)
 def assess(req: AssessRequest,
@@ -138,6 +164,25 @@ def assess(req: AssessRequest,
     except UnavailableAdapter as e:
         blocks.append(f"여신 한도 미확인 — {e.system} 미연동. 고객 신고값 기준이며 RM 원장 확인 필요")
 
+    # ── 금소법 판매프로세스 (F1) ──────────────────────────────────
+    # ELIG 통과분을 받아 '이 고객에게 권유해도 되는가'를 다시 본다.
+    # consumer 를 안 보내면 보수적 기본값(경험 없음·이해 미확인)이라 파생이 막힌다 —
+    # 정보가 없을 때 통과시키는 게 아니라 막는 쪽이 소비자보호의 기본값이다.
+    m_state, _ = engine_mod.market_state(req.market)
+    gate = suit_mod.sales_gate(
+        eligible_keys=[d["key"] for d in decisions if d["eligible"]],
+        p=_consumer_profile(req.consumer, req.trade),
+        amount=req.trade.amount,
+        spot=m_state.spot,
+        sigma_ann=m_state.sigma_ann,
+        horizon_bd=req.trade.horizon,
+        credit_exec_days=(req.consumer.credit_exec_days if req.consumer else None))
+
+    # 적정성으로 막힌 건 blocked 에도 올린다 — 화면이 sales_gate 를 안 읽어도 보이게.
+    for w in gate["withheld"]:
+        blocks.append(f"{w['key']} 권유 보류 — {w['reason']}")
+    blocks.extend(gate["kickback_flags"])
+
     audit_id = get_log().append(
         actor=p.subject, role=p.role, event="assess",
         payload={
@@ -152,6 +197,16 @@ def assess(req: AssessRequest,
             },
             "eligibility": decisions,
             "blocked": blocks,
+            # 판매프로세스 판정도 감사 대상이다 — "왜 그때 권유했나/왜 막았나"에 답해야 한다.
+            "sales_gate": {
+                "consumer_type": gate["consumer_type"],
+                "suitability_met": gate["suitability"]["met"],
+                "suitability_verdict": gate["suitability"]["verdict"],
+                "suitability_exempt": gate["suitability_exempt"],
+                "advisable_keys": gate["advisable_keys"],
+                "withheld": [w["key"] for w in gate["withheld"]],
+                "kickback_flags": gate["kickback_flags"],
+            },
         },
         engine_ver=settings.engine_version)
 
@@ -168,12 +223,80 @@ def assess(req: AssessRequest,
         rationale=result["rationale"],
         eligibility=[EligDecision(**d) for d in decisions],
         blocked=blocks,
+        sales_gate=SalesGateOut(**gate),
         engine_version=settings.engine_version,
         market_asof=settings.snapshot_date,
         market_source=source,
         audit_id=audit_id,
         disclaimer=DISCLAIMER,
     )
+
+
+# ── 설명의무 (F1) ───────────────────────────────────────────────────
+@app.post("/v1/keyfacts", response_model=KeyFactsResponse)
+def keyfacts(req: KeyFactsRequest,
+             p: Principal = Depends(current_principal)) -> KeyFactsResponse:
+    """핵심설명서 생성 — 상품별 위험 문안 + 불리 시나리오.
+
+    이 문서가 '설명 못 들었다'는 주장에 은행이 내놓을 유일한 물증이다. 그래서 본문을
+    해시로 고정해 돌려주고, 이해확인(/v1/keyfacts/ack)이 그 해시를 되보낸다.
+    """
+    m_state, _ = engine_mod.market_state(None)
+    profile = _consumer_profile(req.consumer, req.trade)
+    ctype, _reason = suit_mod.consumer_type(profile)
+
+    scenario = suit_mod.loss_scenarios(
+        req.instrument, req.trade.amount, m_state.spot,
+        m_state.sigma_ann, req.trade.horizon, req.band_pct)
+    sheet = suit_mod.key_facts_sheet(req.instrument, scenario, ctype)
+    h = _sheet_hash(sheet)
+
+    audit_id = get_log().append(
+        actor=p.subject, role=p.role, event="keyfacts.issue",
+        payload={"instrument": req.instrument, "consumer_type": ctype,
+                 "sheet_hash": h, "scenario": scenario,
+                 "trade_ref": {"name": req.trade.name, "amount": req.trade.amount,
+                               "horizon": req.trade.horizon}},
+        engine_ver=settings.engine_version)
+
+    return KeyFactsResponse(
+        instrument=req.instrument, consumer_type=ctype, risks=sheet["risks"],
+        scenario=scenario, scenario_summary=sheet["scenario_summary"],
+        margin_call=sheet["margin_call"], explain_duty=sheet["explain_duty"],
+        sheet_hash=h, note=sheet["note"], audit_id=audit_id)
+
+
+@app.post("/v1/keyfacts/ack", response_model=AckResponse)
+def keyfacts_ack(req: AckRequest,
+                 p: Principal = Depends(current_principal)) -> AckResponse:
+    """고객 이해확인 기록.
+
+    '확인함' 만 남기지 않고 **어떤 문서를** 확인했는지(sheet_hash) 함께 남긴다.
+    문안이 나중에 바뀌어도 그때 그 문서를 특정할 수 있어야 하기 때문이다.
+    """
+    if not req.understood:
+        # 미이해를 조용히 넘기지 않는다 — 그것도 사실이므로 기록한다.
+        audit_id = get_log().append(
+            actor=p.subject, role=p.role, event="keyfacts.ack.declined",
+            payload={"instrument": req.instrument, "sheet_hash": req.sheet_hash,
+                     "customer": req.customer_name},
+            engine_ver=settings.engine_version)
+        raise HTTPException(
+            status_code=409,
+            detail=("이해확인이 되지 않았습니다 — 설명의무 미이행 상태로는 진행할 수 없습니다. "
+                    f"(기록됨: {audit_id})"))
+
+    audit_id = get_log().append(
+        actor=p.subject, role=p.role, event="keyfacts.ack",
+        payload={"instrument": req.instrument, "sheet_hash": req.sheet_hash,
+                 "customer": req.customer_name, "understood": True},
+        engine_ver=settings.engine_version)
+
+    return AckResponse(
+        recorded=True, instrument=req.instrument, sheet_hash=req.sheet_hash,
+        recorded_at=_now(), audit_id=audit_id,
+        note=("설명의무 이행 기록이 감사로그에 고정됐습니다. 계약 체결이 아니며, "
+              "최종 조건·계약은 KB 영업점에서 확정됩니다."))
 
 
 # ── 시세 ────────────────────────────────────────────────────────────

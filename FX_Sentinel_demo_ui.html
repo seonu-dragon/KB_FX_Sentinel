@@ -350,6 +350,32 @@
   .blockbox b{color:var(--crit)}
   .kbpath{font-size:var(--fs-1);color:var(--ink-faint);margin-top:4px}
   .kbpath a{color:var(--gold-ink);text-decoration:none}
+  /* ── 금소법 적정성 (F1) ── */
+  .suit-hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+  .suit-badge{font-size:var(--fs-1);font-weight:800;padding:3px 9px;border-radius:var(--r-pill);border:1px solid}
+  .suit-ct{font-size:var(--fs-1);color:var(--ink-faint);font-weight:700}
+  .suit-score{display:flex;align-items:center;gap:8px;margin:8px 0 6px}
+  .suit-score .lbl{font-size:var(--fs-1);color:var(--ink-faint);letter-spacing:.04em}
+  .suit-score .fs{font-size:var(--fs-1);font-weight:800;font-family:var(--mono);color:var(--ink)}
+  .suit-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px}
+  .suit-list li{display:grid;grid-template-columns:16px 1fr auto;gap:6px;align-items:baseline;
+    font-size:var(--fs-1);line-height:1.5;padding:3px 0;border-bottom:1px dotted var(--line-solid)}
+  .suit-list li:last-child{border-bottom:0}
+  .suit-list .mk{font-weight:800;font-family:var(--mono)}
+  .suit-list li.on .mk{color:var(--good)}
+  .suit-list li.off .mk{color:var(--elev)}
+  /* 필수(knock-out) 항목은 점수로 상쇄되지 않으므로 시각적으로도 구분한다 */
+  .suit-list li.req.off{background:color-mix(in srgb,var(--elev) 7%,transparent)}
+  .suit-list .q{color:var(--ink-mut)}
+  .suit-list .reqt{font-size:calc(var(--fs-1) - 1px);font-weight:800;color:var(--elev);margin-left:5px;
+    border:1px solid color-mix(in srgb,var(--elev) 40%,transparent);border-radius:var(--r-pill);padding:0 5px}
+  .suit-list .d{color:var(--ink-faint);font-family:var(--mono);font-size:calc(var(--fs-1) - 1px);text-align:right}
+  /* 불리 시나리오 폴드 — 유리한 문구와 같은 카드 안에 둔다 */
+  .scenfold{margin-top:8px;border-top:1px dotted var(--line-solid)}
+  .scenfold>summary{padding:6px 0 4px;font-size:var(--fs-1);font-weight:800;color:var(--elev)}
+  .scenrow{display:flex;justify-content:space-between;gap:8px;font-size:var(--fs-1);
+    font-family:var(--mono);color:var(--ink-mut);padding:2px 0}
+  .scenrow b{color:var(--ink);font-weight:800}
   .rmonly .metaline.rm{display:block}
   :root[data-mode="customer"] .metaline.rm{display:none}
   .srclegend{margin-top:12px;font-size:var(--fs-1);color:var(--ink-faint);line-height:2;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
@@ -1352,6 +1378,22 @@
             <div class="vnote" id="sched-note" style="margin-top:8px">–</div>
           </div>
         </details>
+        <!-- 금소법 적정성 확인 (F1) — 거래가 아니라 '사람'에 붙는 정보라 폼을 분리했다.
+             거래는 건마다 바뀌지만 이건 고객마다 바뀐다. 한 폼에 섞으면 프리셋을 갈아탈 때
+             무엇이 유지되고 무엇이 초기화돼야 하는지 규칙이 흐려진다.
+             기본값은 '경험 없음·이해 미확인' — 비워두면 통과가 아니라 **차단**되는 쪽이 안전하다. -->
+        <details class="advform" id="suit-form">
+          <summary>고객 정보 · 적정성 확인 <span class="sh">금융소비자보호법 — 파생상품 권유 요건</span></summary>
+          <div class="f-hint" style="margin:8px 0 4px">파생상품(선물환·옵션)을 <b>권유해도 되는지</b>를 판정합니다. 보험(K-SURE)·여신 상품은 이 확인과 무관하게 제시됩니다.</div>
+          <div class="form">
+            <div class="f"><label for="in-dexp">파생상품 거래 경험</label><select id="in-dexp"><option value="none">없음</option><option value="limited">제한적</option><option value="experienced">충분함</option></select></div>
+            <div class="f"><label for="in-under">손익구조를 이해하십니까?</label><select id="in-under"><option value="no">아직 확인 안 됨</option><option value="yes">이해 확인</option></select></div>
+            <div class="f"><label for="in-ploss">과거 파생 손실 경험</label><select id="in-ploss"><option value="no">없음</option><option value="yes">있음</option></select></div>
+            <div class="f"><label for="in-tol">감내 가능 손실 (만원)</label><input id="in-tol" type="number" value="0" min="0" step="100" inputmode="numeric"></div>
+            <div class="f"><label for="in-pro">전문금융소비자 전환</label><select id="in-pro"><option value="no">신청 안 함 (일반)</option><option value="yes">신청함</option></select></div>
+            <div class="f"><label for="in-cexec">여신 실행일로부터</label><select id="in-cexec"><option value="">해당 없음 / 미상</option><option value="10">10일 경과</option><option value="-7">7일 뒤 실행 예정</option><option value="120">120일 경과</option></select></div>
+          </div>
+        </details>
         <button type="button" class="go" id="go">진단 결과 보기 →</button>
         
       </section>
@@ -1429,6 +1471,15 @@
           <button type="button" class="ai-gen" id="ai-gen">AI 요약 보기</button></h3>
         <div class="ai-out" id="ai-out"><div class="ai-empty">위 진단 결과와 추천 상품을 <b>이해하기 쉬운 요약</b>으로 정리해 드립니다. 분석 시작 시 자동 생성됩니다.</div></div>
         <div class="guard">※ 위 <b>계산값만</b> 근거로 하며 예측·투자자문이 아닙니다.</div>
+      </section>
+
+      <!-- 금소법 적정성 (F1) — 상품 카드 '위'에 둔다.
+           상품을 먼저 보여주고 나중에 "사실 권유 못 합니다"라고 하면 이미 기대가 생긴 뒤다.
+           권유 가능 여부를 먼저 말하고 그 다음에 상품을 보여주는 순서가 소비자보호의 순서다. -->
+      <section class="card" id="suit-card">
+        <h3><span class="agent-n">§</span> 파생상품 권유 적정성
+          <span class="dbadge" style="margin-left:auto" title="문항·배점·임계는 본 데모의 설계값이며 KB 의 승인된 적정성 평가표가 아닙니다.">금소법 · 평가표는 데모 설계</span></h3>
+        <div id="suit-out"></div>
       </section>
 
       <section class="card">
@@ -2001,6 +2052,137 @@ const ELIG={
 function eligible(key,f){ const r=ELIG[key]; return r? !!r.ok(f) : true; }
 function denyReason(key,f){ const r=ELIG[key]; return (r&&r.deny)? r.deny(f) : ""; }
 
+/* ══════════ 금소법 판매프로세스 (SUIT) — 단일 소스 ══════════
+   ELIG 가 "이 상품이 이 거래에 해당하는가"(상품 조건)라면,
+   SUIT 는 "이 고객에게 권유해도 되는가"(사람 조건)다. 두 축을 섞지 않는다 —
+   섞으면 "왜 선물환이 안 뜨지"에 답할 때 자격 문제인지 적정성 문제인지 구분해서 말할 수 없다.
+
+   파이프라인:  ELIG(자격) → SUIT(적정성) → 최종 권유
+   서버 대응:   server/app/suitability.py (동일 규칙 · 임계 · 문항)
+                server/tests/test_ui_constants_sync.py 가 아래 상수들이 갈라지지 않는지 검사한다.
+
+   ■ 왜 이걸 넣었나 (KIKO)
+   2008년 KIKO 의 본질은 "파생을 팔았다"가 아니라 "위험을 제대로 안 알리고 팔았다"였다.
+   이 화면은 BBP 로 고객을 놀래키고 헤지상품 카드를 띄운다 — 구조상 불완전판매 유인 도구로
+   읽힐 수 있다. 그래서 **팔면 안 되는 상대를 스스로 걸러내고, 판 뒤에 '설명 못 들었다'는
+   말이 못 나오게 기록**하는 층을 둔다.
+
+   ■ 정직성
+   문항·배점·임계는 이 데모의 설계값이며 KB 의 승인된 적정성 평가표가 아니다(화면에도 표기).
+   손실 시나리오는 ±σ 이동 가정이며 예측이 아니다(drift=0). 계약환율·밴드가는 만들지 않는다. */
+const SUIT_DERIV=["선물환","기간형선물환","범위선물환","칼라"];   // 적정성 확인 대상(은행 파생)
+const SUIT_CREDIT=["특별출연","외화대출","보증서"];                // 여신성
+const SUIT_INSUR=["환변동보험"];                                   // 공적보험 — 파생 아님
+const SUIT_PASS=4, SUIT_CAUTION=3;
+/* 필수(knock-out) 항목 — 점수로 상쇄되지 않는다.
+   초안은 5문항 단순 합산이었는데, 그러면 **감내 가능 손실이 0 인 고객이 4/5 로 '적정'**이 된다.
+   경험 많고 이해하고 현금 여유 있으면 손실을 못 견뎌도 통과한다는 뜻이고, KIKO 가 정확히
+   그 경로로 났다. 감내와 이해는 다른 문항으로 벌충되는 성질이 아니라 통과 요건이다. */
+const SUIT_KNOCKOUT=["understand","tolerance"];
+const KICKBACK_WINDOW_DAYS=31;
+
+function consumerType(c){
+  if(!c.proDeclared) return ["일반금융소비자","전문금융소비자 전환 신청 없음 — 보호 규정 전부 적용"];
+  if(c.biz==="sole") return ["일반금융소비자","개인사업자는 전문금융소비자 전환 대상에서 제외(보수적 적용)"];
+  if(c.derivExp!=="experienced") return ["일반금융소비자","전환 신청은 있으나 파생 거래경험 요건 미충족"];
+  return ["전문금융소비자","전환 신청 + 파생 거래경험 확인 — 전환 서면·KB 승인은 RM 확인 사항"];
+}
+/* 만기까지의 1σ 환율 이동폭. BBP 와 같은 시간 스케일(√(N/252)). 방향은 넣지 않는다. */
+function sigmaMove(spot,sigAnn,hbd){
+  if(!(spot>0)||!(sigAnn>0)||!(hbd>0)) return 0;
+  return spot*sigAnn*Math.sqrt(hbd/252);
+}
+/* 이 수단을 썼을 때 '환율이 반대로 갔을 때' 무슨 일이 생기는가.
+   화면은 지금까지 "헤지하면 리스크가 준다"는 유리한 면만 보여줬다. 범위선물환은 특히
+   '상단 이익 유지'라는 좋은 말만 붙어 있었다. 그 옆에 같은 크기로 불리한 면을 둔다. */
+function lossScenario(key,amount,spot,sigAnn,hbd,bandPct){
+  bandPct=(bandPct==null?2:bandPct);
+  const m1=sigmaMove(spot,sigAnn,hbd), m2=2*m1, band=spot*(bandPct/100);
+  let f1,f2,shape,margin,bandKrw=0,bp=0;
+  if(key==="범위선물환"||key==="칼라"){
+    f1=Math.max(0,m1-band); f2=Math.max(0,m2-band); bandKrw=band; bp=bandPct;
+    shape="밴드 ±"+bandPct+"%(가정) 안에서는 시장환율로 정산, 밴드를 넘어서면 밴드가로 정산";
+    margin="옵션형 구조 — 선납 프리미엄 없음. 다만 은행 내부한도·평가손 관리 대상이며 밴드 이탈 폭이 크면 추가담보 요구가 발생할 수 있습니다(RM 확인)";
+  } else if(key==="환변동보험"){
+    f1=m1; f2=m2;
+    shape="K-SURE 일반형은 전량 고정 — 환율이 유리하게 가면 그만큼 환수(기회손실)";
+    margin="공적보험 — 은행 여신·증거금 불요. 보험료·환수 조건은 K-SURE 약관";
+  } else {
+    f1=m1; f2=m2;
+    shape="계약환율로 전량 고정 — 환율이 유리하게 움직여도 그 이익을 누리지 못함";
+    margin="선물환은 평가손 발생 시 <b>추가담보·증거금 요구 대상</b>입니다. 급변 국면에서 자금부담이 커질 수 있습니다";
+  }
+  return {key:key, move1:m1, move2:m2, bandKrw:bandKrw, bandPct:bp,
+          loss1:Math.round(f1*amount), loss2:Math.round(f2*amount),
+          shape:shape, margin:margin,
+          disc:"환율이 반대로 움직인 경우의 <b>시나리오</b>이며 예측이 아닙니다(방향 가정 없음 · ±1σ·±2σ 이동). 계약환율·밴드가·수수료는 미반영이며 RM 견적 사항입니다."};
+}
+function assessSuit(c,needKrw){
+  const items=[
+    {key:"exp",       q:"파생상품(선물환·옵션) 거래 경험이 있습니까?",
+     met:c.derivExp!=="none",
+     d:{none:"거래 경험 없음",limited:"제한적 경험",experienced:"충분한 경험"}[c.derivExp]||"미확인"},
+    {key:"understand",q:"환율이 반대로 움직일 때의 손익구조를 이해하십니까?",
+     met:c.understands==="yes", d:c.understands==="yes"?"이해 확인":"이해 확인 안 됨"},
+    {key:"prior",     q:"과거 파생상품 손실 경험 이후에도 감내가 가능합니까?",
+     met:(c.priorLoss==="no"||c.tolerance>=needKrw),
+     d:c.priorLoss==="no"?"손실 경험 없음":(c.tolerance>=needKrw?"손실 경험 있으나 감내 규모 충족":"손실 경험 있고 감내 규모 미달")},
+    {key:"tolerance", q:"이 거래의 불리 시나리오 손실을 감내할 수 있습니까?",
+     met:c.tolerance>=needKrw,
+     d:"감내 신고 "+won(c.tolerance)+" / 필요 "+won(needKrw)},
+    {key:"cash",      q:"증거금·추가담보 요구에 대응할 현금 여유가 있습니까?",
+     met:c.cash==="ok", d:c.cash==="ok"?"현금 여유 있음":"현금 부담 — 추가담보 대응력 취약"}
+  ];
+  items.forEach(i=>{ i.required = SUIT_KNOCKOUT.indexOf(i.key)>=0; });
+  const met=items.filter(i=>i.met).length;
+  const ko=items.filter(i=>i.required&&!i.met);
+  let verdict, advisable;
+  if(ko.length){
+    const nm={understand:"손익구조 이해 미확인",tolerance:"감내 가능 손실 미달"};
+    verdict="부적정 — 파생상품 권유 차단 (필수항목: "+ko.map(i=>nm[i.key]).join(" · ")+")"; advisable=false;
+  } else if(met>=SUIT_PASS){ verdict="적정"; advisable=true; }
+  else if(met===SUIT_CAUTION){ verdict="주의 — 설명 강화 후 권유 가능"; advisable=true; }
+  else { verdict="부적정 — 파생상품 권유 차단"; advisable=false; }
+  return {met:met, total:items.length, items:items, verdict:verdict, advisable:advisable,
+          failedKnockout:ko.map(i=>i.key), needKrw:needKrw};
+}
+/* 꺾기(구속성 판매) — 막지 않고 플래그를 세운다.
+   정당한 동시 니즈가 실제로 존재한다(수출대금 조기화 + 환헤지). 판단은 사람이 하고 기록은 시스템이 남긴다. */
+function kickbackFlags(keys,execDays){
+  const out=[];
+  const hasCredit=keys.some(k=>SUIT_CREDIT.indexOf(k)>=0);
+  const hasDeriv =keys.some(k=>SUIT_DERIV.indexOf(k)>=0);
+  if(hasCredit&&hasDeriv) out.push("여신성 상품과 파생상품이 동시 추천됨 — 구속성 판매(꺾기)로 오인될 수 있습니다. 파생 체결이 여신 조건이 아님을 고객에게 고지하고 그 사실을 기록하십시오.");
+  if(execDays!=null&&Math.abs(execDays)<=KICKBACK_WINDOW_DAYS)
+    out.push("여신 실행일 전후 "+KICKBACK_WINDOW_DAYS+"일 이내(D"+(execDays>=0?"+":"")+execDays+")의 파생 체결 — 구속성 판매 점검 대상입니다. 준법 확인 없이 진행하지 마십시오.");
+  return out;
+}
+/* 통합 게이트 — ELIG 통과 목록을 받아 '권유 가능'까지 판정한다. */
+function salesGate(f,ctx){
+  /* f.consumer 가 있으면 그걸 쓴다. 없을 때만 화면 폼을 읽는다.
+     대시보드·리포트는 **지금 폼에 없는 다른 회사**를 계산하는데, 거기서 DOM 을 읽으면
+     화면에 로드된 회사의 적정성이 남의 행에 적용된다(같은 유형의 사고를 마진율에서 이미 겪었다). */
+  const c=f.consumer||consumerOf(f);
+  const [ctype,creason]=consumerType(c);
+  const spot=ctx.spot, sig=ctx.sigAnn, hbd=f.horizon, amt=f.amount;
+  /* 적정성 기준 손실은 가장 표준적인 파생(선물환)의 1σ 로 잡는다.
+     수단마다 다른 기준을 쓰면 "칼라는 통과인데 선물환은 부적정" 같은 혼란이 생긴다. */
+  const ref=lossScenario("선물환",amt,spot,sig,hbd);
+  const suit=assessSuit(c,ref.loss1);
+  const exempt=(ctype==="전문금융소비자");
+  const advisableDeriv = exempt ? true : suit.advisable;
+  const eligKeys=Object.keys(ELIG).filter(k=>eligible(k,f));
+  const withheld=[];
+  eligKeys.forEach(k=>{
+    if(SUIT_DERIV.indexOf(k)>=0 && !advisableDeriv)
+      withheld.push({key:k, reason:"적정성 미달 — 파생상품 권유 차단(금융소비자보호법 적정성 원칙)",
+                     remedy:"설명 강화 후 재확인, 또는 보험형(K-SURE)·여신형 대안 검토"});
+  });
+  return {consumerType:ctype, consumerReason:creason, suit:suit, exempt:exempt,
+          advisableDeriv:advisableDeriv, withheld:withheld,
+          kickback:kickbackFlags(eligKeys, c.execDays), ref:ref};
+}
+
 /* 헤지 수단 트리아지 — 자격 판정은 ELIG 에 위임하고, 여기서는 '무엇을 먼저 제시할지' 순서만 정한다 */
 function triage(f){
   if(!eligible("선물환",f) && f.cert==="provisional")
@@ -2195,12 +2377,26 @@ function macroScore(name){
 }
 function combineRisk(fx,macro){ const cc=0.5*fx+0.5*macro;
   return {combined:Math.round(cc*10)/10,grade:macroGrade(cc),fx_axis:Math.round(fx*10)/10,macro_axis:Math.round(macro*10)/10}; }
+/* 프리셋에 붙은 `suit` 는 금소법 적정성 확인 입력이다(F1).
+   실제 기업의 파생 거래경험·감내 규모는 서로 다르고, 그 차이가 **같은 상품이라도 누구에겐
+   권유되고 누구에겐 보류되는** 이유가 된다. 프리셋마다 다르게 둔 이유가 그것이다.
+     · 한빛정밀 — 수출 경력 있는 법인, 파생 경험 충분 → 적정
+     · 나래상사 — 반복 수입, 제한적 경험이지만 이해·감내 확인 → 적정
+     · 소망전자 — 담보부족 중소기업, 파생 경험 없고 이해 미확인 → **부적정(권유 차단)**
+                  이 회사에는 파생 대신 K-SURE 보험·특별출연이 남는다 = 포용의 증명
+     · 대성무역 — 가결제라 어차피 ELIG 에서 막히지만, 적정성도 별개로 확인한다
+     · 하늘샵   — 개인사업자·소액, 파생 대상 자체가 아님 */
 const PRESETS=[
-  {label:"한빛정밀 · 수출확정",name:"한빛정밀",pos:"export",budget:1450,amount:500000,horizon:63,country:"미국",pay:"LC",hs:"8542",cert:"confirmed",credit:"yes",cash:"ok",biz:"corp",size:"sme",party:"Hanbit America LLC",unipass:"41029-26-7004821"},
-  {label:"대성무역 · 가결제",name:"대성무역",pos:"export",budget:1480,amount:300000,horizon:63,country:"베트남",pay:"TT",hs:"8483",cert:"provisional",credit:"yes",cash:"tight",biz:"corp",size:"sme",party:"Dae-sung Vina Co.",unipass:"—(PO 단계)"},
-  {label:"소망전자 · 무여신",name:"소망전자",pos:"export",budget:1500,amount:200000,horizon:42,country:"중국",pay:"OA",hs:"8542",cert:"confirmed",credit:"no",cash:"ok",biz:"corp",size:"small",party:"Somang Semicon HK",unipass:"41029-26-7009914"},
-  {label:"나래상사 · 수입",name:"나래상사",pos:"import",budget:1500,amount:400000,horizon:63,country:"베트남",pay:"TT",hs:"7408",cert:"confirmed",credit:"yes",cash:"ok",biz:"corp",size:"sme",party:"Narae Materials Import",unipass:"41055-26-7012036"},
-  {label:"하늘샵 · 글로벌셀러",name:"하늘샵",pos:"export",budget:1420,amount:80000,horizon:14,country:"미국",pay:"OA",hs:"6109",cert:"confirmed",credit:"no",cash:"tight",biz:"sole",size:"micro",party:"Amazon Marketplace Settlement",unipass:"플랫폼 정산명세"}
+  {label:"한빛정밀 · 수출확정",name:"한빛정밀",pos:"export",budget:1450,amount:500000,horizon:63,country:"미국",pay:"LC",hs:"8542",cert:"confirmed",credit:"yes",cash:"ok",biz:"corp",size:"sme",party:"Hanbit America LLC",unipass:"41029-26-7004821",
+   suit:{dexp:"experienced",under:"yes",ploss:"no",tol:50000,pro:"no",cexec:""}},
+  {label:"대성무역 · 가결제",name:"대성무역",pos:"export",budget:1480,amount:300000,horizon:63,country:"베트남",pay:"TT",hs:"8483",cert:"provisional",credit:"yes",cash:"tight",biz:"corp",size:"sme",party:"Dae-sung Vina Co.",unipass:"—(PO 단계)",
+   suit:{dexp:"limited",under:"yes",ploss:"no",tol:20000,pro:"no",cexec:""}},
+  {label:"소망전자 · 무여신",name:"소망전자",pos:"export",budget:1500,amount:200000,horizon:42,country:"중국",pay:"OA",hs:"8542",cert:"confirmed",credit:"no",cash:"ok",biz:"corp",size:"small",party:"Somang Semicon HK",unipass:"41029-26-7009914",
+   suit:{dexp:"none",under:"no",ploss:"no",tol:0,pro:"no",cexec:"10"}},
+  {label:"나래상사 · 수입",name:"나래상사",pos:"import",budget:1500,amount:400000,horizon:63,country:"베트남",pay:"TT",hs:"7408",cert:"confirmed",credit:"yes",cash:"ok",biz:"corp",size:"sme",party:"Narae Materials Import",unipass:"41055-26-7012036",
+   suit:{dexp:"limited",under:"yes",ploss:"no",tol:40000,pro:"no",cexec:""}},
+  {label:"하늘샵 · 글로벌셀러",name:"하늘샵",pos:"export",budget:1420,amount:80000,horizon:14,country:"미국",pay:"OA",hs:"6109",cert:"confirmed",credit:"no",cash:"tight",biz:"sole",size:"micro",party:"Amazon Marketplace Settlement",unipass:"플랫폼 정산명세",
+   suit:{dexp:"none",under:"no",ploss:"no",tol:0,pro:"no",cexec:""}}
 ];
 
 /* ══════════ 반복 거래 패턴 (선제성) ══════════
@@ -2359,6 +2555,21 @@ function readForm(){
     cert:$("in-cert").value, credit:$("in-credit").value, cash:$("in-cash").value, biz:$("in-biz").value,
     settle:($("in-settle")||{value:"fixed"}).value,
     margin:+$("in-margin").value||0, tranches:readSched()};
+}
+/* 고객(사람) 정보 → 적정성 판정 입력.
+   cash(현금 여유)는 거래 폼에서 승계한다 — 같은 사실을 두 곳에서 입력받으면 두 값이 갈라지고,
+   갈라지면 어느 쪽이 맞는지 아무도 모른다. 서버 _consumer_profile() 도 같은 방식이다.
+   감내 손실은 화면에서 '만원' 단위로 받고 여기서 원으로 환산한다(사장님이 쓰는 단위). */
+function consumerOf(f){
+  const g=id=>($(id)||{value:""}).value;
+  const ex=g("in-cexec");
+  return {biz:f.biz, cash:f.cash,
+          derivExp:g("in-dexp")||"none",
+          understands:g("in-under")||"no",
+          priorLoss:g("in-ploss")||"no",
+          tolerance:(+g("in-tol")||0)*1e4,
+          proDeclared:g("in-pro")==="yes",
+          execDays:(ex===""||ex==null)?null:+ex};
 }
 /* ══════════ 분할 결제 UI ══════════
    마지막 회차는 비율(100−나머지)·만기(=결제 만기)를 자동으로 채운다 →
@@ -2770,8 +2981,13 @@ function compute(){
     : "초과 가능성이 낮아 지금은 지켜보셔도 됩니다. 급변 시 위 후보로 재검토합니다.";
 
   // ⑤ Advisor — KB 수출입금융 상품 라우팅(카테고리 세그먼트 + 구조화 카드 + 자격/서류/차단)
-  const recs=recommendPackage(f,{bbp:bbp,alert:alert,badBudget:badBudget,macroGrade:ms.grade,gate:gate});
+  // spot·sigAnn 을 ctx 에 넣는 이유: 손실 시나리오(F1)가 σ 이동폭을 계산해야 하는데,
+  // 그 값을 recommendPackage 안에서 MARKET 전역으로 다시 읽으면 국면 전환(REG)이 반영되지 않는다.
+  // 화면이 보고 있는 국면과 시나리오가 어긋나면 킹달러를 눌러도 시나리오만 평시로 남는다.
+  const recs=recommendPackage(f,{bbp:bbp,alert:alert,badBudget:badBudget,macroGrade:ms.grade,gate:gate,
+                                 spot:m.spot, sigAnn:m.sigAnn});
   const propose=recs.filter(x=>["추천","상담후보","RM확인"].includes(x.st));
+  renderSuit(recs._gate,f);
   const _bannerPrimary=primaryProduct(recs,f.biz);
   const kbFirst=propose.slice().sort((a,b)=>{
     if(a===_bannerPrimary)return -1; if(b===_bannerPrimary)return 1;
@@ -2918,7 +3134,8 @@ function renderScreening(f){
   $("gov-note").innerHTML=(known?'':'<b style="color:var(--elev)">거래상대방 미확정</b> — 서류 확인 전까지 환리스크 관리 상담이 잠깁니다. ')
     +'데모 <b>대표 데이터</b> · 실시간 조회 아님.';
 }
-const ST_COL={"추천":"var(--good)","상담후보":"var(--gold)","RM확인":"var(--elev)","검토":"var(--warn)","확인필요":"var(--elev)","보류":"var(--elev)","제외":"var(--ink-faint)","차단":"var(--crit)"};
+// '권유보류'(F1 적정성)는 '차단'(법규·자격)과 색을 나눈다 — 원인이 다르면 색도 달라야 한다.
+const ST_COL={"추천":"var(--good)","상담후보":"var(--gold)","RM확인":"var(--elev)","검토":"var(--warn)","확인필요":"var(--elev)","보류":"var(--elev)","제외":"var(--ink-faint)","차단":"var(--crit)","권유보류":"var(--elev)"};
 const SRC_CLASS={"KB 공식상품":"official","KB 공식서비스":"service","KB 외환":"official","외부기관(K-SURE)":"ext","외부 정책자금":"ext","데모 가정":"assume","일반 외환 실무":"ext","외국환거래법 실수요 원칙":"ext"};
 // '외화상품' 세그먼트 신설 — 주제 #6이 "환헤지 전략과 외화 금융 상품 추천"을 나란히 요구한다.
 // 헤지(고정)와 외화상품(보유·조달)은 성격이 달라 같은 탭에 섞지 않는다.
@@ -2956,6 +3173,50 @@ function _fitBlock(f,passKeys,unknown){
   return {fit:{pass:_facts(f,passKeys), unknown:unk}, rmChecks:unk};
 }
 // KB 상품 라우팅 렌더 — 카테고리 세그먼트 탭 + 구조화 카드
+/* 적정성 판정 렌더 (F1).
+   화면이 말해야 하는 것은 세 가지다:
+     ① 이 고객이 일반인가 전문인가 (보호 수준이 갈린다)
+     ② 5문항 중 무엇이 걸렸나 (부적정만 통보하면 무엇을 고칠지 모른다)
+     ③ 막혔다면 무엇이 남았나 (대안 없이 막기만 하면 RM 일만 늘어난다) */
+function renderSuit(sg,f){
+  const box=$("suit-out"); if(!box) return;
+  if(!sg){ box.innerHTML=""; return; }
+  const s=sg.suit, ok=sg.advisableDeriv;
+  const col = ok ? (s.met>=SUIT_PASS?"var(--good)":"var(--warn)") : "var(--elev)";
+  let h='<div class="suit-hd"><span class="suit-badge" style="color:'+col+';border-color:color-mix(in srgb,'+col+' 45%,transparent)">'
+       +esc(sg.exempt?"적정성 확인 면제":s.verdict)+'</span>'
+       +'<span class="suit-ct">'+esc(sg.consumerType)+'</span></div>';
+  h+='<div class="vnote" style="margin-bottom:8px">'+esc(sg.consumerReason)+'</div>';
+
+  if(sg.exempt){
+    /* 면제를 조용히 적용하지 않는다 — 나중에 "왜 확인 안 했나"에 답할 근거가 남아야 한다. */
+    h+='<div class="metaline rm"><b>면제 적용</b> 전문금융소비자는 적정성 확인 의무가 면제됩니다. '
+      +'면제 사실과 근거를 감사로그에 기록합니다(전환 서면·KB 승인은 RM 확인 사항).</div>';
+  } else {
+    h+='<div class="suit-score"><span class="lbl">확인 문항</span><div class="fitbar"><i style="width:'
+      +Math.round(100*s.met/s.total)+'%;background:'+col+'"></i></div><span class="fs">'+s.met+'/'+s.total+'</span></div>';
+    h+='<ul class="suit-list">'+s.items.map(i=>
+        '<li class="'+(i.met?"on":"off")+(i.required?" req":"")+'">'
+        +'<span class="mk">'+(i.met?"✓":"✗")+'</span>'
+        +'<span class="q">'+esc(i.q)+(i.required?'<span class="reqt">필수</span>':'')+'</span>'
+        +'<span class="d">'+esc(i.d)+'</span></li>').join("")+'</ul>';
+  }
+
+  if(!ok){
+    h+='<div class="blockbox"><b>파생상품 권유 보류</b><br>'
+      +'선물환·통화옵션·범위선물환은 이 고객에게 <b>권유하지 않습니다</b>. '
+      +'자격(상품 조건) 문제가 아니라 <b>적정성(고객 조건)</b> 문제입니다.'
+      +'<br><span style="color:var(--ink-mut)">해제조건: 손익구조 설명 후 이해 확인 + 감내 가능 손실 재확인</span></div>';
+    h+='<div class="metaline"><b>대신 남는 것</b> K-SURE 환변동보험·범위제한 선물환(공적보험, 은행 여신·적정성 무관) · 여신형 지원 · 외화예금(환전 시점 분산)</div>';
+  }
+  if(sg.kickback.length){
+    h+='<div class="blockbox" style="border-color:color-mix(in srgb,var(--elev) 45%,transparent)"><b>⚠ 구속성 판매(꺾기) 점검</b><br>'
+      +sg.kickback.map(esc).join("<br>")+'</div>';
+  }
+  h+='<div class="vnote" style="margin-top:8px">감내 필요액은 이 거래의 <b>선물환 1σ 불리 시나리오</b>('+won(s.needKrw)
+    +')를 기준으로 합니다 — 거래 규모에 따라 달라집니다. 문항·임계는 데모 설계값이며 KB 승인 평가표가 아닙니다.</div>';
+  box.innerHTML=h;
+}
 function renderAdvisor(recs,f){
   const cont=$("advisor"); if(!cont)return;
   const groups={}; SEG_ORDER.forEach(s=>groups[s]=[]);
@@ -2983,6 +3244,15 @@ function renderAdvisor(recs,f){
     }
     if(r.block){ h+='<div class="blockbox"><b>'+esc(r.st)+' · '+esc(r.block.reason)+'</b><br>'+esc(r.block.detail)
       +'<br><span style="color:var(--ink-mut)">해제조건: '+esc(r.block.unlock)+'</span></div>'; }
+    /* 불리 시나리오 (F1) — 유리한 문구 옆에 같은 크기로 둔다.
+       '상단 이익 일부 유지' 만 있고 '밴드 넘으면 그 이익은 포기' 가 없으면 그게 불완전판매의 씨앗이다. */
+    if(r.scen){ const s=r.scen;
+      h+='<details class="advform scenfold"><summary>⚠ 환율이 반대로 가면 <span class="sh">불리 시나리오 · 예측 아님</span></summary>'
+        +'<div class="metaline">'+esc(s.shape)+'</div>'
+        +'<div class="scenrow"><span>1σ 이동 '+s.move1.toFixed(1)+'원</span><b>'+won(s.loss1)+'</b></div>'
+        +'<div class="scenrow"><span>2σ 이동 '+s.move2.toFixed(1)+'원</span><b>'+won(s.loss2)+'</b></div>'
+        +'<div class="metaline rm"><b>증거금·추가담보</b> '+s.margin+'</div>'
+        +'<div class="vnote">'+s.disc+'</div></details>'; }
     if(r.readiness){ const rd=r.readiness;
       h+='<div class="metaline"><b>서류 준비 '+rd.n+'/'+rd.m+'</b>'
         +(rd.confirmed.length?' · 확인 '+rd.confirmed.map(esc).join(", "):'')
@@ -3367,7 +3637,51 @@ function recommendPackage(f,ctx){
 
   // 서류 준비율 부착(주요 상품)
   R.forEach(r=>{ if(r.docs && r.st!=="차단" && r.st!=="제외" && r.st!=="보류") r.readiness=readiness(r.docs); });
+
+  /* ═══ 4) 금소법 판매프로세스 게이트 (F1) ═══
+     카드를 만드는 곳마다 적정성 조건을 끼워 넣지 않고, **다 만든 뒤 한 번에** 거른다.
+     이유: 조건을 push 지점마다 복사하면 반드시 갈라진다(이 프로젝트가 ELIG 로 겪은 일).
+     여기 한 곳만 보면 "무엇이 왜 보류됐나"를 전부 알 수 있다.
+
+     자격(ELIG)으로 이미 막힌 카드(차단·제외)는 건드리지 않는다 — 사유를 덮어쓰면
+     "여신이 없어서"인지 "적정성 때문"인지 고객이 알 수 없게 된다. */
+  const sg=salesGate(f,ctx);
+  if(!sg.advisableDeriv){
+    R.forEach(r=>{
+      const k=cardSuitKey(r.t);
+      if(!k || SUIT_DERIV.indexOf(k)<0) return;      // 파생만 대상 (보험·여신은 그대로 둔다)
+      if(r.st==="차단"||r.st==="제외"||r.st==="보류") return;  // 이미 다른 사유로 막힘
+      r.st="권유보류";
+      r.block={reason:"적정성 미달 — 권유 보류",
+               detail:"금융소비자보호법 적정성 원칙: "+sg.suit.verdict+
+                      " · 이 고객에게 파생상품을 권유하지 않습니다(자격 문제가 아닙니다).",
+               unlock:"손익구조 설명 후 이해 확인 + 감내 가능 손실 재확인, 또는 보험형(K-SURE)·여신형 대안"};
+      r.next="설명 강화 후 재확인 또는 대안 검토";
+    });
+  }
+  /* 불리 시나리오는 **권유되는 파생·보험 카드에 붙인다.**
+     '상단 이익 유지' 같은 유리한 문구만 있고 불리한 면이 없으면 그게 불완전판매의 씨앗이다. */
+  R.forEach(r=>{
+    const k=cardSuitKey(r.t);
+    if(!k) return;
+    if(SUIT_DERIV.indexOf(k)<0 && SUIT_INSUR.indexOf(k)<0) return;
+    r.scen=lossScenario(k, f.amount, ctx.spot, ctx.sigAnn, f.horizon);
+  });
+  R._gate=sg;
   return R;
+}
+/* 카드 제목 → SUIT 키. 제목은 사람이 읽는 문구라 자유롭게 바뀌므로 매핑을 한 곳에 둔다.
+   ※ "범위선물환형 환변동보험(K-SURE)" 은 은행 파생이 아니라 **공적보험**이다.
+      적정성 확인 의무는 은행 파생상품 판매에 붙으므로 보험으로 분류한다 —
+      이렇게 해야 적정성 미달인 무여신 수출기업에게도 K-SURE 범위형이 남는다.
+      (규제를 과하게 적용해 포용을 해치지 않기 위한 구분이다.) */
+function cardSuitKey(t){
+  if(/범위선물환형 환변동보험|환변동보험/.test(t)) return "환변동보험";
+  if(/기간형 선물환/.test(t))   return "기간형선물환";
+  if(/범위선물환/.test(t))      return "범위선물환";
+  if(/칼라/.test(t))            return "칼라";
+  if(/^선물환$/.test(t))        return "선물환";
+  return null;
 }
 
 // 거래유형별 실수요 증빙 라벨·OCR 단계 (수입/수출/글로벌셀러)
@@ -3455,6 +3769,16 @@ function fillPreset(p){
   $("in-biz").value=p.biz||"corp";
   if($("in-settle")) $("in-settle").value=p.settle||"fixed";   // 프리셋은 특정일 확정이 기본(윈도우 포워드는 수동 전환으로 시연)
   $("in-margin").value=p.margin||8;   // 프리셋이 마진율을 리셋하지 않으면 직전 회사 값(또는 무효값)이 남아 계산이 막힌다
+  /* 적정성 입력도 프리셋마다 리셋한다. 안 하면 앞 회사의 '경험 충분'이 남아
+     소망전자가 적정으로 통과해버린다 — 마진율에서 이미 겪은 사고와 같은 유형이다.
+     프리셋에 suit 가 없으면 보수적 기본값(경험 없음·이해 미확인)으로 되돌린다. */
+  const s=p.suit||{dexp:"none",under:"no",ploss:"no",tol:0,pro:"no",cexec:""};
+  if($("in-dexp"))  $("in-dexp").value  = s.dexp;
+  if($("in-under")) $("in-under").value = s.under;
+  if($("in-ploss")) $("in-ploss").value = s.ploss;
+  if($("in-tol"))   $("in-tol").value   = s.tol;
+  if($("in-pro"))   $("in-pro").value   = s.pro;
+  if($("in-cexec")) $("in-cexec").value = s.cexec;
   $("in-cur").value="USD";  // 프리셋은 USD 결제 기준
   renderRegimeChips(); renderCurNote();   // 통화가 USD로 돌아왔으니 국면칩·통화노트도 USD 기준으로
   $("in-pay").value=p.pay||"TT"; $("in-hs").value=p.hs||"ETC";
@@ -3495,8 +3819,10 @@ $("in-cur").addEventListener("change",()=>{ const c=CUR[$("in-cur").value];
 
 // 26.6: 입력을 손으로 바꾸면 즉시 재계산(디바운스) — "숫자가 그대로" 시연사고 방지
 let _dbT; function recompute(){ clearTimeout(_dbT); _dbT=setTimeout(compute,250); }
-["in-name","in-pos","in-biz","in-budget","in-amount","in-horizon","in-country","in-pay","in-hs","in-cert","in-credit","in-cash","in-margin"]
-  .forEach(id=>{ const el=$(id); el.addEventListener("input",recompute); el.addEventListener("change",recompute); });
+["in-name","in-pos","in-biz","in-budget","in-amount","in-horizon","in-country","in-pay","in-hs","in-cert","in-credit","in-cash","in-margin",
+ // 적정성 입력(F1) — 이걸 빼면 고객 정보를 바꿔도 권유 판정이 안 따라간다
+ "in-dexp","in-under","in-ploss","in-tol","in-pro","in-cexec"]
+  .forEach(id=>{ const el=$(id); if(!el) return; el.addEventListener("input",recompute); el.addEventListener("change",recompute); });
 // 분할 회차 수를 바꾸면 스케줄을 기본값으로 다시 만든다(직전 회차 수와 안 맞는 값이 남지 않게)
 $("in-split").addEventListener("change",()=>{ renderSched(true); recompute(); });
 // 결제 만기가 바뀌면 마지막 회차 만기(=결제 만기)가 따라가야 한다
@@ -3999,11 +4325,19 @@ document.querySelectorAll(".deeptab").forEach(b=>b.addEventListener("click",()=>
 
 /* 프리셋 → recommendPackage 입력 — 목록·리포트가 코파일럿과 같은 근거(거래국 등급·예산 유불리)로 판정하게 통일 */
 function _recsOf(p,d){
+  /* 적정성(F1)은 **그 회사 자신의** 프로필로 판정한다 — 화면 폼(다른 회사일 수 있음)을 읽지 않는다.
+     프리셋에 suit 가 없으면 보수적 기본값이라 파생이 보류된다. */
+  var s=p.suit||{dexp:"none",under:"no",ploss:"no",tol:0,pro:"no",cexec:""};
   var f={name:p.name,pos:p.pos,budget:p.budget,amount:p.amount,horizon:p.horizon,country:p.country,
-    currency:"USD",pay:p.pay,hs:p.hs,cert:p.cert,credit:p.credit,cash:p.cash,biz:p.biz,party:p.party};
+    currency:"USD",pay:p.pay,hs:p.hs,cert:p.cert,credit:p.credit,cash:p.cash,biz:p.biz,party:p.party,
+    consumer:{biz:p.biz, cash:p.cash, derivExp:s.dexp, understands:s.under, priorLoss:s.ploss,
+              tolerance:(+s.tol||0)*1e4, proDeclared:s.pro==="yes",
+              execDays:(s.cexec===""||s.cexec==null)?null:+s.cexec}};
   var spot=CUR.USD.spot;
   var badBudget=(p.pos==="export")? spot<p.budget : spot>p.budget;
-  return recommendPackage(f,{bbp:d.bbp,alert:d.alert,badBudget:badBudget,macroGrade:macroScore(p.country).grade,gate:false});
+  var rgU=REG.USD[regimeIdx]||REG.USD[0];
+  return recommendPackage(f,{bbp:d.bbp,alert:d.alert,badBudget:badBudget,macroGrade:macroScore(p.country).grade,gate:false,
+                             spot:spot, sigAnn:rgU.sigAnn});
 }
 
 /* 프리셋(진행 거래)별 지표 — 현재 시장(USD) + 선택된 국면 기준(코파일럿 compute()와 동일 규칙) */
