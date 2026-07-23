@@ -1356,6 +1356,44 @@ PROBE = r"""
   ok("IZ 토글 = BBP 감쇠", _b1 < _b0 && _b1 > 0, _b0.toFixed(1) + "% → " + _b1.toFixed(1) + "% (×0.7)");
   $("iz-toggle").checked = false; $("iz-toggle").dispatchEvent(new Event("change"));
   ok("IZ 해제 = 원복", Math.abs(parseFloat($("hd-bbp").textContent) - _b0) < 0.2, "재현성 유지");
+  /* ── 에이전트성 기능(2026-07-23 2차): 브리핑·파이프라인·자연어 입력·위임 규칙·Advisor 질문 ── */
+  fillPreset(PRESETS[3]);
+  ok("에이전트 브리핑 1인칭 보고", $("agent-briefing-body").textContent.indexOf("나래상사") >= 0
+     && $("agent-briefing-body").textContent.indexOf("점검했습니다") >= 0, "열자마자 해둔 일 보고");
+  var _af = $("agent-flow");
+  ok("파이프라인 4단계 실값", _af.querySelectorAll(".af").length === 4
+     && _af.textContent.indexOf("Sentinel") >= 0 && _af.textContent.indexOf("64.3") >= 0
+     && _af.textContent.indexOf("1순위") >= 0, "이름 복창이 아니라 이번 계산의 산출값");
+  /* 자연어 입력 — 파싱이 폼을 실제로 채우고, 못 알아들으면 못 알아들었다고 말한다 */
+  $("nl-input").value = "베트남에서 40만 불 수입, 63영업일 뒤 결제"; nlApply();
+  ok("자연어 파싱 → 폼 반영", $("in-pos").value === "import" && $("in-amount").value === "400000"
+     && $("in-country").value === "베트남" && $("in-horizon").value === "63",
+     "수입·400,000·베트남·63영업일");
+  ok("자연어 파싱 결과 고지", $("nl-note").textContent.indexOf("이렇게 이해했습니다") >= 0
+     && $("nl-note").textContent.indexOf("기존 값을 유지") >= 0, "인식·미인식 정직 고지");
+  var _amt0 = $("in-amount").value;
+  $("nl-input").value = "안녕하세요"; nlApply();
+  ok("자연어 미인식 = 값 불변", $("nl-note").textContent.indexOf("인식한 항목이 없습니다") >= 0
+     && $("in-amount").value === _amt0, "없는 이해를 주장하지 않음");
+  /* 위임 규칙 — 위험(현재 BBP 64.3 기준)·기회(수출 한빛 K1450 vs 1528.8 = +78.8원) */
+  fillPreset(PRESETS[3]);
+  $("dlg-risk-on").checked = true; $("dlg-risk-th").value = "50"; compute();
+  ok("위험 감시 충족 판정", $("dlg-risk-st").textContent.indexOf("조건 충족") >= 0, "BBP 64.3% ≥ 50%");
+  $("dlg-risk-th").value = "90"; compute();
+  ok("위험 감시 미충족 판정", $("dlg-risk-st").textContent.indexOf("감시 중") >= 0, "BBP 64.3% < 90%");
+  $("dlg-opp-on").checked = true; $("dlg-opp-th").value = "10"; fillPreset(PRESETS[0]);
+  ok("기회 감시(유리 방향) 판정", $("dlg-opp-st").textContent.indexOf("조건 충족") >= 0
+     && $("dlg-opp-st").textContent.indexOf("유리") >= 0, "수출 한빛 · 기준환율 대비 +78원");
+  $("dlg-risk-on").checked = false; $("dlg-opp-on").checked = false; compute();
+  /* Advisor 질문 — 아는 건 출처와 함께, 모르는 건 모른다고 */
+  $("ask-input").value = "환변동보험이랑 선물환 차이가 뭐예요?"; askSubmit();
+  var _askTx = $("ask-log").textContent;
+  ok("Advisor 응답 + 출처", _askTx.indexOf("여신") >= 0 && _askTx.indexOf("출처") >= 0, "지식베이스 매칭 답변");
+  $("ask-input").value = "오늘 점심 뭐 먹을까"; askSubmit();
+  ok("Advisor 범위 밖 = 정직 거절", $("ask-log").textContent.indexOf("답을 만들어내지 않습니다") >= 0,
+     "지어내지 않고 RM 안내");
+  fillPreset(PRESETS[3]);
+
   /* 위 추가 테스트들이 감사로그를 늘려 200건 캡에 닿으면, 아래 "재조회 = +1건" 검증이
      캡 때문에 깨진다(길이 불변). 캡 아래로 비워 원래 검증 의미를 유지한다. */
   _audit.length = Math.min(_audit.length, 150);

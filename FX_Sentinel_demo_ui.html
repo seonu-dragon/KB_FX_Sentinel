@@ -1274,6 +1274,33 @@
   .vnote-more .vnote-body{margin-top:4px;line-height:1.6;color:var(--ink-mut)}
   /* 권고 pill — 알람색 없이 중립 태그로(위험 신호는 게이지 하나) */
   .statechip{border:1px solid var(--line-solid)}
+  /* ── 에이전트 파이프라인 스트립 — 예전에 지운 '컬럼 헤드 복창'과 다르다:
+       각 단계가 이번 계산의 실제 산출값(경보·원인·근거·제안)을 담는다. 값이 없으면 이 스트립도 없다. */
+  .agentflow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 12px}
+  .agentflow .af{border:1px solid var(--line-solid);border-radius:10px;padding:8px 10px;background:var(--panel);min-width:0}
+  .agentflow .af .af-n{font-size:var(--fs-1);font-weight:800;color:var(--ink-faint);letter-spacing:.02em;display:flex;align-items:center;gap:6px}
+  .agentflow .af .af-n .af-dot{width:7px;height:7px;border-radius:50%;background:var(--good);flex:0 0 auto}
+  .agentflow .af .af-v{font-size:var(--fs-1);color:var(--ink-mut);margin-top:3px;line-height:1.5;overflow-wrap:anywhere}
+  .agentflow .af .af-v b{color:var(--ink)}
+  @media(prefers-reduced-motion:no-preference){
+    .agentflow.run .af{opacity:0;animation:afIn .35s ease forwards}
+    .agentflow.run .af:nth-child(2){animation-delay:.15s}
+    .agentflow.run .af:nth-child(3){animation-delay:.3s}
+    .agentflow.run .af:nth-child(4){animation-delay:.45s}
+    @keyframes afIn{to{opacity:1}}
+  }
+  @media(max-width:720px){.agentflow{grid-template-columns:1fr 1fr}}
+  /* 에이전트 브리핑 · 질문 · 위임 카드 공용 소품 */
+  .brief-li{display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:var(--fs-2);color:var(--ink-mut);line-height:1.6}
+  .brief-li .bl-ic{flex:0 0 auto;font-weight:800}
+  .ask-log{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+  .ask-q{align-self:flex-end;background:color-mix(in srgb,var(--brand) 8%,transparent);border-radius:10px 10px 2px 10px;padding:7px 10px;font-size:var(--fs-2);max-width:90%}
+  .ask-a{align-self:flex-start;border:1px solid var(--line-solid);border-radius:10px 10px 10px 2px;padding:8px 10px;font-size:var(--fs-2);color:var(--ink-mut);line-height:1.65;max-width:95%}
+  .ask-a .ask-src{display:block;margin-top:5px;font-size:var(--fs-1);color:var(--ink-faint)}
+  .dlg-rule{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:var(--fs-2);color:var(--ink-mut)}
+  .dlg-rule:first-of-type{border-top:0}
+  .dlg-rule input[type=number]{width:76px;min-width:0}
+  .dlg-st{margin-left:auto;font-size:var(--fs-1);font-weight:700}
 </style>
 </head>
 <body>
@@ -1334,6 +1361,19 @@
 
   <section class="verdict ok" id="verdict" aria-live="polite" aria-atomic="true"></section>
 
+  <!-- 에이전트 점검 브리핑 — 파일을 열면 에이전트가 이미 해둔 일을 1인칭으로 보고한다.
+       "묻기를 기다리는 챗봇"이 아니라 "먼저 움직인 에이전트"가 첫 3초의 인상을 정한다.
+       내용은 전부 기존 엔진 계산(경보·다음 회차 선제 진단·응답기한)에서 파생 — 새 주장 없음. -->
+  <section class="card" id="agent-briefing" style="margin:0 0 12px">
+    <h3><span class="agent-n">✦</span> 에이전트 점검 브리핑
+      <span class="dbadge" style="margin-left:6px" title="기준일 데이터로 자동 점검한 결과입니다. 거래 목록은 데모 프리셋이며, 실서비스는 원장·RM 업무함 연동으로 실제 담당 거래를 점검합니다.">기준일 자동 점검 · 데모 거래</span></h3>
+    <div id="agent-briefing-body"></div>
+  </section>
+
+  <!-- 에이전트 처리 단계 — 이번 진단에서 4개 에이전트가 실제로 산출한 값을 단계별로 보여준다.
+       (예전에 지운 4-스텝 스트립은 컬럼 헤드 '이름 복창'이라 삭제했다 — 이건 산출값을 담으므로 다르다) -->
+  <div class="agentflow" id="agent-flow" role="list" aria-label="에이전트 처리 단계"></div>
+
   <div class="customer-note">본 결과는 <b>참고 지표</b>이며 투자권유가 아닙니다. 최종 상품 조건·계약은 KB 영업점 상담에서 확정됩니다.</div>
 
   <!-- ══════════ 3컬럼 코어 ══════════ -->
@@ -1367,6 +1407,16 @@
 
       <section class="card">
         <h3><span class="agent-n">✎</span> 기업 · 거래 정보</h3>
+        <!-- 자연어 거래 입력 — "말을 알아듣는 에이전트"의 최소 실물. 규칙 파서(행내)라 외부 전송이 없고,
+             파싱 결과를 그대로 고지한다(못 알아들은 항목은 기존 값 유지라고 말한다 — 없는 이해를 주장하지 않는다). -->
+        <div class="f wide" style="margin-bottom:10px">
+          <label for="nl-input">문장으로 입력 <span style="font-weight:400;color:var(--ink-faint)">예: "베트남에서 40만 불 수입, 63영업일 뒤 결제"</span></label>
+          <div style="display:flex;gap:6px">
+            <input id="nl-input" placeholder="거래를 문장으로 적으면 에이전트가 항목을 채웁니다" autocomplete="off" style="flex:1;min-width:0">
+            <button type="button" class="modebtn" id="nl-go">해석</button>
+          </div>
+          <div class="f-note" id="nl-note" style="display:none"></div>
+        </div>
         <div class="f-hint" style="margin-bottom:8px"><b>예시 거래</b> — 눌러서 불러오거나 값을 바꾸세요.</div>
         <div class="presets" id="presets"></div>
         <div class="form">
@@ -1504,6 +1554,19 @@
         <div class="guard">※ 위 <b>계산값만</b> 근거로 하며 예측·투자자문이 아닙니다.</div>
       </section>
 
+      <!-- Advisor 질문 — 행내 지식베이스(무역금융·헤지수단·제도) 키워드 검색 + 출처 인용.
+           모르는 질문에는 모른다고 답한다(지어내지 않음) — RM 상담으로 넘기는 것까지가 답변이다. -->
+      <section class="card" id="ask-card">
+        <h3><span class="agent-n">✳</span> Advisor에게 질문 <span class="ai-tag">행내 지식베이스 · 외부 미전송</span></h3>
+        <label for="ask-input" style="font-size:var(--fs-1);color:var(--ink-faint)">무역금융·헤지수단·지원제도 질문 <span style="font-weight:400">예: "환변동보험이랑 선물환 차이가 뭐예요?"</span></label>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <input id="ask-input" placeholder="질문을 입력하세요" autocomplete="off" style="flex:1;min-width:0">
+          <button type="button" class="modebtn" id="ask-go">질문</button>
+        </div>
+        <div class="ask-log" id="ask-log"></div>
+        <div class="guard">※ 답변은 <b>행내 지식베이스의 정보 제공</b>이며 투자권유·계약 조건 확정이 아닙니다. 지식베이스에 없는 질문은 답을 만들지 않고 RM 상담으로 안내합니다.</div>
+      </section>
+
     </section>
 
     <!-- ───── COLUMN 3 · 금융지원 추천 ───── -->
@@ -1541,6 +1604,27 @@
   </div><!-- /app3 -->
 
   <section class="card nextsteps" id="nextsteps"></section>
+
+  <!-- 에이전트에게 감시 위임 — 에이전트다움의 본질은 '일을 맡길 수 있는가'다.
+       위험 방향(초과 가능성)과 유리한 방향(기회 포착) 둘 다 받는다 — 헤지는 겁줄 때가 아니라 유리할 때도 거는 것.
+       데모는 화면 안에서 규칙을 저장·판정한다. 서버 규칙엔진(server/app/alerts.py — 등록·평가·쿨다운)은 이미 구현돼 있고 발송 채널만 행내 인프라 대상이다. -->
+  <section class="card" id="delegate-card" style="margin-top:16px">
+    <h3><span class="agent-n">≔</span> 에이전트에게 감시 맡기기
+      <span class="dbadge" style="margin-left:6px" title="데모는 이 화면 안에서 규칙을 저장하고 현재 계산값으로 충족 여부를 판정합니다. 실서비스는 서버 알림 규칙엔진(등록·평가·쿨다운 구현 완료)과 행내 발송 채널(문자·앱푸시)로 동작합니다.">화면 내 판정 · 서버 규칙엔진 연동 설계</span></h3>
+    <div class="dlg-rule">
+      <input type="checkbox" id="dlg-risk-on" style="accent-color:var(--brand)">
+      <label for="dlg-risk-on"><b>위험 감시</b> — 초과 가능성이</label>
+      <label for="dlg-risk-th" style="display:inline-flex;align-items:center;gap:4px"><input type="number" id="dlg-risk-th" value="50" min="1" max="99" step="1" inputmode="numeric"><span>% 이상이 되면 알려주세요</span></label>
+      <span class="dlg-st" id="dlg-risk-st"></span>
+    </div>
+    <div class="dlg-rule">
+      <input type="checkbox" id="dlg-opp-on" style="accent-color:var(--brand)">
+      <label for="dlg-opp-on"><b>기회 감시</b> — 환율이 회사 기준환율보다</label>
+      <label for="dlg-opp-th" style="display:inline-flex;align-items:center;gap:4px"><input type="number" id="dlg-opp-th" value="10" min="1" max="200" step="1" inputmode="numeric"><span>원 이상 유리해지면 헤지 상담을 제안해 주세요</span></label>
+      <span class="dlg-st" id="dlg-opp-st"></span>
+    </div>
+    <div class="guard">※ 알림은 <b>정보 제공</b>이며 매매 지시·투자권유가 아닙니다. 조건 충족 시에도 계약은 KB 영업점 상담에서 확정됩니다.</div>
+  </section>
   <!-- ══════════ 거래국 · 품목 참고 정보 ══════════
        왜 컬럼2에서 빼냈나 — 컬럼2가 "내 환리스크 진단"과 "거래국·품목 배경정보" 두 주제를
        한 통에 담아 2434px(RM)까지 자랐고, 그동안 컬럼1은 1137px에서 끝나 1297px가 빈 채였다.
@@ -3399,6 +3483,9 @@ function compute(){
 
   renderScreening(f);
   renderRmQueue(f);
+  renderAgentFlow(f,{bbp:bbp,alert:alert,recs:recs,m:m,hr:hr,inst:inst});
+  renderAgentBriefing(f,{bbp:bbp,alert:alert});
+  evalDelegate(f,{bbp:bbp,m:m});
   applyGate();
 }
 
@@ -3490,6 +3577,207 @@ function renderRmQueue(f){
     tr.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); open(); } });
   });
 }
+/* ══════════ 에이전트 처리 단계 스트립 ══════════
+   4-에이전트 오케스트레이션(fx_sentinel/agents.py 구조)을 화면에 비추는 거울:
+   ①Sentinel(감시·경보) ②Analyst(원인 XAI) ③Advisor(정보·근거) ④Hedge(시나리오·제안).
+   각 단계는 이번 compute 의 실제 산출값만 담는다 — 값이 없으면 칸도 비운다(장식 금지). */
+function renderAgentFlow(f,ctx){
+  const host=$("agent-flow"); if(!host) return;
+  const pp=primaryProduct(ctx.recs,f.biz);
+  const sh=ctx.m.shares||{V:0,J:0,C:0};
+  const steps=[
+    ["① Sentinel · 감시", ctx.alert?('<b>경보 발동</b> — 초과 가능성 <b>'+ctx.bbp.toFixed(1)+'%</b>')
+                                   :('모니터링 — 초과 가능성 <b>'+ctx.bbp.toFixed(1)+'%</b>'), ctx.alert?"var(--crit)":"var(--good)"],
+    ["② Analyst · 원인", '국면 <b>'+esc(ctx.m.regimeName||"현재")+'</b> · 성분 V'+sh.V+'·J'+sh.J+'·C'+sh.C
+                        +(ctx.m.iz?' · <b>개입 감쇠 적용</b>':''), "var(--gold-ink)"],
+    ["③ Advisor · 정보", '후보 <b>'+ctx.recs.length+'건</b> 검토 → 1순위 <b>'+esc(pp?pp.t.split("(")[0].trim():"—")+'</b>', "var(--brand)"],
+    ["④ Hedge · 제안", ctx.hr>0?('부분 <b>'+Math.round(ctx.hr*100)+'%</b> '+esc(ctx.inst)+' 참고 · RM 티켓 준비')
+                              :'지금은 관리 불필요 — 급변 시 재제안', "var(--elev)"]
+  ];
+  // 점등 애니메이션은 회사가 바뀔 때만 — 입력 타이핑 재계산마다 깜빡이면 소음이다
+  const replay=(_afLastCo!==f.name); _afLastCo=f.name;
+  host.classList.remove("run");
+  host.innerHTML=steps.map(s=>'<div class="af" role="listitem"><div class="af-n"><span class="af-dot" style="background:'+s[2]+'"></span>'+s[0]+'</div><div class="af-v">'+s[1]+'</div></div>').join("");
+  if(replay){ void host.offsetWidth; host.classList.add("run"); }
+}
+let _afLastCo=null;
+
+/* ══════════ 에이전트 점검 브리핑 ══════════
+   열자마자 "이미 해둔 일"을 1인칭으로 보고한다. 고객 모드=내 회사만, RM 모드=담당 전체 요약(internal-only). */
+function renderAgentBriefing(f,ctx){
+  const host=$("agent-briefing-body"); if(!host) return;
+  const rg=(REG.USD[regimeIdx]||REG.USD[0]);
+  let alerts=0, recurs=0, dueSoon=0;
+  PRESETS.forEach(p=>{
+    const b=bbpProb(CUR.USD.spot,p.budget,rg.sigAnn,p.horizon,p.pos,rg.iz)*100;
+    if(b>=40) alerts++;
+    const r=RECUR[p.name]; if(r){ const rb=bbpProb(CUR.USD.spot,p.budget,rg.sigAnn,p.horizon+r.everyBd,p.pos,rg.iz)*100; if(rb>=40) recurs++; }
+    const q=RMQ_SLA[p.name]; if(q && q.age>=q.sla*0.75) dueSoon++;
+  });
+  const own=ctx.alert
+    ? '<b>'+esc(f.name)+'</b> 거래를 점검했습니다 — 초과 가능성 <b style="color:var(--crit)">'+ctx.bbp.toFixed(1)+'%</b>로 경보 기준(40%)을 넘어 <b>진단과 상담 후보를 준비해 두었습니다</b>. 아래에서 확인만 하시면 됩니다.'
+    : '<b>'+esc(f.name)+'</b> 거래를 점검했습니다 — 초과 가능성 '+ctx.bbp.toFixed(1)+'%로 안정 구간입니다. 급변하면 먼저 알려드리도록 감시를 이어갑니다.';
+  let h='<div class="brief-li"><span class="bl-ic" style="color:'+(ctx.alert?"var(--crit)":"var(--good)")+'">'+(ctx.alert?"▲":"✓")+'</span><div>'+own+'</div></div>';
+  h+='<div class="brief-li internal-only"><span class="bl-ic" style="color:var(--elev)">≡</span><div><b>담당 전체(5사)</b> — 경보 <b>'+alerts+'건</b> · 다음 회차 선제 경보 <b>'+recurs+'건</b> · 응답기한 임박 <b>'+dueSoon+'건</b>. 우선순위는 아래 <b>RM 워크벤치 큐</b>에 세워 두었습니다.</div></div>';
+  host.innerHTML=h;
+}
+
+/* ══════════ 자연어 거래 입력 ══════════
+   규칙 파서(행내) — 금액·통화·수입/수출·거래국·만기·결제방식·확정여부를 문장에서 뽑아 폼에 넣는다.
+   원칙: 뽑은 것만 말하고, 못 뽑은 항목은 "기존 값 유지"로 정직하게 고지. LLM 아님(외부 전송 0). */
+function nlParse(text){
+  const t=String(text||"").trim(); if(!t) return null;
+  const out={}, got=[];
+  if(/수입/.test(t)){ out.pos="import"; got.push("수입"); }
+  else if(/수출/.test(t)){ out.pos="export"; got.push("수출"); }
+  if(/유로|EUR/i.test(t)){ out.cur="EUR"; }
+  else if(/엔화|엔\b|JPY/i.test(t)){ out.cur="JPY"; }
+  else if(/달러|불\b|USD|\$/i.test(t)){ out.cur="USD"; }
+  // 금액: "40만 불" / "400,000달러" / "1.5만 유로" — 만 단위 우선
+  let m=t.match(/([0-9]+(?:[.,][0-9]+)?)\s*만\s*(?:불|달러|유로|엔|원화 아님)?/);
+  if(m){ out.amount=Math.round(parseFloat(m[1].replace(",",""))*1e4); }
+  else { m=t.match(/([0-9]{1,3}(?:,[0-9]{3})+|[0-9]{4,})\s*(?:불|달러|유로|엔|USD|EUR|JPY)/i);
+         if(m) out.amount=Math.round(parseFloat(m[1].replace(/,/g,""))); }
+  if(out.amount) got.push("금액 "+out.amount.toLocaleString());
+  if(out.cur) got.push("통화 "+out.cur);
+  const cty=t.match(/미국|베트남|중국|일본/); if(cty){ out.country=cty[0]; got.push("거래국 "+cty[0]); }
+  // 만기: "63영업일" > "3개월" > "6주" > "9월 말/초/중순"
+  m=t.match(/([0-9]{1,3})\s*영업일/);
+  if(m){ out.horizon=+m[1]; }
+  else if((m=t.match(/([0-9]{1,2})\s*개월/))){ out.horizon=Math.min(365,+m[1]*21); }
+  else if((m=t.match(/([0-9]{1,2})\s*주\b/))){ out.horizon=Math.min(365,+m[1]*5); }
+  else if((m=t.match(/(1[0-2]|[1-9])\s*월\s*(초|중순|말)?/))){
+    const base=new Date(MARKET.date+"T00:00:00"); const mo=+m[1];
+    const day=m[2]==="초"?5:(m[2]==="중순"?15:27);
+    let y=base.getFullYear(); const tgt=new Date(y,mo-1,day);
+    if(tgt<=base) tgt.setFullYear(y+1);
+    out.horizon=Math.max(5,Math.min(365,Math.round((tgt-base)/86400000*5/7)));
+  }
+  if(out.horizon) got.push("만기 D+"+out.horizon+"영업일");
+  if(/신용장|L\/?C/i.test(t)){ out.pay="LC"; got.push("결제 L/C"); }
+  else if(/T\/?T|송금/i.test(t)){ out.pay="TT"; got.push("결제 T/T"); }
+  else if(/외상|O\/?A/i.test(t)){ out.pay="OA"; got.push("결제 O/A"); }
+  if(/가결제|PO\b|취소/i.test(t)){ out.cert="provisional"; got.push("가결제"); }
+  else if(/확정|인보이스 발행/.test(t)){ out.cert="confirmed"; got.push("확정 거래"); }
+  return got.length?{fields:out,got:got}:null;
+}
+function nlApply(){
+  const inp=$("nl-input"), note=$("nl-note"); if(!inp||!note) return;
+  const r=nlParse(inp.value);
+  if(!r){
+    note.style.display="";
+    note.innerHTML='인식한 항목이 없습니다 — <b>금액·수입/수출·거래국</b>을 문장에 넣어보세요. 값은 바꾸지 않았습니다.';
+    return;
+  }
+  const o=r.fields;
+  if(o.pos && $("in-pos")) $("in-pos").value=o.pos;
+  if(o.amount && $("in-amount")) $("in-amount").value=o.amount;
+  if(o.country && $("in-country")) $("in-country").value=o.country;
+  if(o.horizon && $("in-horizon")) $("in-horizon").value=o.horizon;
+  if(o.cur && $("in-cur") && CUR[o.cur]){ $("in-cur").value=o.cur; renderRegimeChips(); renderCurNote(); }
+  if(o.pay && $("in-pay")) $("in-pay").value=o.pay;
+  if(o.cert && $("in-cert")) $("in-cert").value=o.cert;
+  compute();
+  note.style.display="";
+  note.innerHTML='<b>이렇게 이해했습니다</b> — '+r.got.map(esc).join(" · ")+' <b style="color:var(--good)">(진단에 반영됨)</b>. 문장에 없던 항목은 기존 값을 유지했습니다.';
+  logAudit("자연어 거래 입력 해석", r.got.join(", "));
+}
+{ const _ng=$("nl-go"), _ni=$("nl-input");
+  if(_ng) _ng.addEventListener("click",nlApply);
+  if(_ni) _ni.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); nlApply(); } }); }
+
+/* ══════════ 감시 위임 규칙 ══════════
+   규칙은 localStorage 에 저장하고 compute 마다 현재 계산값으로 충족 여부를 판정한다.
+   서버 규칙엔진(alerts.py)과 같은 의미 구조(지표·비교·임계) — 데모는 판정 표시까지, 발송은 채널 없음. */
+const DLG_KEY="fxs_delegate_v1";
+function _dlgLoad(){ try{ return JSON.parse(localStorage.getItem(DLG_KEY)||"{}"); }catch(e){ return {}; } }
+function _dlgSave(s){ try{ localStorage.setItem(DLG_KEY,JSON.stringify(s)); }catch(e){} }
+function dlgInit(){
+  const s=_dlgLoad();
+  [["dlg-risk-on","riskOn"],["dlg-opp-on","oppOn"]].forEach(([id,k])=>{ const el=$(id); if(el&&s[k]!=null) el.checked=!!s[k]; });
+  [["dlg-risk-th","riskTh"],["dlg-opp-th","oppTh"]].forEach(([id,k])=>{ const el=$(id); if(el&&s[k]!=null) el.value=s[k]; });
+  ["dlg-risk-on","dlg-risk-th","dlg-opp-on","dlg-opp-th"].forEach(id=>{
+    const el=$(id); if(!el) return;
+    el.addEventListener("change",()=>{
+      _dlgSave({riskOn:$("dlg-risk-on").checked, riskTh:+$("dlg-risk-th").value||50,
+                oppOn:$("dlg-opp-on").checked,  oppTh:+$("dlg-opp-th").value||10});
+      compute();
+      logAudit("감시 규칙 변경", id.indexOf("risk")>=0?"위험 감시":"기회 감시");
+    });
+  });
+}
+function evalDelegate(f,ctx){
+  const rs=$("dlg-risk-st"), os=$("dlg-opp-st"); if(!rs||!os) return;
+  const on1=($("dlg-risk-on")||{}).checked, th1=+($("dlg-risk-th")||{}).value||50;
+  if(!on1){ rs.innerHTML='<span style="color:var(--ink-faint)">꺼짐</span>'; }
+  else if(ctx.bbp>=th1){ rs.innerHTML='<span style="color:var(--crit)">조건 충족 — 알림 발생(데모)</span>'; }
+  else { rs.innerHTML='<span style="color:var(--good)">감시 중 · 현재 '+ctx.bbp.toFixed(1)+'%</span>'; }
+  const on2=($("dlg-opp-on")||{}).checked, th2=+($("dlg-opp-th")||{}).value||10;
+  const K=+f.budget||0, spot=ctx.m.spot;
+  // 유리한 방향: 수출은 환율이 기준환율보다 높을 때(원화 더 받음), 수입은 낮을 때(원화 덜 냄)
+  const edge = f.pos==="export" ? spot-K : K-spot;
+  if(!on2){ os.innerHTML='<span style="color:var(--ink-faint)">꺼짐</span>'; }
+  else if(edge>=th2){ os.innerHTML='<span style="color:var(--gold-ink)">조건 충족 — 지금 걸면 기준환율보다 '+Math.round(edge)+'원 유리(데모 제안)</span>'; }
+  else { os.innerHTML='<span style="color:var(--good)">감시 중 · 현재 '+(edge>=0?'+':'−')+Math.abs(Math.round(edge))+'원</span>'; }
+}
+
+/* ══════════ Advisor 질문 (행내 지식베이스) ══════════
+   knowledge_base.py(D1~D5)의 화면 미러 — 키워드 매칭 + 출처 + 가드레일.
+   모르는 질문에 답을 만들지 않는 것까지가 설계다(환각 원천 차단·정직성). */
+const ASK_KB=[
+  {k:["선물환","포워드"],
+   a:"선물환은 미래 결제일의 환율을 지금 확정하는 계약입니다. 확정된 실수요 거래에만 가능하고(외국환거래법 실수요 원칙), 환율이 유리하게 움직여도 확정 환율로 결제합니다 — 상단 이익을 포기하는 대신 하단 위험을 없애는 구조입니다.",
+   s:"KB 외환 · 외국환거래법 실수요 원칙"},
+  {k:["환변동보험","보험"],
+   a:"환변동보험은 K-SURE(무역보험공사)의 공적 보험으로, 은행 여신 한도 없이 가입할 수 있어 담보가 부족한 중소기업의 대표적 환리스크 관리 수단입니다. 중소기업은 보험료 지원 제도(연 한도)·지자체 단체보험으로 실효 보험료가 크게 낮아질 수 있습니다.",
+   s:"K-SURE 환위험관리 지원센터"},
+  {k:["차이","비교","뭐가 달라"],
+   a:"가장 큰 차이는 여신과 구조입니다 — 선물환은 은행 여신(한도)이 필요하고 환율을 고정하며, 환변동보험은 여신 없이 가입하는 공적 보험입니다. 여신 한도가 부족하거나 담보가 없다면 환변동보험 경로가 현실적입니다. 이 화면의 헤지수단 비교 카드가 회사 조건 기준으로 자격까지 판정해 드립니다.",
+   s:"헤지수단 비교 카드(ELIG 자격 판정)"},
+  {k:["범위선물환","밴드"],
+   a:"범위선물환은 상단·하단 밴드를 정해 밴드 안에서는 시장환율을 따라가고 밴드를 벗어나면 경계값으로 결제하는 구조입니다. 상단 이익을 일부 유지하는 대신, 밴드를 넘어선 이익은 포기합니다. 밴드가·요율은 RM 견적으로 확정됩니다.",
+   s:"KB 외환 · 헤지수단 비교 카드"},
+  {k:["칼라","옵션"],
+   a:"제로코스트 칼라는 풋·콜 옵션을 조합해 선납 비용 없이 환율의 상·하한을 만드는 구조입니다. 현금 부담이 어렵거나 가결제 단계라 선물환이 막힌 경우의 대안이 될 수 있습니다. 다만 파생상품이라 적정성 확인을 통과해야 권유가 가능합니다.",
+   s:"금소법 적정성 게이트 · KB 외환"},
+  {k:["신용장","L/C","엘씨"],
+   a:"신용장(L/C)은 개설은행이 대금 지급을 약속하는 결제 방식입니다. 서류에 하자(불일치)가 있으면 매입(Nego)이 지연되고 대금 회수가 밀리는데, 회수가 밀리면 걸어둔 헤지 만기와 어긋나 롤오버 검토가 필요합니다 — 이 화면의 L/C 문서심사 카드가 그 연결을 관리합니다.",
+   s:"L/C 문서심사 카드 · KB 무역금융"},
+  {k:["기준환율","예산환율","BBP","이탈확률","초과 가능성"],
+   a:"회사 기준환율(예산환율)은 이 거래의 손익분기가 되는 환율입니다. 이 서비스의 핵심 지표 BBP는 결제일에 그 기준환율이 깨질 확률을 회사별로 계산한 것으로, 환율의 방향을 예측하는 지표가 아닙니다 — 예측 알파 주장은 자체 검증으로 기각했고 그 과정을 모델 검증 탭에 공개합니다.",
+   s:"BBP 엔진(bbp.py) · 모델 검증 탭"},
+  {k:["정책자금","특별출연","무역금융 지원","지원"],
+   a:"여신 한도가 없거나 담보가 부족한 수출 중소기업은 KB 특별출연 수출입 금융지원(K-SURE 보증 기반)과 정책자금 경로를 검토할 수 있습니다. K-SURE 환변동보험 보험료 지원·수출바우처도 병행 가능한 제도입니다 — 수급 확정은 각 기관 확인 사항입니다.",
+   s:"정책지원 매칭 카드 · K-SURE"},
+  {k:["유산스","usance","수입금융"],
+   a:"KB Payment Usance는 수입대금 결제를 일정 기간 유예하는 수입금융입니다. 수입 기업은 결제 시점이 미뤄지는 만큼 환리스크 노출 기간도 함께 관리해야 하므로, 이 화면은 유산스 검토와 헤지 진단을 같은 흐름에서 제시합니다.",
+   s:"KB 수입금융"},
+  {k:["적정성","금소법","왜 물어"],
+   a:"파생상품(선물환·옵션)은 금융소비자보호법상 권유 전에 경험·이해도·감내 손실을 확인해야 합니다. 확인이 안 되면 이 화면은 해당 상품 권유를 스스로 보류하고, 규제 대상이 아닌 K-SURE 보험·여신 경로는 그대로 남깁니다 — 규제를 과하게 적용해 보호가 배제가 되지 않게 한 설계입니다.",
+   s:"금소법 판매 게이트(적정성)"}
+];
+function askAnswer(q){
+  const ql=q.toLowerCase();
+  let best=null,score=0;
+  ASK_KB.forEach(e=>{ const s=e.k.filter(k=>ql.indexOf(k.toLowerCase())>=0).length; if(s>score){score=s;best=e;} });
+  return best;
+}
+function askSubmit(){
+  const inp=$("ask-input"), log=$("ask-log"); if(!inp||!log) return;
+  const q=inp.value.trim(); if(!q) return;
+  const hit=askAnswer(q);
+  const a=hit
+    ? '<div class="ask-a">'+hit.a+'<span class="ask-src">출처 · '+esc(hit.s)+'</span></div>'
+    : '<div class="ask-a">이 질문은 행내 지식베이스에 없습니다 — <b>답을 만들어내지 않습니다.</b> 우측 상단 <b>KB 상담 연결</b> 또는 RM 티켓으로 물어보시면 담당자가 정확히 답합니다.<span class="ask-src">지식베이스 범위 밖 · RM 안내</span></div>';
+  log.insertAdjacentHTML("beforeend",'<div class="ask-q">'+esc(q)+'</div>'+a);
+  while(log.children.length>6) log.removeChild(log.firstChild);   // 최근 3문답만
+  inp.value="";
+  logAudit("Advisor 질문", (hit?("지식베이스 응답: "+hit.s):"범위 밖 → RM 안내"));
+}
+{ const _ag=$("ask-go"), _ai=$("ask-input");
+  if(_ag) _ag.addEventListener("click",askSubmit);
+  if(_ai) _ai.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); askSubmit(); } }); }
+
 // '권유보류'(F1 적정성)는 '차단'(법규·자격)과 색을 나눈다 — 원인이 다르면 색도 달라야 한다.
 const ST_COL={"추천":"var(--good)","상담후보":"var(--gold)","RM확인":"var(--elev)","검토":"var(--warn)","확인필요":"var(--elev)","보류":"var(--elev)","제외":"var(--ink-faint)","차단":"var(--crit)","권유보류":"var(--elev)","한도초과":"var(--crit)"};
 const SRC_CLASS={"KB 공식상품":"official","KB 공식서비스":"service","KB 외환":"official","외부기관(K-SURE)":"ext","외부 정책자금":"ext","데모 가정":"assume","일반 외환 실무":"ext","외국환거래법 실수요 원칙":"ext"};
@@ -4818,6 +5106,7 @@ $("themebtn").addEventListener("click",()=>{
 });
 
 /* 초기 = 현재 국면 + 나래상사(수입·이탈압력) — 첫 화면에서 리스크 상태를 보여준다(2.2) */
+dlgInit();   // 감시 위임 규칙 복원(compute 가 판정 표시를 채우므로 fillPreset 전에)
 setRegime(0);
 /* URL 딥링크(발표·공유 지원) — ?preset=회사명&regime=0~4 로 특정 장면을 바로 연다.
    file:// 에서도 location.search 는 동작한다. 파싱 실패·모르는 값은 조용히 기본값(재현성 유지). */
