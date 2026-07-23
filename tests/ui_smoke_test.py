@@ -1330,6 +1330,17 @@ PROBE = r"""
   /* 정책 밴드 준수(내규 연동) — 나래 수입 75% ∈ [50,100] */
   ok("정책 밴드 준수 판정", $("lc-body").textContent.indexOf("정책 밴드 준수") >= 0
      && $("lc-body").textContent.indexOf("준수") >= 0, "체결 75% vs 수입 밴드 50~100%");
+  /* F4 상한 단일 공식 — 헤드라인·카드·RM 티켓이 같은 숫자를 말해야 한다(실제로 갈라졌던 회귀) */
+  showDeep("dp-a");
+  ok("헤드라인 헤지 = 원장 상한", $("hd-hedge").textContent.indexOf("100,000") >= 0,
+     "결제 400k − 기체결 300k = 100k (200k 아님)");
+  ok("RM 티켓 명목 = 원장 상한", _ticket.notional === 100000, "티켓도 단일 공식");
+  /* 브리핑 경보 사유 정확성 — EWI 트리거인데 "BBP 40% 넘어"라고 말하면 안 된다 */
+  fillPreset(PRESETS[0]); setRegime(3); compute();
+  var _bf = $("agent-briefing-body").textContent;
+  ok("브리핑 경보 사유 = EWI", _bf.indexOf("위험게이지") >= 0 && _bf.indexOf("경보 기준(40%)을 넘어") < 0,
+     "한빛 27.4% + 달러강세 EWI 91 → 사유는 게이지");
+  setRegime(0); fillPreset(PRESETS[3]); showDeep("dp-c");
   /* 이벤트 캘린더 오버레이 — 만기 63영업일 안에 공표 일정이 든다 */
   ok("타임라인 이벤트 마커", $("timeline").textContent.indexOf("FOMC") >= 0
      && $("tl-sub").textContent.indexOf("예정 이벤트") >= 0, "금리·물가 일정이 만기 타임라인에");
