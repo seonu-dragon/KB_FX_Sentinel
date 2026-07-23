@@ -1297,6 +1297,69 @@ PROBE = r"""
      "없는 약정을 만들지 않는다");
   fillPreset(PRESETS[3]); showDeep("dp-a");
 
+  /* ── 2026-07-23 기능 증강 회귀 ──
+     벤치마킹 반영분(RM 큐·실수요 원장·L/C 문서심사·마진콜 확률·내규 초안·정책지원·이벤트 캘린더·IZ 토글).
+     전부 폼/국면에서 파생돼야 한다 — 하드코딩이면 입력을 바꿔도 화면이 안 바뀐다. */
+  setMode("internal"); showView("copilot"); showDeep("dp-a"); fillPreset(PRESETS[3]);
+  var _rmq = $("rmq-table");
+  ok("RM 큐 전 건 렌더", !!_rmq && _rmq.querySelectorAll(".rmq-r").length === PRESETS.length,
+     "프리셋 " + PRESETS.length + "건이 큐에");
+  ok("RM 큐 현재 건 표시", !!_rmq && _rmq.textContent.indexOf("보는 중") >= 0, "현재 회사 하이라이트");
+  var _row = _rmq && _rmq.querySelector('.rmq-r[data-i="0"]'); if (_row) _row.click();
+  ok("RM 큐 클릭 전환", $("in-name").value === "한빛정밀", "행 클릭 → 프리셋 로드");
+  /* L/C 문서심사: 결제방식에서 파생 — 한빛(L/C)은 보이고 나래(T/T)는 숨어야 한다 */
+  showDeep("dp-c");
+  ok("L/C 문서심사 표시(L/C 건)", $("lcdoc-card").style.display !== "none"
+     && $("lcdoc-body").textContent.indexOf("선하증권") >= 0, "한빛정밀 · 서류 심사 상태");
+  fillPreset(PRESETS[3]);
+  ok("L/C 문서심사 숨김(T/T 건)", $("lcdoc-card").style.display === "none", "나래상사 T/T → 비표시");
+  /* 실수요 원장(F4): 기체결 300k → 신규 가능 100k, 결제를 200k 로 줄이면 중복헤지 경고 */
+  var _lg = function(){ return $("h-ledger").textContent.replace(/\s+/g, " "); };
+  ok("실수요 원장 잔여 계산", _lg().indexOf("신규 가능") >= 0 && _lg().indexOf("100,000") >= 0,
+     "결제 400k − 기체결 300k = 100k");
+  $("in-amount").value = "200000"; compute();
+  ok("중복헤지 차단 경고", _lg().indexOf("전액 헤지") >= 0 || _lg().indexOf("중복헤지") >= 0,
+     "결제 200k < 기체결 300k → 신규 0");
+  $("in-amount").value = "400000"; compute();
+  ok("원장 없으면 원장 숨김", (fillPreset(PRESETS[1]), $("h-ledger").style.display === "none"),
+     "대성무역 — 체결 헤지 없음");
+  fillPreset(PRESETS[3]);
+  /* 마진콜 확률 — 시나리오 격자(얼마)에 확률(가능성)을 더한다. 만기 시점 근사 고지 필수 */
+  ok("마진콜 확률 표시", $("lc-body").textContent.indexOf("추가담보 요구 가능성") >= 0
+     && $("lc-body").textContent.indexOf("만기 시점 기준 근사") >= 0, "확률 + 근사 한계 고지");
+  /* 정책 밴드 준수(내규 연동) — 나래 수입 75% ∈ [50,100] */
+  ok("정책 밴드 준수 판정", $("lc-body").textContent.indexOf("정책 밴드 준수") >= 0
+     && $("lc-body").textContent.indexOf("준수") >= 0, "체결 75% vs 수입 밴드 50~100%");
+  /* 이벤트 캘린더 오버레이 — 만기 63영업일 안에 공표 일정이 든다 */
+  ok("타임라인 이벤트 마커", $("timeline").textContent.indexOf("FOMC") >= 0
+     && $("tl-sub").textContent.indexOf("예정 이벤트") >= 0, "금리·물가 일정이 만기 타임라인에");
+  /* 내규 초안·정책지원 — 헤지 비교 카드에서 파생(정책지원은 수출·법인만) */
+  var _hc2 = $("hedge-compare").textContent;
+  ok("내규 초안 생성", _hc2.indexOf("환위험관리 내규") >= 0 && _hc2.indexOf("논의 출발점") >= 0,
+     "프로필 기반 사규 초안 + 확정은 사내 승인");
+  ok("정책지원 수입건 비표시", _hc2.indexOf("정책지원 매칭") < 0, "나래상사(수입)는 보험료 지원 대상 아님");
+  fillPreset(PRESETS[0]);
+  ok("정책지원 수출건 표시", $("hedge-compare").textContent.indexOf("정책지원 매칭") >= 0
+     && $("hedge-compare").textContent.indexOf("지어내") < 0, "한빛정밀(수출 중소) — 지원제도 판정");
+  /* 이중용도 매트릭스(F8): HS 대분류 × 목적국 조합 판정 */
+  showDeep("dp-e");
+  ok("이중용도 저위험국 = 확인 권장", $("gov-aml").textContent.indexOf("확인 권장") >= 0,
+     "한빛 8542(전자·반도체) × 미국");
+  fillPreset(PRESETS[2]); // 소망전자 8542 × 중국
+  ok("이중용도 고위험국 = 판정 필요", $("gov-aml").textContent.indexOf("전략물자 판정 필요") >= 0,
+     "소망 8542 × 중국 조합");
+  /* IZ 개입 감쇠 토글 — 켜면 BBP 가 내려가야 한다(×0.7) */
+  fillPreset(PRESETS[3]); showDeep("dp-a");
+  var _b0 = parseFloat($("hd-bbp").textContent);
+  $("iz-toggle").checked = true; $("iz-toggle").dispatchEvent(new Event("change"));
+  var _b1 = parseFloat($("hd-bbp").textContent);
+  ok("IZ 토글 = BBP 감쇠", _b1 < _b0 && _b1 > 0, _b0.toFixed(1) + "% → " + _b1.toFixed(1) + "% (×0.7)");
+  $("iz-toggle").checked = false; $("iz-toggle").dispatchEvent(new Event("change"));
+  ok("IZ 해제 = 원복", Math.abs(parseFloat($("hd-bbp").textContent) - _b0) < 0.2, "재현성 유지");
+  /* 위 추가 테스트들이 감사로그를 늘려 200건 캡에 닿으면, 아래 "재조회 = +1건" 검증이
+     캡 때문에 깨진다(길이 불변). 캡 아래로 비워 원래 검증 의미를 유지한다. */
+  _audit.length = Math.min(_audit.length, 150);
+
   /* ── 캘리브레이션 수치 = CALIB 상수 단일출처 ── */
   ok("CALIB 배선", $("ts-ece").textContent.indexOf("0.034") >= 0
      && $("calib-s").textContent.indexOf("3,800") >= 0

@@ -1306,18 +1306,18 @@
   <div class="ab-title"><h1>수출입 금융 AI 코파일럿 <span class="beta">BETA</span></h1><p>AI가 분석하고, 최적의 금융지원을 제안해 드립니다.</p></div>
   <div class="ab-actions">
     <button type="button" class="ab-ic" id="themebtn" aria-label="테마 전환"><span class="ab-em" aria-hidden="true">◐</span><span class="ab-lb">테마</span></button>
-    <button type="button" class="ab-ic" id="modebtn" aria-label="고객 화면 보기"><span class="ab-em" id="modebtn-em" aria-hidden="true">🙍</span><span class="ab-lb" id="modebtn-lb">고객 화면 보기</span></button>
+    <button type="button" class="ab-ic" id="modebtn" aria-label="고객 화면 보기"><span class="ab-em" id="modebtn-em" aria-hidden="true">◉</span><span class="ab-lb" id="modebtn-lb">고객 화면 보기</span></button>
     <div class="notifwrap">
       <button type="button" class="ab-ic ab-bell" id="ab-bell" title="알림" aria-label="알림">🔔<span class="badge" id="notif-badge">0</span></button>
       <div class="notif-panel" id="notif-panel"><div class="notif-h">알림</div><div id="notif-list"></div></div>
     </div>
-    <button type="button" class="ab-cta" id="ab-consult" aria-label="KB 상담 연결"><span class="ab-em" aria-hidden="true">🎧</span><span class="ab-lb">KB 상담 연결</span><span class="ab-lb-s">상담</span></button>
+    <button type="button" class="ab-cta" id="ab-consult" aria-label="KB 상담 연결"><span class="ab-em" aria-hidden="true">✆</span><span class="ab-lb">KB 상담 연결</span><span class="ab-lb-s">상담</span></button>
   </div>
 </header>
 
 <div class="authmask" id="rm-auth" role="dialog" aria-modal="true" aria-label="RM 접근 인증">
   <div class="authbox">
-    <div class="auth-h">🔐 RM 내부 화면 접근 인증</div>
+    <div class="auth-h">RM 내부 화면 접근 인증</div>
     <div class="auth-s">내부 화면(모델 검증·거버넌스·감사로그·고객 데이터)은 <b>권한 있는 직원만</b> 열람할 수 있습니다. 실서비스에서는 <b>기업뱅킹 SSO·전자서명·서버 RBAC</b>로 인가합니다(데모는 시뮬레이션).</div>
     <label class="auth-l" for="rm-pass">직원 passcode<span class="auth-hint">데모: 1234</span></label>
     <input id="rm-pass" type="password" class="auth-in" placeholder="passcode 입력" autocomplete="off" inputmode="numeric">
@@ -1331,12 +1331,12 @@
     <nav class="nav" aria-label="주 메뉴">
       <a class="nav-i active" data-view="copilot"><span class="ni">✦</span> AI 코파일럿</a>
       <a class="nav-i" data-view="dashboard"><span class="ni">▦</span> 대시보드</a>
-      <a class="nav-i" data-view="trades"><span class="ni">🔎</span> 거래 조회</a>
-      <a class="nav-i" data-view="products"><span class="ni">🏦</span> 금융상품</a>
-      <a class="nav-i" data-view="policy"><span class="ni">📑</span> 정책자금</a>
-      <a class="nav-i" data-view="fx"><span class="ni">💱</span> 외환/시세</a>
-      <a class="nav-i" data-view="report"><span class="ni">📊</span> 리포트</a>
-      <a class="nav-i" data-view="support"><span class="ni">🎧</span> 고객센터</a>
+      <a class="nav-i" data-view="trades"><span class="ni">⌕</span> 거래 조회</a>
+      <a class="nav-i" data-view="products"><span class="ni">▤</span> 금융상품</a>
+      <a class="nav-i" data-view="policy"><span class="ni">§</span> 정책자금</a>
+      <a class="nav-i" data-view="fx"><span class="ni">⇄</span> 외환/시세</a>
+      <a class="nav-i" data-view="report"><span class="ni">▥</span> 리포트</a>
+      <a class="nav-i" data-view="support"><span class="ni">✆</span> 고객센터</a>
     </nav>
     <div class="side-rate">
       <div class="sr-k" id="tk-pair">기준일 USD / KRW</div>
@@ -1617,6 +1617,9 @@
         <div class="box internal-only"><div class="k">스왑포인트 <span class="theo">이론가</span></div><div class="v" id="h-swap">–</div></div>
       </div>
       <div class="why" id="h-why"></div>
+      <!-- 실수요 원장 — 같은 수출입신고(실수요) 건에 이미 체결된 헤지가 있으면 신규 가능액은 그 잔여뿐이다.
+           이걸 화면이 모르면 같은 신고번호에 헤지가 이중으로 걸린다(외국환거래법 실수요 원칙 위반). -->
+      <div class="metaline" id="h-ledger" style="display:none;max-width:44em"></div>
     </div>
     <div class="guard internal-only">※ <b>선물환율·스왑포인트는 CIP 이론가</b>(원화 3M 금리 상수 기반 산출)이며 <b>KB 고시가 아닙니다</b>. 고객 화면에는 노출하지 않습니다 — 실제 적용 환율은 고시 스왑포인트·대고객 스프레드로 RM이 확인합니다.</div>
     <div class="guard">※ 관리 금액은 결제 금액 범위 안에서 안내됩니다. <b>적용 환율은 상담 시점의 KB 고시환율로 확정</b>되며 이 화면에서는 안내하지 않습니다.</div>
@@ -1638,6 +1641,16 @@
   </div>
 
   <div class="deeppane active" id="dp-a">
+
+  <!-- RM 워크벤치 — 한 RM은 한 기업이 아니라 '기업 여러 개가 든 큐'를 든다. 개별 상세만 있으면
+       "어느 건부터 볼 것인가"를 도구가 답하지 못한다(도구 채택의 생사가 걸린 질문 — G 문서 GAP-5). -->
+  <section class="card" id="rm-queue">
+    <h3><span class="agent-n">≡</span> RM 워크벤치 · 오늘의 큐
+      <span class="dbadge" style="margin-left:6px" title="담당 고객·요청 시각은 데모 데이터입니다. 실서비스는 RM 업무함(CRM)과 연동해 실제 담당 건이 올라옵니다.">데모 큐 · CRM 연동 로드맵</span>
+      <span style="margin-left:auto;font-weight:600;color:var(--ink-faint);text-transform:none;letter-spacing:0">위험도·경과시간 순 · 행 클릭으로 전환</span></h3>
+    <div class="dwrap"><table class="spectable" id="rmq-table" aria-label="RM 담당 고객 큐"></table></div>
+    <div class="guard">※ BBP·상태는 <b>현재 선택된 시장 국면 기준 실계산</b>입니다 — 국면 스트레스를 바꾸면 큐 전체가 다시 줄을 섭니다. 응답기한(SLA)은 데모 설계값입니다.</div>
+  </section>
 
   <section class="hero-decision" id="decision-hero">
     <div class="hd-top">
@@ -1662,6 +1675,13 @@
   <div class="regime">
     <div class="regime-l"><span class="lbl">시장 국면 · 스트레스 테스트</span><span class="regime-sub">과거 국면의 σ·경보를 <b>현재 포지션</b>에 적용해 이탈확률·게이지 변화를 봅니다. σ·EWI는 <b>해당 통화·해당 날짜의 실측값</b>입니다(배수 환산 아님).</span></div>
     <div class="regime-chips" id="regime-chips"></div>
+    <!-- IZ(정책개입 감쇠) — 설계문서(A·청사진)의 개입 플래그 경로. 과거 국면 스냅샷에는 개입 판정일이 없어
+         실측 국면으로는 시연이 안 됐다(죽은 코드). 가정 토글로 경로를 살리되 '시연'임을 명시한다. -->
+    <label class="internal-only" for="iz-toggle" style="display:inline-flex;align-items:center;gap:7px;margin-top:8px;font-size:var(--fs-1);color:var(--ink-mut);cursor:pointer">
+      <input type="checkbox" id="iz-toggle" style="accent-color:var(--brand)">
+      당국 개입 국면 가정 (IZ) — 급변 시 외환당국 개입(구두·실개입)이 이탈확률을 누르는 효과를 BBP에 감쇠(×0.7)로 반영
+      <span class="dbadge" title="개입 여부·강도는 실측 국면 스냅샷에 포함돼 있지 않아 가정 토글로 시연합니다. 감쇠 계수 0.7은 설계값(A 문서 개입 플래그)이며 실증 캘리브레이션 값이 아닙니다.">시연 가정 · 실측 아님</span>
+    </label>
     <!-- 선택 국면의 통화별 설명 — REG[].note 는 통화마다 다르게 써 뒀는데 화면에 나오지 않아 죽은 데이터였다 -->
     <div id="regime-note" style="font-size:var(--fs-1);color:var(--ink-mut);line-height:1.6;max-width:44em;margin-top:8px"></div>
   </div>
@@ -1717,6 +1737,13 @@
     <h3><span class="agent-n">♻</span> 체결 후 관리 <span class="dbadge">원장 연동 전</span></h3>
     <div style="font-size:var(--fs-1);color:var(--ink-mut);line-height:1.6;max-width:44em;margin:10px 0 4px">거래가 <b>줄거나 미뤄지면</b> 체결한 헤지가 실수요를 넘어섭니다 — 외국환거래법 실수요 원칙상 초과분은 정리 대상입니다.</div>
     <div id="lc-body"></div>
+  </section>
+
+  <!-- L/C 문서심사 — 결제방식이 신용장인 거래는 환리스크 이전에 서류 하자(discrepancy)가 대금 리스크다.
+       Nego 가능 여부·하자 통지가 헤지 일정과 직결되는데, 이 흐름이 화면에 없으면 L/C 고객에게 반쪽 도구다. -->
+  <section class="card" id="lcdoc-card" style="display:none;margin-top:16px">
+    <h3><span class="agent-n">▤</span> L/C 문서심사 상태 <span class="dbadge" title="데모 데이터 — 실서비스는 KB 무역금융(신용장 원장·SWIFT MT700/754) 연동으로 실제 심사 상태를 읽습니다.">데모 데이터 · 원장 연동 로드맵</span></h3>
+    <div id="lcdoc-body"></div>
   </section>
   </div><!-- /dp-c -->
 
@@ -1963,6 +1990,26 @@
       </tbody>
     </table></div>
     <div class="rpt-sec" style="margin-top:12px"><div class="rl">파일럿 조건 (연동 없이 실행)</div><div style="font-size:var(--fs-2);color:var(--ink-mut);line-height:1.7"><b style="color:var(--ink)">P1 섀도</b> 8주 · 영업점 2~3곳 RM 5~8명 · 실제 상담 건 수기 입력 · <b style="color:var(--ink)">고객 미노출</b> · 실제 의사결정에 영향 없음(병행 기록만) · 목표 표본 80~120건<br><b style="color:var(--ink)">P2 배석</b> 8주 · 동의 고객 20~30사 · RM 배석 하 화면 공동 열람(단독 접속 없음) · 계약은 기존 프로세스로 진행<br><b style="color:var(--ink)">인프라</b> 사내 PC 브라우저 + 단일 HTML · 서버·연동 <b style="color:var(--ink)">0</b> · 고객정보 외부 전송 <b style="color:var(--ink)">0</b>(행내 생성)<br><b style="color:var(--ink)">승인(Go) 기준</b> 추천 유지율 ≥ 70% · 준법 표현 오류 0건 · 차단 판정 타당성 ≥ 90% · 고객 이해도 ≥ 70% · BBP 방향별 실측 확보<br><b style="color:var(--ink)">중단(No-Go) 기준</b> 준법 오류 발생 · 추천 유지율 &lt; 50%(룰엔진 재설계 필요) · 수입 건 BBP 실측 오차가 백테스트보다 악화<br><b style="color:var(--ink)">연동 예산 요청 근거</b> 위 실측치 — <b style="color:var(--ink)">파일럿이 연동을 기다리는 게 아니라, 파일럿 결과가 연동을 정당화한다</b></div></div>
+  </section>
+
+  <!-- 영업점 성과 뷰(설계) — "은행이 이걸로 얼마 버는가"는 지점장의 첫 질문인데 화면 답이 없었다(G 문서 F6).
+       숫자는 전부 설계 예시(가상)다 — 실측 전 수익을 주장하면 그 순간부터 이 데모의 정직성이 무너진다. -->
+  <section class="card" style="margin-top:16px">
+    <h3><span class="agent-n">▤</span> 영업점 성과 뷰 — 연동 후 화면 설계
+      <span class="dbadge" style="margin-left:6px" title="아래 수치는 전부 화면 설계용 가상 예시입니다. 실제 퍼널·수익은 P1/P2 파일럿 실측과 CRM·원장 연동 후에만 집계됩니다.">전 수치 가상 예시 · 실측 아님</span></h3>
+    <div style="font-size:var(--fs-1);color:var(--ink-mut);line-height:1.6;max-width:44em;margin:8px 0 10px">
+      지점장·RM 팀장이 보게 될 화면의 <b>설계안</b>입니다 — 진단이 상담·체결·여신으로 이어지는 퍼널과 그 폭을 봅니다.</div>
+    <div class="dwrap"><table class="spectable">
+      <thead><tr><th scope="col">퍼널 단계</th><th scope="col">건수 (예시)</th><th scope="col">집계 원천</th></tr></thead>
+      <tbody>
+        <tr><td class="k">① 환리스크 진단 완료</td><td><b>127</b></td><td>화면 자체 집계 (P1부터 가능)</td></tr>
+        <tr><td class="k">② 상담 요청 (RM 티켓)</td><td><b>34</b></td><td>화면 자체 집계 (P1부터 가능)</td></tr>
+        <tr><td class="k">③ RM 상담 진행</td><td><b>21</b></td><td>CRM 연동 필요</td></tr>
+        <tr><td class="k">④ 상품 체결 (헤지·여신·보험)</td><td><b>9</b></td><td>원장 연동 필요</td></tr>
+      </tbody>
+    </table></div>
+    <div class="metaline" style="max-width:46em"><b>체결 분해(예시)</b> — 선물환·기간형 5건(명목 합 210만불 · CEE 여신 계상 2.1만불) · K-SURE 환변동보험 3건(무여신 SME 포용) · 특별출연 수출입 금융지원 1건(신규 여신 창출). <b>부실 회피 기여</b>(급변기 미헤지 손실 예방액)는 사후 환율이 있어야 계산되므로 분기 마감 후 집계로 설계.</div>
+    <div class="guard">※ 이 카드의 모든 수치는 <b>화면 설계용 가상 예시</b>입니다. ①②는 파일럿 P1부터 실측 가능하고, ③④는 CRM·원장 연동 후에만 실측됩니다(파일럿 KPI 표와 동일한 경계).</div>
   </section>
 
   <section class="card" style="margin-top:16px">
@@ -2969,7 +3016,41 @@ function renderHedgeCompare(f){
     +'· 위험회피수단: <b>'+esc(_inst)+'</b> ('+(f.settle==="window"?"기간 인출":"만기 지정")+')<br>'
     +'· 위험회피유형: 현금흐름위험회피(cash flow hedge)<br>'
     +'· 유효성 평가: 핵심조건 일치법 — 통화·금액·만기 일치로 경제적 관계 판단<br>'
-    +'· 비고: 본 문서는 <b>초안</b>이며, 지정·유효성·회계처리(OCI 인식·재분류)는 감사인·회계법인 협의 사항입니다.</div></details>';
+    +'· 비고: 본 문서는 <b>초안</b>이며, 지정·유효성·회계처리(OCI 인식·재분류)는 감사인·회계법인 협의 사항입니다.<br>'
+    /* 세무는 회계와 갈라진다 — 법인세법상 파생 손익 인식 시점(계약 만기 vs 평가)이 K-IFRS 처리와 다를 수 있고,
+       이걸 안 알리면 "회계 초안까지 주는 서비스"가 세무 신고에서 고객을 놀라게 한다. 판정은 하지 않는다(세무사 영역). */
+    +'· <b>세무 확인(별도)</b>: 파생상품 손익의 법인세법상 귀속시기·소득구분은 회계처리와 다를 수 있습니다 — 신고 전 <b>세무대리인 확인</b> 항목으로 티켓에 표시됩니다.</div></details>';
+  /* ── 정책지원 매칭 — 보험료 지원을 빼고 비교하면 환변동보험의 실효비용을 과대평가한다.
+     중소 수출기업은 K-SURE 보험료 지원(연 한도)·지자체 단체보험·수출바우처로 보험료가 크게 줄거나 0이 될 수 있다.
+     금액은 계산하지 않는다(요율 미연동 — 보험료를 모르면서 차감액을 지어낼 수 없다). 수급 가능 제도만 판정한다. */
+  if(exp && f.biz!=="sole"){
+    const subs=[];
+    if(f.size==="sme"||f.size==="small"||f.size==="micro")
+      subs.push(["K-SURE 환변동보험 보험료 지원","중소기업 연 한도 내 보험료 지원(수출 규모 요건) — 소액 노출은 실효 보험료가 0원까지 낮아질 수 있음","확인: K-SURE 지원센터"]);
+    subs.push(["지자체 단체보험 일괄가입","소재 지자체가 무역보험공사와 단체가입한 경우 별도 서류·심사 없이 자동 편입","확인: 소재 지자체·K-SURE"]);
+    subs.push(["수출바우처 (중진공·KOTRA)","바우처 한도 내에서 환변동보험 등 무역보험 비용 집행 가능","확인: 수출바우처 포털"]);
+    h+='<details class="advform" style="margin-top:12px"><summary>▦ 정책지원 매칭 — 환변동보험 실효비용 낮추기 <span class="dbadge" title="지원 요건·한도는 대표 스냅샷(데모)입니다. 연도별 예산·요건이 바뀌므로 수급 확정은 K-SURE·지자체·바우처 운영기관 확인 사항입니다.">요건은 대표 스냅샷 · 수급 확정은 기관 확인</span></summary>'
+      +'<div class="screen" style="margin-top:8px">'
+      +subs.map(s=>'<div class="r"><span><b>'+esc(s[0])+'</b><br><span style="color:var(--ink-mut);font-size:var(--fs-1)">'+esc(s[1])+'</span></span>'
+        +'<span class="pill" style="color:var(--gold-ink);background:color-mix(in srgb,var(--gold-ink) 4%,transparent)">'+esc(s[2])+'</span></div>').join("")
+      +'</div><div class="guard">※ 위 표의 "보험료" 비용은 <b>지원 차감 전</b> 기준입니다 — 지원이 확정되면 실효 보험료가 낮아져 비교 결론이 바뀔 수 있습니다. 지원금 액수는 요율·보험료가 확정돼야 계산되므로 이 화면에서 만들지 않습니다(RM·K-SURE 확인).</div></details>';
+  }
+  /* ── 환위험관리 내규(사규) 초안 — 중소기업이 환위험 관리를 못 하는 1위 이유는 "전문인력·지식 부족"(무역협회 실태조사).
+     수단 추천만 하고 끝나면 다음 분기에 같은 자리로 돌아온다. 회사에 남는 건 규정이다 — K-IFRS 초안과 같은 결(문서 초안 생성). */
+  {
+    const _band = exp ? [30,70,50] : [50,100,75];   // 정직 프론티어의 규율(수출 50%·수입 75%)을 중심으로 한 참고 밴드
+    h+='<details class="advform" style="margin-top:12px"><summary>▦ 환위험관리 내규(사규) 초안 <span class="dbadge" title="회사 프로필로 생성한 초안입니다. 손실 한도·권한은 대표이사·이사회 승인 사항이며, 이 초안은 논의의 출발점입니다.">초안 · 확정은 사내 승인</span></summary>'
+      +'<div style="font-size:var(--fs-1);line-height:1.9;margin-top:8px">'
+      +'· 목적: '+esc(f.name||"당사")+'의 '+(exp?"수출":"수입")+' 결제 환율변동 손실을 한도 안에서 관리한다.<br>'
+      +'· 관리 대상: '+(f.currency||"USD")+' 결제 예정 거래 전건 (건당 '+(+f.amount||0).toLocaleString()+' '+(f.currency||"USD")+' 규모 기준)<br>'
+      +'· 예산환율: 결제 건별로 계약 시점에 확정하고 변경 시 사유를 기록한다 (현재 '+fmtRate(+f.budget||0)+'원)<br>'
+      +'· 손실 한도: 예산환율 대비 초과 부담이 <b>감내 한도</b>를 넘지 않도록 관리한다 (한도 금액은 대표이사 승인으로 확정)<br>'
+      +'· 헤지 정책: 확정 실수요의 <b>'+_band[2]+'%를 기본</b>으로 하는 체계적 부분헤지 ('+_band[0]+'~'+_band[1]+'% 밴드) — 환율 전망에 따른 임의 확대·축소를 금지한다<br>'
+      +'· 수단: 실수요 증빙이 확인된 KB 선물환·기간형·범위형, K-SURE 환변동보험 — 투기 목적 파생거래를 금지한다<br>'
+      +'· 권한: 헤지 실행은 재무담당 기안 + 대표이사 승인, 밴드 이탈은 사유 기록 후 승인<br>'
+      +'· 보고: 분기별 헤지 현황·평가손익·정책 준수 여부를 경영진에 보고한다<br>'
+      +'· 비고: 본 초안은 <b>논의 출발점</b>입니다 — 한도 금액·승인 체계는 회사 규모·지배구조에 맞게 확정하십시오.</div></details>';
+  }
   host.innerHTML=h;
 }
 function renderTrack(f){
@@ -3048,6 +3129,7 @@ function compute(){
      통화를 못 열었다. 이제 통화별 국면표에서 바로 읽으므로 곱할 배수 자체가 없다. */
   const rg=regimesOf(f.currency)[regimeIdx] || regimesOf("USD")[regimeIdx];
   m.sigAnn=rg.sigAnn; m.ewi=rg.ewi; m.iz=rg.iz; m.shares=rg.shares;
+  if(typeof _izDemo!=="undefined" && _izDemo) m.iz=1;   // IZ 시연 토글(가정) — 개입 감쇠 경로 활성화
   m.regimeName=rg.key; m.regimeNote=rg.note; m.regimeDate=rg.date;
   const sigEff=rg.sigAnn;                             // 통화별 실측 σ̂
   // 분할 결제면 회차별로 계산해 금액가중 합산 — 일시불이면 단일 회차라 기존과 같은 값이다
@@ -3216,7 +3298,26 @@ function compute(){
   $("h-inst").textContent = ratio>0 ? inst : "현재 관리 불필요 — 모니터링";
   $("h-prod").textContent = ratio>0 ? "→ "+prod : "급변 시 후보 · "+prod;
   $("h-ratio").textContent=Math.round(ratio*100)+"%";
-  $("h-notional").textContent=ratio? Math.round(Math.min(f.amount*ratio,f.amount)).toLocaleString()+" "+f.currency : "–";  // 26.21 실수요 상한
+  // 실수요 원장(F4): 같은 실수요 건에 이미 체결된 헤지가 있으면 신규 관리 가능액은 잔여분뿐이다.
+  // 결제금액×비율이 잔여를 넘으면 잔여로 깎는다 — 신고번호 하나에 헤지가 이중으로 걸리는 것을 화면이 막는다.
+  const _hx=HEDGED[f.name], _hedgedAmt=(_hx&&_hx.ccy===f.currency)?_hx.amount:0;
+  const _needLeft=Math.max(0, f.amount-_hedgedAmt);
+  const _rawNotional=Math.min(f.amount*ratio, f.amount);
+  const _capNotional=Math.min(_rawNotional, _needLeft);
+  $("h-notional").textContent=ratio? Math.round(_capNotional).toLocaleString()+" "+f.currency : "–";  // 26.21 실수요 상한 + 원장 잔여
+  const _lg=$("h-ledger");
+  if(_lg){
+    if(_hedgedAmt>0){
+      const _over=_hedgedAmt>=f.amount;
+      _lg.style.display="";
+      _lg.innerHTML='<b>실수요 원장</b> <span class="dbadge" title="데모 데이터 — 실서비스는 KB 원장의 실제 약정과 수출입신고번호로 자동 집계합니다.">데모 약정 기반</span> · 신고 <b>'
+        +esc(gate?gateInfo.unipass:"미확정")+'</b> · 결제 '+f.amount.toLocaleString()+' '+esc(f.currency)
+        +' · 기체결 헤지 '+_hedgedAmt.toLocaleString()+' '+esc(f.currency)
+        +' → 신규 가능 <b style="color:'+(_over?'var(--crit)':'var(--ink)')+'">'+_needLeft.toLocaleString()+' '+esc(f.currency)+'</b>'
+        +(_over?' — <b style="color:var(--crit)">이 실수요 건은 이미 전액 헤지됨 · 신규 체결 시 실수요 초과(중복헤지)</b>'
+               :(_capNotional<_rawNotional?' — 비율 기준 '+Math.round(_rawNotional).toLocaleString()+'에서 잔여분으로 조정':''));
+    } else { _lg.style.display="none"; _lg.innerHTML=""; }
+  }
   $("h-fwd").textContent=fmtRate(fwd); $("h-swap").textContent=(swap>=0?"+":"−")+fmtRate(Math.abs(swap));
   // 관리 구간이면 '왜 이 수단인지'(why)를, 모니터링 구간이면 '왜 지금 안 해도 되는지'만 말한다.
   // 둘을 이어붙이면 "…특별출연 검토. · 초과 가능성이 낮아 지켜보셔도 됩니다" 처럼 서로 반대되는 문장이 된다.
@@ -3239,7 +3340,7 @@ function compute(){
     return (a.src==="KB 공식상품"?0:1)-(b.src==="KB 공식상품"?0:1); });
   const pkgItems=kbFirst.map(x=>x.t.split("(")[0].split(" /")[0].trim()).slice(0,4);
   const pkgName=f.pos==="import"?"수입기업 결제·원가방어 패키지":(f.credit==="no"?"수출기업 여신사각지대 패키지":"수출기업 표준 수출금융·헤지 패키지");
-  const pkgBanner='<div class="it" style="border-color:var(--gold-dim);background:var(--panel-2);margin-bottom:12px"><div class="t">📦 '+pkgName+' <span class="chip A">'+propose.length+'개 제안</span></div><div class="s">'+(pkgItems.length?pkgItems.map(esc).join(" + "):"조건 확인 필요")+'</div></div>';
+  const pkgBanner='<div class="it" style="border-color:var(--gold-dim);background:var(--panel-2);margin-bottom:12px"><div class="t">▣ '+pkgName+' <span class="chip A">'+propose.length+'개 제안</span></div><div class="s">'+(pkgItems.length?pkgItems.map(esc).join(" + "):"조건 확인 필요")+'</div></div>';
   renderAdvisor(recs,f);
   $("advisor").insertAdjacentHTML("afterbegin",pkgBanner);
   $("guard").textContent="※ 상품 자격·조건은 시점에 따라 달라질 수 있습니다.";
@@ -3251,6 +3352,7 @@ function compute(){
                 sigAnn:m.sigAnn, regimeName:(regimesOf(f.currency)[regimeIdx]||{}).key||"현재"};
   renderTimeline(f,_tlCtx); renderBeforeAfter(f,_tlCtx); renderKPI(f,_tlCtx); renderNextSteps(f,_tlCtx);
   renderLifecycle(f,_tlCtx);
+  renderLcDocs(f);
 
   // LLM Advisor용 최신 컨텍스트 저장(1순위 우선 정렬 상품 후보 포함)
   const _prodPrimary=primaryProduct(recs,f.biz);
@@ -3344,6 +3446,7 @@ function compute(){
           : dutyApply<10000 ? "원산지 증명 시 관세 없음" : "예상 관세 "+won(dutyApply)));
 
   renderScreening(f);
+  renderRmQueue(f);
   applyGate();
 }
 
@@ -3361,13 +3464,25 @@ const SANC_CTY={
   "일본":  ["정상 · 일치 없음","var(--good)"],
   "기타":  ["미확인 · 거래국 미지정(조회 보류)","var(--elev)"]
 };
+/* 이중용도는 품목 하나(HS 8542)가 아니라 [HS 대분류 × 목적국] 조합으로 봐야 한다 —
+   전략물자관리원 판정 실무가 그렇고, 같은 반도체도 목적국에 따라 허가 필요 여부가 갈린다.
+   대분류 표는 대표 스냅샷(데모)이며, 실서비스는 전략물자관리시스템(YesTrade) 판정 연동이 로드맵이다. */
+const DUAL_HS={"84":"산업기계·공작기계류","85":"전자·반도체","88":"항공·우주","90":"정밀·계측기기"};
+const DUAL_HI_DEST={"중국":1,"기타":1};   // 허가 심사 강화 목적국(대표 스냅샷) — '기타'는 미지정이라 보수적으로
+function dualUse(hs,country){
+  const cat=DUAL_HS[String(hs||"").slice(0,2)];
+  if(!cat) return ["해당 없음","var(--good)"];
+  return DUAL_HI_DEST[country]
+    ? ["주의 · 이중용도("+cat+") × 목적국 조합 — 전략물자 판정 필요","var(--warn)"]
+    : ["확인 권장 · 이중용도 대분류("+cat+") — 최종용도·수하인 확인","var(--elev)"];
+}
 function renderScreening(f){
   if(!_sancCheckedAt) _sancCheckedAt=new Date().toLocaleString("ko-KR",{hour12:false});
   const cty=SANC_CTY[f.country]||SANC_CTY["기타"];
   // 거래상대방은 실수요 증빙(OCR)으로 확정되기 전까지 '조회 대상 미확정' — 통과 표시 금지
   const known=gate && gateInfo.party && gateInfo.party!=="–";
   const cp=known?["정상 · 일치 없음","var(--good)"]:["미확인 · 조회 대상 미확정(서류 확인 후 조회)","var(--elev)"];
-  const dual=(f.hs==="8542")?["주의 · 전략물자(반도체) 판정 필요","var(--warn)"]:["해당 없음","var(--good)"];
+  const dual=dualUse(f.hs,f.country);
   $("gov-aml").innerHTML=[
     ["거래국 제재(OFAC/UN/EU) · "+esc(f.country), cty],
     ["거래상대방 watchlist · "+(known?esc(maskPII(gateInfo.party)):"미확정"), cp],
@@ -3380,6 +3495,48 @@ function renderScreening(f){
     +"<br>조회 대상 · 거래국 <b>"+esc(f.country)+"</b> / 거래상대방 <b>"+(known?esc(maskPII(gateInfo.party)):"미확정")+"</b> / 품목 <b>HS "+esc(f.hs)+"</b>";
   // pill 색이 이미 상태를 말한다 → 정의 나열 대신 '지금 무엇을 해야 하나'만 남긴다
   $("gov-note").innerHTML=(known?'':'<b style="color:var(--elev)">거래상대방 미확정</b> — 서류 확인 전까지 환리스크 관리 상담이 잠깁니다.');
+}
+/* ══════════ RM 워크벤치 큐 (F5) ══════════
+   한 RM은 기업 하나가 아니라 '기업 여러 개가 든 큐'를 든다. "어느 건부터 볼 것인가"에
+   도구가 답하지 못하면 RM 은 안 쓴다(G 문서 GAP-5). BBP 는 큐에서도 실계산 —
+   국면 스트레스를 바꾸면 줄 서는 순서가 바뀐다("급변기에 누가 먼저 위험해지는가"가 한눈에). */
+const RMQ_SLA={  // 요청 경과(분)·응답기한(분) — 데모 설계값. 실서비스는 RM 업무함 타임스탬프.
+  "한빛정밀":{age:38,  sla:240, via:"기업뱅킹 상담요청"},
+  "대성무역":{age:214, sla:240, via:"영업점 방문 예약"},
+  "소망전자":{age:97,  sla:240, via:"기업뱅킹 상담요청"},
+  "나래상사":{age:186, sla:240, via:"RM 아웃바운드(경보)"},
+  "하늘샵":  {age:12,  sla:480, via:"글로벌셀러 우대 신청"}
+};
+function renderRmQueue(f){
+  const host=$("rmq-table"); if(!host) return;
+  const rg=(REG.USD[regimeIdx]||REG.USD[0]);
+  const rows=PRESETS.map((p,i)=>{
+    const bbp=bbpProb(CUR.USD.spot,p.budget,rg.sigAnn,p.horizon,p.pos,rg.iz)*100;
+    // _statusOf(대시보드)는 두 번째 script 블록에 있어 부트 첫 compute 시점엔 아직 없다 — 같은 임계로 자체 판정
+    const st=bbp>=60?["경보","var(--crit)"]:bbp>=40?["검토","var(--elev)"]:["안정","var(--good)"];
+    const q=RMQ_SLA[p.name]||{age:0,sla:240,via:"—"};
+    return {i:i,p:p,bbp:bbp,st:st,q:q,late:q.age>=q.sla,near:q.age>=q.sla*0.75};
+  }).sort((a,b)=> (b.late-a.late) || (b.bbp-a.bbp));
+  host.innerHTML='<thead><tr><th scope="col">기업 · 요청 경로</th><th scope="col">거래</th>'
+    +'<th scope="col">BBP</th><th scope="col">상태</th><th scope="col">응답기한</th></tr></thead><tbody>'
+    +rows.map(r=>{
+      const cur=r.p.name===f.name;
+      const slaCol=r.late?"var(--crit)":(r.near?"var(--elev)":"var(--ink-mut)");
+      const slaTxt=r.late?"기한 초과 "+(r.q.age-r.q.sla)+"분":("경과 "+r.q.age+"분 / "+Math.round(r.q.sla/60)+"h");
+      return '<tr class="rmq-r'+(cur?' on':'')+'" data-i="'+r.i+'" tabindex="0" role="button" '
+        +'aria-label="'+esc(r.p.name)+' 상세 열기" style="cursor:pointer'+(cur?';background:color-mix(in srgb,var(--brand) 6%,transparent)':'')+'">'
+        +'<td class="k">'+esc(r.p.name)+(cur?' <span class="tagm">보는 중</span>':'')
+        +'<br><span style="font-weight:400;color:var(--ink-faint);font-size:var(--fs-1)">'+esc(r.q.via)+'</span></td>'
+        +'<td>'+(r.p.pos==="import"?"수입":"수출")+' · '+r.p.amount.toLocaleString()+' USD · D+'+r.p.horizon+'</td>'
+        +'<td style="font-weight:800;color:'+bbpColor(r.bbp)+'">'+r.bbp.toFixed(1)+'%</td>'
+        +'<td><span class="pill" style="color:'+r.st[1]+';background:color-mix(in srgb,'+r.st[1]+' 4%,transparent)">'+r.st[0]+'</span></td>'
+        +'<td style="color:'+slaCol+';font-weight:'+(r.late?800:600)+'">'+slaTxt+'</td></tr>';
+    }).join("")+'</tbody>';
+  host.querySelectorAll(".rmq-r").forEach(tr=>{
+    const open=()=>{ const p=PRESETS[+tr.dataset.i]; if(p && p.name!==f.name){ fillPreset(p); logAudit("RM 큐 전환",p.name); } };
+    tr.addEventListener("click",open);
+    tr.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); open(); } });
+  });
 }
 // '권유보류'(F1 적정성)는 '차단'(법규·자격)과 색을 나눈다 — 원인이 다르면 색도 달라야 한다.
 const ST_COL={"추천":"var(--good)","상담후보":"var(--gold)","RM확인":"var(--elev)","검토":"var(--warn)","확인필요":"var(--elev)","보류":"var(--elev)","제외":"var(--ink-faint)","차단":"var(--crit)","권유보류":"var(--elev)","한도초과":"var(--crit)"};
@@ -3636,6 +3793,16 @@ function renderLifecycle(f,ctx){
     ["현재 실수요(결제금액)", need.toLocaleString()+" "+esc(h.ccy)],
     ["헤지 비율", ratio.toFixed(0)+"% <span style=\"color:var(--ink-faint)\">(체결금액 ÷ 실수요)</span>"]
   ];
+  /* 정책 준수(내규 밴드) — 내규 초안이 정한 부분헤지 밴드에 현재 커버리지가 들어있는지.
+     "정책 대비 지금 어디인가"는 트레저리 도구의 기본 질문인데 비율 숫자만으로는 답이 안 보인다. */
+  {
+    const _bnd = f.pos==="export" ? [30,70] : [50,100];
+    const _in = ratio>=_bnd[0] && ratio<=_bnd[1];
+    rows.push(["정책 밴드 준수 <span class=\"tagm\" title=\"내규 초안(헤지수단 비교 카드)의 체계적 부분헤지 밴드 기준 — 내규 확정 전 참고 판정입니다.\">내규 초안 기준</span>",
+      (_in?'<b style="color:var(--good)">준수</b>':'<b style="color:var(--elev)">밴드 이탈</b>')
+      +' · 현재 '+ratio.toFixed(0)+'% / 밴드 '+_bnd[0]+'~'+_bnd[1]+'%'
+      +(_in?'':' — 이탈 사유 기록·승인 대상(내규 초안 §권한)')]);
+  }
   let hh='<div class="dwrap"><table class="spectable"><tbody>'
     + rows.map(r=>'<tr><td class="k">'+r[0]+'</td><td>'+r[1]+'</td></tr>').join("")
     + '</tbody></table></div>';
@@ -3690,6 +3857,22 @@ function renderLifecycle(f,ctx){
       }).join("")
     +'</tbody></table></div>';
   hh+='<div class="metaline"><b>판정</b> '+esc(st.advice)+'</div>';
+  /* 마진콜 "확률" — 시나리오 격자(±1σ·±2σ)는 "일어나면 얼마"만 답한다. "일어날 가능성"은 별개 질문이고,
+     같은 Student-t 엔진으로 답할 수 있다. 만기 시점 기준 근사(경로상 최댓값 아님 → 실제 확률은 이보다 높다). */
+  {
+    const _trigRate = f.pos==="import" ? h.rate*(1-MARGIN_CALL_PCT) : h.rate*(1+MARGIN_CALL_PCT);  // import 매수: 원화 강세(하락)가 아픔
+    const _tau=h.dueBd/TRADING, _den=ctx.sigAnn*Math.sqrt(_tau);
+    let _pMc=NaN;
+    if(_den>0){ const _z=(Math.log(_trigRate)-Math.log(ctx.spot))/_den;
+      _pMc = f.pos==="import" ? tcdf(_z,NU) : 1-tcdf(_z,NU); }
+    if(isFinite(_pMc)){
+      const _pc=_pMc*100, _pcol=_pc>=25?"var(--crit)":(_pc>=10?"var(--elev)":"var(--good)");
+      hh+='<div class="metaline" style="max-width:44em"><b>추가담보 요구 가능성</b> <b style="color:'+_pcol+'">'
+        +(_pc<0.1?"0.1% 미만":_pc.toFixed(1)+"%")+'</b>'
+        +' — 만기까지 환율이 트리거('+fmtRate(_trigRate)+'원, 평가손 명목 '+(MARGIN_CALL_PCT*100).toFixed(0)+'% 지점)를 '
+        +(f.pos==="import"?"하향":"상향")+' 돌파할 가능성(현 국면 σ · Student-t · <b>만기 시점 기준 근사</b> — 경로상 일시 돌파까지 세면 이보다 높습니다).</div>';
+    }
+  }
   if(sz){
     /* 막기만 하지 않고 숫자를 준다 — 다음 체결 때 쓰는 사전 규율이기도 하다. */
     hh+='<div class="blockbox"><b>체결 명목이 과다했습니다</b><br>'
@@ -3709,21 +3892,81 @@ function renderLifecycle(f,ctx){
   hh+='<div class="guard">※ 해지 정산금·스왑포인트·수수료는 고시 조건이 필요해 <b>RM·영업점이 확정</b>합니다.</div>';
   host.innerHTML=hh;
 }
+/* ══════════ L/C 문서심사 상태 ══════════
+   신용장 거래의 1차 리스크는 환율이 아니라 서류 하자(discrepancy)다 — 하자가 나면 Nego(매입)가 밀리고,
+   대금 회수 일정이 밀리면 걸어둔 헤지 만기와 어긋난다(롤오버). 문서심사 상태를 헤지 일정 옆에 두는 이유다.
+   정직성: 심사 상태는 데모 데이터(배지 표시). 실서비스는 KB 무역금융 신용장 원장·SWIFT MT700/754 연동. */
+const LCDOC={
+  "한빛정밀":{no:"M04Q2607NU00291", openBank:"Bank of America, N.A. (개설)", advBank:"KB국민은행 (통지·매입)",
+    expiry:"2026-08-14", latestShip:"2026-07-31", tenor:"Usance 60일",
+    docs:[["상업송장 (Commercial Invoice)","확인","var(--good)"],
+          ["선하증권 (B/L)","확인","var(--good)"],
+          ["포장명세서 (Packing List)","확인","var(--good)"],
+          ["원산지증명서 (C/O)","심사 중","var(--warn)"],
+          ["검사증명서 (Inspection Cert.)","L/C 요구 없음","var(--ink-faint)"]],
+    disc:[["경미 하자 1건 — 해소","B/L 통지처 표기 상이 → 정정본 재제시로 해소(2026-07-18). 하자 수수료 발생 여부 RM 확인."]]}
+};
+function renderLcDocs(f){
+  const card=$("lcdoc-card"), host=$("lcdoc-body"); if(!card||!host) return;
+  if(f.pay!=="LC"){ card.style.display="none"; return; }
+  card.style.display="";
+  const d=LCDOC[f.name];
+  if(!d){
+    host.innerHTML='<div class="metaline" style="max-width:44em">결제방식이 <b>신용장(L/C)</b>입니다 — 서류 접수 전이라 심사 상태가 없습니다. '
+      +'선적서류 제시 후 이 자리에서 <b>하자(discrepancy) 여부·Nego 가능 여부</b>를 관리합니다. '
+      +'하자로 대금 회수가 밀리면 <b>헤지 만기 롤오버</b>가 필요해집니다(체결 후 관리 카드와 연동).</div>';
+    return;
+  }
+  let h='<div class="dwrap"><table class="spectable"><tbody>'
+    +[["신용장 번호",esc(d.no)],["개설·매입은행",esc(d.openBank)+"<br>"+esc(d.advBank)],
+      ["유효기일 · 최종선적일",esc(d.expiry)+" · "+esc(d.latestShip)],["기한부 조건",esc(d.tenor)]]
+      .map(r=>'<tr><td class="k">'+r[0]+'</td><td>'+r[1]+'</td></tr>').join("")
+    +'</tbody></table></div>';
+  h+='<div class="vsub" style="margin-top:8px">제시 서류 심사</div>';
+  h+='<div class="screen">'+d.docs.map(r=>'<div class="r"><span>'+esc(r[0])+'</span>'
+    +'<span class="pill" style="background:color-mix(in srgb,'+r[2]+' 4%,transparent);color:'+r[2]+'">'+esc(r[1])+'</span></div>').join("")+'</div>';
+  h+=d.disc.map(x=>'<div class="metaline" style="max-width:44em"><b style="color:var(--elev)">'+esc(x[0])+'</b><br>'+x[1]+'</div>').join("");
+  h+='<div class="guard">※ 하자 통지(불일치)가 나면 <b>매입(Nego)이 지연</b>되고 대금 회수가 밀립니다 — 회수 일정이 바뀌면 '
+    +'<b>헤지 만기 불일치(롤오버)</b>를 체결 후 관리에서 함께 점검하세요. 심사·하자 판정의 최종 확인은 KB 무역금융 담당입니다.</div>';
+  host.innerHTML=h;
+}
+/* 경제 이벤트 캘린더(스냅샷) — 만기 전에 금리 결정·물가 발표가 몇 번 지나가는지는 변동성의 시간표다.
+   기준일(2026-07-06) 시점의 공개 일정 스냅샷이며 예측이 아니다. 실서비스는 경제 캘린더 피드 연동(KB Star FX 기보유). */
+const ECON_EVENTS=[
+  {date:"2026-07-16", t:"미 CPI 발표"},
+  {date:"2026-07-29", t:"FOMC 금리 결정"},
+  {date:"2026-08-13", t:"한은 금통위 기준금리"},
+  {date:"2026-08-14", t:"미 CPI 발표"},
+  {date:"2026-09-17", t:"FOMC 금리 결정"},
+  {date:"2026-10-15", t:"한은 금통위 기준금리"}
+];
+function _bdFromBase(dateStr){  // 기준일 이후 영업일 수 근사(달력일 × 5/7) — 마커 위치용이라 ±1일 오차는 허용
+  const ms=new Date(dateStr+"T00:00:00")-new Date(MARKET.date+"T00:00:00");
+  return Math.round(ms/86400000*5/7);
+}
 function renderTimeline(f,ctx){
   const H=Math.max(5,f.horizon|0), imp=f.pos==="import", flag=flagshipName(ctx.recs,f.biz);
   const endLbl=imp?"수입대금 결제/상환":"수출대금 회수";
   const credStep=(f.credit==="no")?"K-SURE 보증 가능 여부·한도 확인":"여신·한도 확인";
   const docStep=imp?"수입계약서·Invoice·운송서류 확인":"수출계약서·Invoice·선적서류 확인";
   const rows=[
-    {d:"D-"+H, t:"오늘 · BBP "+Math.round(ctx.bbp)+"% · "+flag+" 검토", now:true},
-    {d:"D-"+Math.round(H*0.82), t:docStep},
-    {d:"D-"+Math.round(H*0.6), t:credStep},
-    {d:"D-"+Math.round(H*0.4), t:flag+" 신청 또는 조건 검토"},
-    {d:"D-"+Math.max(3,Math.round(H*0.18)), t:"헤지 상담 여부 RM 재판정"},
-    {d:"D-Day", t:endLbl}
+    {rem:H, d:"D-"+H, t:"오늘 · BBP "+Math.round(ctx.bbp)+"% · "+flag+" 검토", now:true},
+    {rem:Math.round(H*0.82), d:"D-"+Math.round(H*0.82), t:docStep},
+    {rem:Math.round(H*0.6), d:"D-"+Math.round(H*0.6), t:credStep},
+    {rem:Math.round(H*0.4), d:"D-"+Math.round(H*0.4), t:flag+" 신청 또는 조건 검토"},
+    {rem:Math.max(3,Math.round(H*0.18)), d:"D-"+Math.max(3,Math.round(H*0.18)), t:"헤지 상담 여부 RM 재판정"},
+    {rem:0, d:"D-Day", t:endLbl}
   ];
-  $("timeline").innerHTML=rows.map(r=>'<div class="n'+(r.now?' now':'')+'"><div class="dm">'+r.d+'</div><div class="bar"></div><div class="dt">'+esc(r.t)+'</div></div>').join("");
-  $("tl-sub").textContent=f.name+" · "+(imp?"수입":"수출")+" · 만기 "+H+"영업일";
+  // 만기 안에 드는 이벤트를 마커로 끼워 넣는다 — "결제 전에 금리 결정이 두 번"은 상담을 미루지 않을 이유가 된다
+  const evs=ECON_EVENTS.map(e=>({bd:_bdFromBase(e.date), t:e.t, date:e.date}))
+    .filter(e=>e.bd>0 && e.bd<=H);
+  evs.forEach(e=>rows.push({rem:H-e.bd, d:"D-"+(H-e.bd), t:"◈ "+e.t+" ("+e.date.slice(5).replace("-","/")+") — 변동성 유의", ev:true}));
+  rows.sort((a,b)=>b.rem-a.rem || (a.now?-1:0));
+  $("timeline").innerHTML=rows.map(r=>'<div class="n'+(r.now?' now':'')+'">'
+    +'<div class="dm">'+r.d+'</div><div class="bar"></div>'
+    +'<div class="dt"'+(r.ev?' style="color:var(--gold-ink)"':'')+'>'+esc(r.t)+'</div></div>').join("");
+  const _evNote=evs.length?(' · 만기 전 예정 이벤트 '+evs.length+'건('+MARKET.date+' 기준 공표 일정)'):'';
+  $("tl-sub").textContent=f.name+" · "+(imp?"수입":"수출")+" · 만기 "+H+"영업일"+_evNote;
 }
 // 7.7 Before → After (발표용)
 function renderBeforeAfter(f,ctx){
@@ -4083,6 +4326,9 @@ $("tk-spot").textContent=MARKET.spot.toFixed(1);
 
 /* ══════════ 시장 국면 스트레스 토글 ══════════ */
 let regimeIdx=0;
+let _izDemo=false;   // IZ(정책개입 감쇠) 시연 토글 — compute 가 m.iz 에 반영
+{ const _izEl=$("iz-toggle");
+  if(_izEl) _izEl.addEventListener("change",()=>{ _izDemo=_izEl.checked; compute(); logAudit("IZ 개입 가정 토글", _izDemo?"ON(×0.7 감쇠)":"OFF"); }); }
 // 현재 결제통화 — 엔진에 없는 값이 폼에 들어와도 USD 로 방어한다
 function curCode(){ const e=$("in-cur"); return (e && CUR[e.value]) ? e.value : "USD"; }
 function setRegime(i){ const r=regimesOf(curCode())[i]; regimeIdx=i;
@@ -4505,7 +4751,7 @@ function maskPII(s){ s=String(s); return s.length<=2?s:s.slice(0,2)+"●".repeat
 function setMode(m){ const r=document.documentElement; r.setAttribute("data-mode",m);
   // 고객 모드면 클릭 시 RM으로, RM 모드면 클릭 시 고객으로
   // textContent 로 덮으면 아이콘/라벨 스팬이 사라져 좁은 화면 축약이 깨진다 → 스팬만 갱신
-  $("modebtn-em").textContent = m==="customer" ? "👤" : "🙍";
+  $("modebtn-em").textContent = m==="customer" ? "○" : "◉";
   $("modebtn-lb").textContent = m==="customer" ? "RM 내부 화면 보기" : "고객 화면 보기";
   $("modebtn").setAttribute("aria-label", m==="customer" ? "RM 내부 화면 보기" : "고객 화면 보기");
   // §6 CTA는 고객 행동 언어 vs 내부 업무 용어로 전환
@@ -4621,7 +4867,17 @@ $("themebtn").addEventListener("click",()=>{
 
 /* 초기 = 현재 국면 + 나래상사(수입·이탈압력) — 첫 화면에서 리스크 상태를 보여준다(2.2) */
 setRegime(0);
-fillPreset(PRESETS[3]);
+/* URL 딥링크(발표·공유 지원) — ?preset=회사명&regime=0~4 로 특정 장면을 바로 연다.
+   file:// 에서도 location.search 는 동작한다. 파싱 실패·모르는 값은 조용히 기본값(재현성 유지). */
+let _bootPreset=PRESETS[3];
+try{
+  const _q=new URLSearchParams(location.search);
+  const _pn=_q.get("preset");
+  if(_pn){ const _pp=PRESETS.find(p=>p.name===_pn||p.label===_pn); if(_pp) _bootPreset=_pp; }
+  const _rg=parseInt(_q.get("regime"),10);
+  if(!isNaN(_rg) && _rg>=0 && _rg<REG.USD.length) setRegime(_rg);
+}catch(e){}
+fillPreset(_bootPreset);
 // 첫 화면 AI 요약 자동 생성(1회) — 심사위원이 버튼 안 눌러도 핵심 기능이 바로 보이게.
 // 워커 미설정·장애 시에도 로컬 폴백 요약이 뜨므로 항상 실행(발표 중 빈 화면·오류문구 방지).
 setTimeout(function(){ if(typeof generateAdvisorBrief==="function") generateAdvisorBrief(); },1200);
@@ -4774,7 +5030,7 @@ function _recurCard(){
                   .sort(function(x,y){ return y.r.bbp-x.r.bbp; });
   if(!rows.length) return "";
   var alerts=rows.filter(function(x){ return x.r.alert; }).length;
-  var h='<section class="card" style="margin-top:12px"><h3><span class="agent-n">📅</span> 다가오는 반복 결제 '
+  var h='<section class="card" style="margin-top:12px"><h3><span class="agent-n">◇</span> 다가오는 반복 결제 '
     + '<span class="dbadge">계약 전 선제 진단</span></h3>'
     + '<div style="font-size:var(--fs-1);color:var(--ink-mut);line-height:1.6;max-width:44em;margin:10px 0 4px">과거 반복 주기로 다음 회차 결제 시점을 잡아 계산했습니다 — <b>이번 회차의 예산환율을 그대로 쓴다고 가정</b>한 값입니다.</div>'
     + '<div class="dwrap"><table class="spectable" id="recur-table"><thead><tr>'
@@ -4932,8 +5188,8 @@ function renderFx(){
   h+='<div class="guard" style="margin-top:12px">※ 여기 시세는 <b>참고용</b>이며 <b>KB 고시환율이 아닙니다</b> — 적용 환율은 상담 시점 KB 고시로 확정됩니다. 진단은 <b>USD·EUR·JPY</b>만 지원합니다.'
     +'<span class="internal-only"> 기본값은 <b>기준일 고정 시세('+esc(MARKET.date)+')</b>, 당일 참고시세는 공개 API 현물값(실패 시 기준일 시세 유지). CNY·VND 는 공개 소스의 변동성 실측을 신뢰할 수 없어 열지 않았습니다 — KB 고시환율 연동 시 개방 가능.</span></div>';
   h+='<div class="grid2" style="margin-top:18px">';
-  h+='<section class="card"><h3><span class="agent-n">🔔</span> 목표환율 알림</h3><div class="alertset"><div class="f"><label for="fx-cur">통화</label><select id="fx-cur">'+opts+'</select></div><div class="f"><label for="fx-tgt">목표환율(원)</label><input id="fx-tgt" type="number" placeholder="예: 1450"></div><button type="button" class="go" id="fx-set" style="width:auto;margin-top:0;padding:9px 16px">알림 설정</button></div><div id="fx-alerts" style="margin-top:12px"></div></section>';
-  h+='<section class="card"><h3><span class="agent-n">📅</span> 경제 캘린더</h3><div class="cal">'+cal.map(e=>'<div class="c"><span class="cd">'+e[0]+'</span><span>'+esc(e[1])+'</span>'+(e[2]?'<span class="ci">'+e[2]+'</span>':'<span></span>')+'</div>').join("")+'</div></section>';
+  h+='<section class="card"><h3><span class="agent-n">▲</span> 목표환율 알림</h3><div class="alertset"><div class="f"><label for="fx-cur">통화</label><select id="fx-cur">'+opts+'</select></div><div class="f"><label for="fx-tgt">목표환율(원)</label><input id="fx-tgt" type="number" placeholder="예: 1450"></div><button type="button" class="go" id="fx-set" style="width:auto;margin-top:0;padding:9px 16px">알림 설정</button></div><div id="fx-alerts" style="margin-top:12px"></div></section>';
+  h+='<section class="card"><h3><span class="agent-n">◇</span> 경제 캘린더</h3><div class="cal">'+cal.map(e=>'<div class="c"><span class="cd">'+e[0]+'</span><span>'+esc(e[1])+'</span>'+(e[2]?'<span class="ci">'+e[2]+'</span>':'<span></span>')+'</div>').join("")+'</div></section>';
   h+='</div>';
   document.getElementById("view-fx").innerHTML=h;
   _fxRenderAlerts();
@@ -5113,16 +5369,16 @@ var SUPPORT_GLOSS=[
 function renderSupport(){
   var h='<div class="pagehead"><div><h2>고객센터</h2></div></div>';
   h+='<div class="grid2" style="align-items:start">';
-  h+='<section class="card"><h3><span class="agent-n">🎧</span> 담당 RM 상담</h3><div class="rmwho" style="margin-top:8px"><div class="av">KB</div><div><div class="rn">김국민 책임매니저</div><div class="rs">KB국민은행 기업금융 · 외환 전담</div></div></div>'
+  h+='<section class="card"><h3><span class="agent-n">✆</span> 담당 RM 상담</h3><div class="rmwho" style="margin-top:8px"><div class="av">KB</div><div><div class="rn">김국민 책임매니저</div><div class="rs">KB국민은행 기업금융 · 외환 전담</div></div></div>'
     +'<div class="rmact"><button type="button" class="pri" id="sup-book">상담 예약 요청</button><button type="button" id="sup-call">전화 연결</button><button type="button" id="sup-msg">메시지 보내기</button></div></section>';
-  h+='<section class="card"><h3><span class="agent-n">✉</span> 문의하기</h3>'
+  h+='<section class="card"><h3><span class="agent-n">✎</span> 문의하기</h3>'
     +'<div class="form" style="grid-template-columns:1fr"><div class="f"><label for="sup-type">문의 유형</label><select id="sup-type"><option>환리스크·헤지 상담</option><option>수출입 금융상품</option><option>정책자금·보증</option><option>서비스 이용 문의</option><option>기타</option></select></div>'
     +'<div class="f"><label for="sup-text">내용</label><textarea id="sup-text" rows="4" style="background:var(--panel-2);border:1px solid var(--line-solid);border-radius:var(--r-sm);padding:8px 10px;color:var(--ink);font-family:inherit;font-size:var(--fs-2);resize:vertical;min-width:0" placeholder="문의 내용을 입력하세요"></textarea></div></div>'
     +'<button type="button" class="colcta" id="sup-send" style="margin-top:12px">문의 보내기</button></section>';
   h+='</div>';
   h+='<section class="card" style="margin-top:16px"><h3><span class="agent-n">?</span> 자주 묻는 질문</h3><div class="faq" style="margin-top:8px">'
     +SUPPORT_FAQ.map(q=>'<details><summary>'+esc(q[0])+'</summary><div class="fa">'+esc(q[1])+'</div></details>').join("")+'</div></section>';
-  h+='<section class="card" style="margin-top:16px"><h3><span class="agent-n">📖</span> 쉬운 용어 설명</h3><div class="gloss" style="margin-top:8px">'
+  h+='<section class="card" style="margin-top:16px"><h3><span class="agent-n">✎</span> 쉬운 용어 설명</h3><div class="gloss" style="margin-top:8px">'
     +SUPPORT_GLOSS.map(g=>'<div class="g"><div class="gt">'+esc(g[0])+'</div><div class="gd">'+esc(g[1])+'</div></div>').join("")+'</div></section>';
   document.getElementById("view-support").innerHTML=h;
   document.getElementById("sup-book").addEventListener("click",()=>toast("상담 예약 요청이 접수되었습니다(데모)"));
@@ -5138,12 +5394,12 @@ function renderSupport(){
   function renderNotifs(){
     var items=[];
     PRESETS.forEach(function(p,i){ if(p.horizon<=21) items.push(["⏰","<b>"+esc(p.name)+"</b> 결제 만기 D-"+p.horizon+" 임박",i]); });
-    PRESETS.forEach(function(p,i){ var d=_deal(p); if(d.bbp>=40) items.push(["🔔","<b>"+esc(p.name)+"</b> 예산환율 초과 가능성 "+d.bbp.toFixed(1)+"% — 환리스크 관리 검토",i]); });
+    PRESETS.forEach(function(p,i){ var d=_deal(p); if(d.bbp>=40) items.push(["▲","<b>"+esc(p.name)+"</b> 예산환율 초과 가능성 "+d.bbp.toFixed(1)+"% — 환리스크 관리 검토",i]); });
     /* 선제 알림: 아직 계약도 안 한 다음 회차를 미리 경보한다 — 위 두 줄은 이미 잡힌 거래에 대한 사후 반응이다 */
     PRESETS.forEach(function(p,i){ var r=recurOf(p);
-      if(r && r.alert) items.push(["📅","<b>"+esc(p.name)+"</b> 다음 회차(D+"+r.dueBd+") 예상 초과 가능성 "+r.bbp.toFixed(1)+"% — <b>계약 전</b> 예산환율 상담 권장",i]); });
+      if(r && r.alert) items.push(["◇","<b>"+esc(p.name)+"</b> 다음 회차(D+"+r.dueBd+") 예상 초과 가능성 "+r.bbp.toFixed(1)+"% — <b>계약 전</b> 예산환율 상담 권장",i]); });
     var alertN=items.length;
-    items.push(["💱","환율 "+(_ratesInfo.live?"당일 참고시세":"기준일 시세")+" · "+esc(_ratesInfo.asof),-1]);
+    items.push(["⇄","환율 "+(_ratesInfo.live?"당일 참고시세":"기준일 시세")+" · "+esc(_ratesInfo.asof),-1]);
     var badge=document.getElementById("notif-badge");
     if(badge){ badge.textContent=alertN; badge.style.display=alertN?"grid":"none"; }
     var list=document.getElementById("notif-list");
