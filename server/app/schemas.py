@@ -215,6 +215,25 @@ class AssessResponse(BaseModel):
     disclaimer: str
 
 
+class NarrateRequest(BaseModel):
+    """LLM 설명층 요청. 숫자는 서버가 trade 로부터 다시 계산한다(화면 값 안 믿음)."""
+    trade: TradeInput
+    market: Optional[MarketOverride] = None
+
+
+class NarrateResponse(BaseModel):
+    narrative: str
+    # 'llm' = LLM 생성 + 가드레일 통과 · 'template' = 규칙 폴백(키 미설정·실패·환각 차단)
+    source: Literal["llm", "template"]
+    grounded: bool                      # 출력 숫자가 전부 계산값에 근거하는가
+    model: Optional[str] = None         # LLM 모델(폴백이면 null)
+    bbp_pct: float                      # 설명의 근거가 된 결정론 수치(추적성)
+    engine_version: str
+    market_source: str
+    audit_id: str
+    disclaimer: str
+
+
 class TicketRequest(BaseModel):
     trade: TradeInput
     note: str = Field(default="", max_length=2000)

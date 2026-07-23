@@ -26,6 +26,7 @@ from . import hedging
 from . import lifecycle
 from . import limits as limits_mod
 from . import mtm as mtm_mod
+from . import narrate as narrate_mod
 from . import portfolio
 from . import screening as screening_mod
 from . import suitability as suit_mod
@@ -38,10 +39,10 @@ from .schemas import (AckRequest, AckResponse, AlertEvalRequest, AlertEvalRespon
                       AlertOut, AssessRequest, AssessResponse, ConsumerInput, DealCreate,
                       DealOut, DealTransition, EligDecision, HedgeOp, HedgeSchedule,
                       KeyFactsRequest, KeyFactsResponse, LimitInputModel, LimitOut,
-                      MarketResponse, MtmRequest, MtmResponse, PortfolioLeg,
-                      PortfolioRequest, PortfolioResponse, ProductOut, ProductsResponse,
-                      RuleCreate, RuleOut, SalesGateOut, ScreeningRequest,
-                      ScreeningResponse, TicketRequest, TicketResponse)
+                      MarketResponse, MtmRequest, MtmResponse, NarrateRequest,
+                      NarrateResponse, PortfolioLeg, PortfolioRequest, PortfolioResponse,
+                      ProductOut, ProductsResponse, RuleCreate, RuleOut, SalesGateOut,
+                      ScreeningRequest, ScreeningResponse, TicketRequest, TicketResponse)
 
 log = logging.getLogger("fx_sentinel.api")
 
@@ -250,6 +251,44 @@ def assess(req: AssessRequest,
         audit_id=audit_id,
         disclaimer=DISCLAIMER,
     )
+
+
+# ── LLM 설명층 ──────────────────────────────────────────────────────
+@app.post("/v1/narrate", response_model=NarrateResponse)
+def narrate(req: NarrateRequest,
+            p: Principal = Depends(current_principal)) -> NarrateResponse:
+    """진단 결과를 자연어로 설명한다. **숫자는 서버 엔진이 다시 계산**하고, LLM은 그 숫자를 서술만 한다.
+
+    안전장치(narrate.py): 그라운딩(계산값만) · 데이터 최소화(기업명·예산환율·금액 미전송) ·
+    폴백(LLM 미가용/실패/환각이면 규칙 템플릿). 기본값은 template — LLM 은 opt-in(AI_NARRATE_ENABLED).
+    """
+    if req.market is not None and not p.has("rm", "branch", "compliance", "admin"):
+        raise HTTPException(status_code=403, detail="시장상태 주입은 RM 이상 권한이 필요합니다")
+
+    result, source = engine_mod.assess(req.trade, req.market)
+    m_state, _ = engine_mod.market_state(req.market)
+    regime = "RM 주입 국면" if (req.market and any(
+        v is not None for v in (req.market.spot, req.market.sigma_ann, req.market.fx_ewi, req.market.iz))
+    ) else "기준일 · 평시"
+
+    n = narrate_mod.narrate(
+        pos=req.trade.pos, bbp_pct=result["BBP_pct"], es_total_krw=result["ES_total_krw"],
+        horizon_bd=req.trade.horizon, gauge_grade=result["gauge_grade"], regime=regime,
+        instrument=result["instrument"], hedge_ratio=result["hedge_ratio"])
+
+    # 무엇을 어떤 근거로 설명했는지 남긴다 — LLM 설명도 감사 대상이다(그라운딩·소스 포함).
+    audit_id = get_log().append(
+        actor=p.subject, role=p.role, event="narrate",
+        payload={"bbp_pct": result["BBP_pct"], "source": n["source"],
+                 "grounded": n["grounded"], "model": n["model"],
+                 # 설명에 넘긴 사실은 de-identified — 기업명·예산환율·금액은 LLM 에 보내지 않았다
+                 "llm_sent_identity": False},
+        engine_ver=settings.engine_version)
+
+    return NarrateResponse(
+        narrative=n["narrative"], source=n["source"], grounded=n["grounded"], model=n["model"],
+        bbp_pct=result["BBP_pct"], engine_version=settings.engine_version,
+        market_source=source, audit_id=audit_id, disclaimer=DISCLAIMER)
 
 
 # ── 설명의무 (F1) ───────────────────────────────────────────────────

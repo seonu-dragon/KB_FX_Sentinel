@@ -56,8 +56,15 @@ PANEL = MARKER + """
            spellcheck="false" aria-label="액세스 토큰">
     <div class="srv-act">
       <button type="button" class="go" id="srv-run" style="width:auto;margin-top:0">서버로 재검증</button>
+      <button type="button" class="modebtn" id="srv-narr">AI 설명 생성 (서버 LLM)</button>
       <button type="button" class="modebtn" id="srv-ping">연동 현황 조회</button>
     </div>
+  </div>
+
+  <div class="guard" style="margin:2px 0 10px">
+    <b>LLM 설명층</b>은 <b>서버(행내)</b>에서 돕니다 — 숫자는 결정론 엔진이 만들고 LLM은 그 숫자를 <b>서술만</b> 합니다.
+    LLM에는 <b>기업명·예산환율·금액을 보내지 않습니다</b>(리스크 사실만). 서버에 LLM이 없거나 출력이
+    가드레일(환각·금지표현)을 못 넘으면 <b>규칙 템플릿으로 폴백</b>합니다. 오프라인 V1은 이 경로 자체가 없습니다(행내 규칙 생성).
   </div>
 
   <div id="srv-out" class="srv-out" role="status" aria-live="polite" aria-busy="false"></div>
@@ -232,11 +239,52 @@ SCRIPT = """
     out(h);
   }
 
+  async function narrate(){
+    if(!base()){ out(note("서버 주소를 입력하세요.")); return; }
+    busy(true); out(note("서버 LLM 설명층에 요청하는 중… (숫자는 서버가 다시 계산하고, LLM은 서술만 합니다)"));
+    var res;
+    try{ res = await call("/v1/narrate", payload()); }
+    catch(e){
+      busy(false);
+      out(note("서버에 연결하지 못했습니다 ("+(e && e.name==="AbortError" ? "타임아웃" : "네트워크 오류")
+        +"). 오프라인 화면의 행내 요약(규칙 생성)은 그대로 동작합니다."));
+      return;
+    }
+    busy(false);
+    if(!res.ok){
+      var d = (res.data && (res.data.detail || res.data.message)) || "";
+      var hint = res.status===401 ? " — 토큰이 없거나 유효하지 않습니다(dev_token.py 로 발급)"
+               : res.status===403 ? " — 이 역할에는 권한이 없습니다"
+               : res.status===422 ? " — 입력값이 서버 검증을 통과하지 못했습니다" : "";
+      out(row("서버 응답","HTTP "+res.status,"srv-bad")+(d?row("사유",d):"")
+        + note("AI 설명 생성에 실패했습니다"+hint+"."));
+      return;
+    }
+    var s = res.data, isLLM = (s.source === "llm");
+    var h = "";
+    h += '<div class="srv-note" style="background:var(--panel);border-left:3px solid '
+       + (isLLM ? "var(--brand)" : "var(--ink-faint)") + ';color:var(--ink);line-height:1.7">'
+       + _esc(s.narrative) + '</div>';
+    h += row("생성 방식", isLLM ? "LLM 생성 (서버 · 가드레일 통과)" : "규칙 템플릿 (LLM 미구성/폴백)",
+             isLLM ? "srv-ok" : "srv-warn");
+    h += row("모델", s.model || "— (템플릿)");
+    h += row("숫자 그라운딩", s.grounded ? "통과 — 출력 수치가 전부 계산값 근거" : "실패", s.grounded ? "srv-ok" : "srv-bad");
+    h += row("근거 BBP (서버 계산)", s.bbp_pct + "%");
+    h += row("엔진 버전", s.engine_version);
+    h += row("감사 ID", s.audit_id);
+    h += note("LLM에는 기업명·예산환율·금액을 보내지 않았습니다(리스크 사실만). "
+            + (isLLM ? "" : "서버에 LLM이 구성되지 않아(AI_NARRATE_ENABLED·API 키) 규칙 템플릿으로 응답했습니다 — 그래도 유효한 설명입니다. ")
+            + (s.disclaimer || ""));
+    out(h);
+    if(typeof logAudit==="function") logAudit("서버 AI 설명", (isLLM?"LLM":"템플릿")+" · BBP "+s.bbp_pct+"%");
+  }
+
   function boot(){
-    var r = $id("srv-run"), p = $id("srv-ping");
+    var r = $id("srv-run"), p = $id("srv-ping"), n = $id("srv-narr");
     if(!r || !p) return;
     r.addEventListener("click", verify);
     p.addEventListener("click", ping);
+    if(n) n.addEventListener("click", narrate);
     /* 자동 호출하지 않는다 — 로드만으로 네트워크가 나가면
        '서버 없이 재현 가능'이라는 데모의 전제가 깨진다. */
   }

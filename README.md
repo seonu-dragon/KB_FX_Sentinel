@@ -183,7 +183,7 @@ temp/KB/
 │   ├── catalog/products.yaml         ← KB 상품 마스터(요율·한도 없음 — RM 견적)
 │   ├── scripts/sync_demo_products.py ← YAML ↔ 데모 KB_PRODUCTS 동기화(--check/--write)
 │   ├── scripts/build_server_demo.py  ← V1 데모 → 서버연동 V2(demo_ui_server.html) 생성
-│   └── tests/                        ← pytest 247개 (ELIG 파리티 256조합 실브라우저 대조 포함)
+│   └── tests/                        ← pytest 257개 (ELIG 파리티 256조합 실브라우저 대조 포함)
 ├── tests/ui_smoke_test.py           ← 데모 UI 스모크 테스트 (368개)
 └── _archive/                        ← 구버전 백업·스크린샷 (제출물 아님)
 ```
@@ -200,6 +200,16 @@ temp/KB/
 배포 주소: `https://fx-sentinel.planbesides.workers.dev`
 소스·배포 가이드: `fx_sentinel/worker/fx-advisor.js`, `worker/README.md`
 
+### LLM은 어디에 있나 (V1 vs V2·서버)
+
+"AI Challenge인데 LLM이 어디 있나"에 대한 정직한 답:
+
+- **V1(오프라인 데모) = LLM 없음.** AI 요약은 **행내 규칙 생성**이라 LLM이 숫자를 만들 여지가 없습니다(환각 원천 불가). 고객 거래정보가 외부로 나가지 않습니다.
+- **V2(서버연동) = 서버 LLM 설명층.** `④ 심사 자료` → 서버 재검증 패널의 **`AI 설명 생성`** 버튼이 서버 `POST /v1/narrate`를 호출합니다. 여기서도 **숫자는 결정론 엔진**이 만들고 **LLM은 서술만** 합니다. 세 안전장치: ① 그라운딩(사실에 없는 수치가 나오면 가드레일이 잡아 폴백) ② 데이터 최소화(**기업명·예산환율·금액을 LLM에 보내지 않음** — 리스크 사실만) ③ 폴백(LLM 미구성/실패/환각이면 규칙 템플릿). 기본값은 `template`이라 키 없이도 유효한 설명이 나옵니다.
+- 파일럿에서는 이 자리에 **KB 승인·온프레미스 LLM**을 꽂습니다 — 인터페이스는 이미 이 모양입니다(`server/app/narrate.py`, `fx_sentinel/llm.py`).
+
+> 챗봇형 에이전트가 아니라 **결정론 코어 + LLM 주변부**입니다 — 은행 에이전트는 환각 나는 챗봇이 아니라 검증 가능한 결정론이어야 한다는 설계 선택입니다.
+
 ---
 
 ## 8. 개발자용 — 테스트
@@ -212,7 +222,7 @@ python tests/ui_smoke_test.py     # 헤드리스 Chrome, 표준 라이브러리�
 
 > **발표·공유용 딥링크**: `FX_Sentinel_demo_ui.html?preset=한빛정밀&regime=3` 처럼 열면 특정 회사·시장 국면 장면으로 바로 시작합니다(`preset`=회사명, `regime`=0현재·1평온·2COVID·3달러강세·4점프급변). 파라미터가 없으면 기존과 동일한 기본 화면(재현성 유지).
 
-> 서버 계층(`server/`)은 별도로 **pytest 247개**로 검증합니다 — 서버 권위판정·RBAC(403)·감사로그·포트폴리오 네팅과, 데모 JS `ELIG` ↔ 서버 `elig.py` 를 **전 조합(256) 실브라우저 대조**하는 파리티 테스트를 포함합니다.
+> 서버 계층(`server/`)은 별도로 **pytest 257개**로 검증합니다 — 서버 권위판정·RBAC(403)·감사로그·포트폴리오 네팅과, 데모 JS `ELIG` ↔ 서버 `elig.py` 를 **전 조합(256) 실브라우저 대조**하는 파리티 테스트를 포함합니다.
 > 판매프로세스·한도·MTM(아래 §10)은 화면 JS 와 서버 Python 이 같은 규칙이어야 하므로, Chrome 이 없는 환경에서도 **상수·문항·임계가 갈라지지 않는지**를 `test_ui_constants_sync.py` 가 검사합니다.
 
 > **주의:** BBP 게이지(`#bbp`)는 `animNum()`이 600ms 트윈하므로, DOM 값을 읽는 테스트는

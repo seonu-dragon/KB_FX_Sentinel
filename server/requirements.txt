@@ -14,5 +14,10 @@ numpy>=1.24
 scipy>=1.10
 pandas>=2.0
 
+# LLM 설명층 (선택) — /v1/narrate 의 서버 LLM 경로.
+# 없어도 서버는 뜨고 설명은 규칙 템플릿으로 폴백한다(기본값). LLM 을 켜려면 아래를 설치하고
+# AI_NARRATE_ENABLED=1 + ANTHROPIC_API_KEY 를 설정한다. 파일럿에서는 KB 승인/온프레미스 LLM 으로 대체.
+# anthropic>=0.40
+
 # 테스트
 pytest>=7.0
