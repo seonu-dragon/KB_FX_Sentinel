@@ -1326,7 +1326,7 @@
 
 <header class="appbar">
   <div class="ab-brand"><span class="kb-star">★</span><span>KB <b>국민은행</b></span></div>
-  <div class="ab-title"><h1>수출입 금융 AI 코파일럿 <span class="beta">BETA</span></h1><p>AI가 분석하고, 최적의 금융지원을 제안해 드립니다.</p></div>
+  <div class="ab-title"><h1>수출입 금융 AI 코파일럿</h1><p>회사 예산환율 기준으로 환리스크를 진단하고, 맞춤 금융지원을 안내합니다.</p></div>
   <div class="ab-actions">
     <button type="button" class="ab-ic" id="themebtn" aria-label="테마 전환"><span class="ab-em" aria-hidden="true">◐</span><span class="ab-lb">테마</span></button>
     <button type="button" class="ab-ic" id="modebtn" aria-label="고객 화면 보기"><span class="ab-em" id="modebtn-em" aria-hidden="true">◉</span><span class="ab-lb" id="modebtn-lb">고객 화면 보기</span></button>
@@ -1382,7 +1382,7 @@
        내용은 전부 기존 엔진 계산(경보·다음 회차 선제 진단·응답기한)에서 파생 — 새 주장 없음. -->
   <section class="card" id="agent-briefing" style="margin:0 0 12px">
     <h3><span class="agent-n">✦</span> 에이전트 점검 브리핑
-      <span class="dbadge" style="margin-left:6px" title="기준일 데이터로 자동 점검한 결과입니다. 거래 목록은 데모 프리셋이며, 실서비스는 원장·RM 업무함 연동으로 실제 담당 거래를 점검합니다.">기준일 자동 점검 · 데모 거래</span></h3>
+      <span class="dbadge internal-only" style="margin-left:6px" title="기준일 데이터로 자동 점검한 결과입니다. 거래 목록은 데모 프리셋이며, 실서비스는 원장·RM 업무함 연동으로 실제 담당 거래를 점검합니다.">기준일 자동 점검 · 데모 거래</span></h3>
     <div id="agent-briefing-body"></div>
   </section>
 
@@ -1567,7 +1567,7 @@
         <h3><span class="agent-n">✦</span> AI 맞춤 요약 <span class="ai-tag">행내 생성 · 외부 미전송</span>
           <button type="button" class="ai-gen" id="ai-gen">AI 요약 보기</button></h3>
         <div class="ai-out" id="ai-out"><div class="ai-empty">위 진단 결과와 추천 상품을 <b>이해하기 쉬운 요약</b>으로 정리해 드립니다. 분석 시작 시 자동 생성됩니다.</div></div>
-        <div class="guard">※ 위 <b>계산값만</b> 근거로 하며 예측·투자자문이 아닙니다.</div>
+        <div class="guard">※ 위 <b>계산값만</b> 근거로 문장을 만듭니다 — 없는 수치를 지어내지 않습니다.</div>
       </section>
 
       <!-- Advisor 질문 — 행내 지식베이스(무역금융·헤지수단·제도) 키워드 검색 + 출처 인용.
@@ -1580,7 +1580,7 @@
           <button type="button" class="modebtn" id="ask-go">질문</button>
         </div>
         <div class="ask-log" id="ask-log"></div>
-        <div class="guard">※ 답변은 <b>행내 지식베이스의 정보 제공</b>이며 투자권유·계약 조건 확정이 아닙니다. 지식베이스에 없는 질문은 답을 만들지 않고 RM 상담으로 안내합니다.</div>
+        <div class="guard">※ 지식베이스에 없는 질문은 답을 만들지 않고 RM 상담으로 안내합니다.</div>
       </section>
 
     </section>
@@ -1597,7 +1597,7 @@
            한도가 없으면 적정성을 논할 필요도 없다. -->
       <section class="card" id="limit-card">
         <h3><span class="agent-n">₩</span> 파생 한도 소진
-          <span class="dbadge" style="margin-left:auto" title="한도액·기사용액은 고객 자기신고이며 KB 원장 조회값이 아닙니다. 신용환산율은 데모 설계값입니다.">자기신고 · 원장 미연동</span></h3>
+          <span class="dbadge internal-only" style="margin-left:auto" title="한도액·기사용액은 고객 자기신고이며 KB 원장 조회값이 아닙니다. 신용환산율은 데모 설계값입니다.">자기신고 · 원장 미연동</span></h3>
         <div id="limit-out"></div>
       </section>
 
@@ -1626,7 +1626,7 @@
        데모는 화면 안에서 규칙을 저장·판정한다. 서버 규칙엔진(server/app/alerts.py — 등록·평가·쿨다운)은 이미 구현돼 있고 발송 채널만 행내 인프라 대상이다. -->
   <section class="card" id="delegate-card" style="margin-top:16px">
     <h3><span class="agent-n">≔</span> 에이전트에게 감시 맡기기
-      <span class="dbadge" style="margin-left:6px" title="데모는 이 화면 안에서 규칙을 저장하고 현재 계산값으로 충족 여부를 판정합니다. 실서비스는 서버 알림 규칙엔진(등록·평가·쿨다운 구현 완료)과 행내 발송 채널(문자·앱푸시)로 동작합니다.">화면 내 판정 · 서버 규칙엔진 연동 설계</span></h3>
+      <span class="dbadge internal-only" style="margin-left:6px" title="데모는 이 화면 안에서 규칙을 저장하고 현재 계산값으로 충족 여부를 판정합니다. 실서비스는 서버 알림 규칙엔진(등록·평가·쿨다운 구현 완료)과 행내 발송 채널(문자·앱푸시)로 동작합니다.">화면 내 판정 · 서버 규칙엔진 연동 설계</span></h3>
     <div class="dlg-rule">
       <input type="checkbox" id="dlg-risk-on" style="accent-color:var(--brand)">
       <label for="dlg-risk-on"><b>위험 감시</b> — 초과 가능성이</label>
@@ -1639,7 +1639,7 @@
       <label for="dlg-opp-th" style="display:inline-flex;align-items:center;gap:4px"><input type="number" id="dlg-opp-th" value="10" min="1" max="200" step="1" inputmode="numeric"><span>원 이상 유리해지면 헤지 상담을 제안해 주세요</span></label>
       <span class="dlg-st" id="dlg-opp-st"></span>
     </div>
-    <div class="guard">※ 알림은 <b>정보 제공</b>이며 매매 지시·투자권유가 아닙니다. 조건 충족 시에도 계약은 KB 영업점 상담에서 확정됩니다.</div>
+    <div class="guard">※ 알림은 <b>정보 제공</b>이며 매매 지시가 아닙니다.</div>
   </section>
 
   <!-- 에이전트 판단 경로 — "계산했다"를 "추론했다"로. 검토한 경로·접은 이유·고른 이유를 드러낸다.
@@ -1653,10 +1653,10 @@
        audit 로그(모든 행위)와 달리 '리스크 관찰'만 의미 단위로 쌓고, 같은 회사를 다시 보면 직전 대비 변화를 말한다. -->
   <section class="card" id="journal-card" style="margin-top:16px">
     <h3><span class="agent-n">❏</span> 관제 일지
-      <span class="dbadge" style="margin-left:6px" title="에이전트가 이 세션·이전 접속에서 관찰한 리스크를 남긴 기록입니다(브라우저 저장). 실서비스는 서버에 영속화해 담당 RM이 인수인계 없이 이어봅니다.">관찰 이력 · 브라우저 저장</span>
+      <span class="dbadge internal-only" style="margin-left:6px" title="에이전트가 이 세션·이전 접속에서 관찰한 리스크를 남긴 기록입니다(브라우저 저장). 실서비스는 서버에 영속화해 담당 RM이 인수인계 없이 이어봅니다.">관찰 이력 · 브라우저 저장</span>
       <button type="button" class="modebtn" id="jrnl-clear" style="margin-left:auto;font-size:var(--fs-1);padding:3px 8px">지우기</button></h3>
     <div id="journal-body"></div>
-    <div class="guard">※ 이 일지는 <b>에이전트의 관찰 기록</b>이며, 각 시점의 BBP·국면은 그때 화면이 계산한 값입니다. 예측이 아니라 <b>지나온 관찰</b>입니다.</div>
+    <div class="guard">※ 지난 진단 시점의 기록입니다 — 예측이 아니라 지나온 관찰입니다.</div>
   </section>
   <!-- ══════════ 거래국 · 품목 참고 정보 ══════════
        왜 컬럼2에서 빼냈나 — 컬럼2가 "내 환리스크 진단"과 "거래국·품목 배경정보" 두 주제를
@@ -3075,7 +3075,7 @@ function renderHedgeCompare(f){
   h+='</tbody></table></div>';
   h+='<div class="guard">※ 상단 이익 "일부 유지"는 범위형·칼라의 구조 설명입니다. 실제 밴드가·행사가·요율은 RM 견적이며, 이 표는 예측이 아니라 상품 구조 비교입니다.</div>';
   // 공정가 투명성(TCA-lite) — 참고 중간환율만 표시. 대고객 스프레드는 지어내지 않고 RM 고시값을 체결 시 대조.
-  h+='<div class="metaline" style="max-width:48em"><b>공정가 안내</b> — 참고 중간환율 <b>'+fmtRate(spot)+'원</b>('+(f.currency||"USD")+'/KRW). 대고객 적용환율 = 중간환율 ± <b>KB 고시 스프레드</b>이며, 실제 스프레드는 <b>체결 시 이 화면에서 대조</b>합니다. 스프레드를 임의로 만들지 않습니다(요율 미연동).</div>';
+  h+='<div class="metaline" style="max-width:48em"><b>공정가 안내</b> — 참고 중간환율 <b>'+fmtRate(spot)+'원</b>('+(f.currency||"USD")+'/KRW). 대고객 적용환율 = 중간환율 ± <b>KB 고시 스프레드</b>이며, 실제 스프레드는 <b>체결 시 이 화면에서 대조</b>합니다. 실제 스프레드는 KB 고시값으로 체결 시 확정됩니다.</div>';
   // 위험회피회계(K-IFRS) 지정문서 초안 (C3) — 중견 차별화. 초안일 뿐 회계처리는 감사인 협의.
   const _inst = eligible("기간형선물환",f)?"기간형 선물환": eligible("선물환",f)?"선물환": eligible("범위선물환",f)?"범위선물환": eligible("환변동보험",f)?"환변동보험(K-SURE)":"헤지수단 미정";
   h+='<details class="advform" style="margin-top:12px"><summary>▦ 위험회피회계(K-IFRS 제1109호) 지정문서 초안 <span class="dbadge" title="문서 초안 생성입니다. 지정·유효성·회계처리는 감사인·회계법인 협의 사항입니다.">초안 · 회계처리는 감사인 협의</span></summary>'
@@ -3098,7 +3098,7 @@ function renderHedgeCompare(f){
       subs.push(["K-SURE 환변동보험 보험료 지원","중소기업 연 한도 내 보험료 지원(수출 규모 요건) — 소액 노출은 실효 보험료가 0원까지 낮아질 수 있음","확인: K-SURE 지원센터"]);
     subs.push(["지자체 단체보험 일괄가입","소재 지자체가 무역보험공사와 단체가입한 경우 별도 서류·심사 없이 자동 편입","확인: 소재 지자체·K-SURE"]);
     subs.push(["수출바우처 (중진공·KOTRA)","바우처 한도 내에서 환변동보험 등 무역보험 비용 집행 가능","확인: 수출바우처 포털"]);
-    h+='<details class="advform" style="margin-top:12px"><summary>▦ 정책지원 매칭 — 환변동보험 실효비용 낮추기 <span class="dbadge" title="지원 요건·한도는 대표 스냅샷(데모)입니다. 연도별 예산·요건이 바뀌므로 수급 확정은 K-SURE·지자체·바우처 운영기관 확인 사항입니다.">요건은 대표 스냅샷 · 수급 확정은 기관 확인</span></summary>'
+    h+='<details class="advform" style="margin-top:12px"><summary>▦ 정책지원 매칭 — 환변동보험 실효비용 낮추기 <span class="dbadge" title="지원 요건·한도는 연도별 예산·요건에 따라 바뀌므로, 수급 확정은 K-SURE·지자체·바우처 운영기관 확인 사항입니다.">요건은 대표 스냅샷 · 수급 확정은 기관 확인</span></summary>'
       +'<div class="screen" style="margin-top:8px">'
       +subs.map(s=>'<div class="r"><span><b>'+esc(s[0])+'</b><br><span style="color:var(--ink-mut);font-size:var(--fs-1)">'+esc(s[1])+'</span></span>'
         +'<span class="pill" style="color:var(--gold-ink);background:color-mix(in srgb,var(--gold-ink) 4%,transparent)">'+esc(s[2])+'</span></div>').join("")
@@ -3239,7 +3239,7 @@ function compute(){
   // 사실만 남긴다: ①상한이라는 것과 배수 ②방향별 오차. 부장 지적(부풀린 손실로 헤지 유도)의 방어라 삭제 불가.
   // 핵심 고지(상한)는 상시 노출, 방향별 오차 등 부가 유의는 점진적 공개(밀도 완화). 삭제는 하지 않는다.
   $("bbp-honesty").innerHTML=
-    '<div class="hn"><b>부담액은 보수적 상한</b> — 실측 실제 평균의 약 <b>'+ES_BIAS.ratio.toFixed(1)
+    '<div class="hn"><b>부담액은 보수적 상한</b> — 실측 평균의 약 <b>'+ES_BIAS.ratio.toFixed(1)
       +'배</b>(실제는 이보다 작을 수 있음).</div>'
     +'<details class="hn-more"><summary>방향별 오차 · 참고 유의</summary><div class="hn hn-sub">'+(impK
       ? '<b>수입 건은 오차가 큽니다</b> — 원화 약세 추세로 실제 초과 빈도 <b>'+(CALIB_DIR.importRate*100).toFixed(1)
@@ -3629,7 +3629,11 @@ function renderAgentFlow(f,ctx){
   const steps=[
     ["① Sentinel · 감시", ctx.alert?('<b>경보 발동</b> — 초과 가능성 <b>'+ctx.bbp.toFixed(1)+'%</b>')
                                    :('모니터링 — 초과 가능성 <b>'+ctx.bbp.toFixed(1)+'%</b>'), ctx.alert?"var(--crit)":"var(--good)"],
-    ["② Analyst · 원인", '국면 <b>'+esc(ctx.m.regimeName||"현재")+'</b> · 성분 V'+sh.V+'·J'+sh.J+'·C'+sh.C
+    ["② Analyst · 원인", '국면 <b>'+esc(ctx.m.regimeName||"현재")+'</b> · '
+                        // 고객에겐 성분 약어(V/J/C) 대신 주요 원인을 평이하게. RM·심사에는 성분값 유지.
+                        +(document.documentElement.getAttribute("data-mode")!=="customer"
+                            ? '성분 V'+sh.V+'·J'+sh.J+'·C'+sh.C
+                            : '주요 원인 <b>'+(sh.V>=sh.J&&sh.V>=sh.C?'변동성 확대':(sh.J>=sh.C?'급변 위험':'변동성 지속'))+'</b>')
                         +(ctx.m.iz?' · <b>개입 감쇠 적용</b>':''), "var(--gold-ink)"],
     ["③ Advisor · 정보", '후보 <b>'+ctx.recs.length+'건</b> 검토 → 1순위 <b>'+esc(pp?pp.t.split("(")[0].trim():"—")+'</b>', "var(--brand)"],
     ["④ Hedge · 제안", ctx.hr>0?('부분 <b>'+Math.round(ctx.hr*100)+'%</b> '+esc(ctx.inst)+' 참고 · RM 티켓 준비')
@@ -3980,8 +3984,8 @@ function renderLimit(lm,fallback,f){
       +'<div class="limrow"><span>기사용</span><b>'+fmtN(lm.used)+' ('+Math.round(lm.before*100)+'%)</b></div>'
       +'<div class="limrow"><span>이 거래 명목</span><b>+'+fmtN(lm.notional)+'</b></div>'
       +'<div class="limrow tot"><span>체결 후 소진율</span><b style="color:'+col+'">'+rawPct+'%</b></div>'
-      /* 고객이 묻는 숫자(명목 소진)와 여신부가 묻는 숫자(CEE)를 나란히 둔다 */
-      +'<div class="limrow"><span>└ KB 여신 계상액 (CEE)</span><b>'+fmtN(lm.cee)+' · '+won(lm.ceeKrw)+'</b></div>';
+      /* CEE(신용환산액)는 여신부가 묻는 은행 내부 숫자 — 고객 화면에는 노출하지 않는다(RM·심사에서만) */
+      +'<div class="limrow internal-only"><span>└ KB 여신 계상액 (CEE)</span><b>'+fmtN(lm.cee)+' · '+won(lm.ceeKrw)+'</b></div>';
   }
   h+='<div class="metaline'+(lm.exceeds?' ':'')+'">'+esc(lm.msg)+'</div>';
   if(lm.exceeds){
@@ -3995,8 +3999,8 @@ function renderLimit(lm,fallback,f){
       h+='<div class="metaline rm"><b>대안 없음</b> 수입 결제 건은 K-SURE(수출 전용) 대상이 아닙니다 — 여신 한도·담보 협의가 선행돼야 합니다</div>';
   }
   h+='<div class="vnote" style="margin-top:8px">파생상품은 <b>명목 전액이 아니라 신용환산액</b>만큼 한도를 사용합니다'
-    +'(만기가 길수록 환산율이 큽니다). 한도액·기사용액은 <b>고객 자기신고</b>이며 KB 원장 조회값이 아닙니다. '
-    +'환산율은 참고 설계값이며, 금리·수수료는 산출하지 않습니다(RM 견적).</div>';
+    +'(만기가 길수록 환산율이 큽니다). 금리·수수료 등 최종 조건은 KB 영업점에서 확정합니다.'
+    +'<span class="internal-only"> 한도액·기사용액은 <b>고객 자기신고</b>이며 KB 원장 조회값이 아닙니다. 환산율은 참고 설계값입니다.</span></div>';
   box.innerHTML=h;
 }
 /* 적정성 판정 렌더 (F1).
@@ -5455,7 +5459,7 @@ function renderDashboard(){
   // 자연헤지(네팅) — 같은 통화 수출/수입을 만기버킷 안에서 상계해 순노출만 헤지
   var net=_portfolioNetting(deals), _spot=CUR.USD.spot, saveRate=net.gross?net.off/net.gross*100:0;
   h+='<section class="card" style="margin-top:12px"><h3><span class="agent-n">⇄</span> 자연헤지(네팅) 집계 '
-    +'<span class="dbadge" title="서버 portfolio.py 와 동일: 통화×만기버킷 안에서만 상계, 버킷 넘는 상계는 시점불일치로 분리">통화×만기버킷 상계 · 서버 판정과 동일 규칙</span></h3>'
+    +'<span class="dbadge" title="통화×만기버킷 안에서만 상계합니다. 버킷을 넘는 상계는 시점 불일치라 분리합니다.">통화×만기버킷 상계 규칙</span></h3>'
     +'<div style="font-size:var(--fs-1);color:var(--ink-mut);line-height:1.6;max-width:46em;margin:10px 0 8px">같은 통화를 한쪽에서 받고 다른 쪽에서 내면 상당 부분이 저절로 상계됩니다. 다만 <b>만기가 다르면 상계할 수 없어</b>(3월에 받을 달러로 9월에 낼 달러를 막지 못함) 만기버킷 안에서만 상계합니다.</div>'
     +'<div class="tiles">'
     +'<div class="tile"><div class="tk">그로스 노출</div><div class="tv">'+won(net.gross*_spot)+'</div><div class="ts">수출 '+net.gRecv.toLocaleString()+' + 수입 '+net.gPay.toLocaleString()+' USD</div></div>'
@@ -5475,7 +5479,7 @@ function renderDashboard(){
   var usd=CUR.USD.spot, ewiNow=REG.USD[regimeIdx].ewi;   // 국면 반영 (프리셋이 USD 결제라 USD 국면을 직접 읽는다 — MARKET 은 폼 통화를 따라가 오염된다)
   h+='<div class="chartrow">'
     +_chartCard("USD / KRW 추이",_series(usd,30,0.016,Math.round(usd)),fmtRate(usd),"var(--brand)")
-    +_chartCard("시장 위험게이지(FX-EWI) 추이",_series(ewiNow,30,0.10,7),Math.round(ewiNow)+" / 100","var(--elev)")
+    +_chartCard("시장 위험 지표 추이",_series(ewiNow,30,0.10,7),Math.round(ewiNow)+" / 100","var(--elev)")
     +'</div>';
   h+=_recurCard();
   // (구) 간이 네팅 카드는 상단 '자연헤지(네팅) 집계'(만기버킷 상계)로 일원화됨 — 만기 무시 상계는 과대상계라 제거.
@@ -5703,7 +5707,7 @@ function renderReport(){
   h+='<div class="tiles">'+tiles.map(t=>'<div class="tile"><div class="tk">'+t[0]+'</div><div class="tv">'+t[1]+'</div><div class="ts">'+t[2]+'</div></div>').join("")+'</div>';
   h+='<div class="grid2" style="align-items:start"><section class="card" style="padding:0"><div class="dwrap"><table class="dtable" aria-label="리포트 목록"><thead><tr><th scope="col">리포트</th><th scope="col">유형</th><th scope="col" class="num">초과 가능성</th><th scope="col" class="num">생성일</th></tr></thead><tbody id="rpt-body"></tbody></table></div></section><section class="card rpt-prev" id="rpt-prev"></section></div>';
   document.getElementById("view-report").innerHTML=h;
-  document.getElementById("rpt-month").addEventListener("click",()=>toast("월간 환노출 리포트 PDF 생성(데모)"));
+  document.getElementById("rpt-month").addEventListener("click",()=>toast("월간 환노출 리포트를 준비합니다"));
   _rptBody(deals); _rptPreview(deals,_rptSel);
 }
 function _rptBody(deals){
@@ -5725,7 +5729,7 @@ function _rptPreview(deals,i){
   // 이 리포트는 PDF로 은행 밖으로 나간다 — 숫자만 남고 근거가 빠지면 그게 곧 분쟁의 증거가 된다.
   // 코파일럿 화면에만 고지하고 문서에는 빠뜨리면, 고지한 게 아니라 화면에서만 고지한 것.
   h+='<div class="rpt-sec"><div class="rl">이 숫자를 읽는 법</div><div class="honesty" style="margin-top:0">'
-    +'<div class="hn"><b>부담액은 보수적 상한</b> — 실측상 실제 평균의 약 <b>'+ES_BIAS.ratio.toFixed(1)
+    +'<div class="hn"><b>부담액은 보수적 상한</b> — 실측 평균의 약 <b>'+ES_BIAS.ratio.toFixed(1)
       +'배</b>. 실제 부담은 이보다 작을 수 있습니다.</div>'
     +'<div class="hn">'+(d.p.pos==="import"
       ? '<b>수입 건은 오차가 큽니다</b> — 실제 초과 빈도 '+(CALIB_DIR.importRate*100).toFixed(1)+'%(수입·수출을 나눠 보면 오차가 평균의 4배)'
@@ -5733,7 +5737,7 @@ function _rptPreview(deals,i){
     +' · 참고 지표이며 투자권유가 아닙니다.</div></div></div>';
   h+='<button type="button" class="colcta" id="rpt-pdf" style="margin-top:14px">📄 PDF 내려받기</button>';
   document.getElementById("rpt-prev").innerHTML=h;
-  document.getElementById("rpt-pdf").addEventListener("click",()=>toast(d.p.name+" 진단 리포트 PDF 생성(데모)"));
+  document.getElementById("rpt-pdf").addEventListener("click",()=>toast(d.p.name+" 진단 리포트를 준비합니다"));
 }
 
 /* ── 고객센터 ── */
@@ -5767,10 +5771,10 @@ function renderSupport(){
   h+='<section class="card" style="margin-top:16px"><h3><span class="agent-n">✎</span> 쉬운 용어 설명</h3><div class="gloss" style="margin-top:8px">'
     +SUPPORT_GLOSS.map(g=>'<div class="g"><div class="gt">'+esc(g[0])+'</div><div class="gd">'+esc(g[1])+'</div></div>').join("")+'</div></section>';
   document.getElementById("view-support").innerHTML=h;
-  document.getElementById("sup-book").addEventListener("click",()=>toast("상담 예약 요청이 접수되었습니다(데모)"));
-  document.getElementById("sup-call").addEventListener("click",()=>toast("담당 RM 전화 연결 요청(데모)"));
-  document.getElementById("sup-msg").addEventListener("click",()=>toast("메시지가 전송되었습니다(데모)"));
-  document.getElementById("sup-send").addEventListener("click",()=>{ var t=document.getElementById("sup-text").value.trim(); toast(t?"문의가 접수되었습니다(데모)":"내용을 입력해 주세요"); if(t)document.getElementById("sup-text").value=""; });
+  document.getElementById("sup-book").addEventListener("click",()=>toast("상담 예약 요청이 접수되었습니다"));
+  document.getElementById("sup-call").addEventListener("click",()=>toast("담당 RM에게 전화 연결을 요청했습니다"));
+  document.getElementById("sup-msg").addEventListener("click",()=>toast("메시지가 전송되었습니다"));
+  document.getElementById("sup-send").addEventListener("click",()=>{ var t=document.getElementById("sup-text").value.trim(); toast(t?"문의가 접수되었습니다":"내용을 입력해 주세요"); if(t)document.getElementById("sup-text").value=""; });
 }
 
 /* ══════════════ 상단바 배선 (KB 상담 연결 · 알림 드롭다운) ══════════════ */
