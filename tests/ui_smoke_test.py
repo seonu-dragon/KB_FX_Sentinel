@@ -1403,7 +1403,32 @@ PROBE = r"""
   $("ask-input").value = "오늘 점심 뭐 먹을까"; askSubmit();
   ok("Advisor 범위 밖 = 정직 거절", $("ask-log").textContent.indexOf("답을 만들어내지 않습니다") >= 0,
      "지어내지 않고 RM 안내");
+  /* Advisor 다중턴 문맥 — "이 거래 헤지해야 하나요?"는 지식항목이 아니라 현재 진단을 되짚어야 한다 */
   fillPreset(PRESETS[3]);
+  $("ask-input").value = "이 거래 지금 헤지해야 하나요?"; askSubmit();
+  var _ctxTx = $("ask-log").textContent;
+  ok("Advisor 문맥 응답 = 현재 진단", _ctxTx.indexOf("나래상사") >= 0 && _ctxTx.indexOf("현재 진단 결과") >= 0
+     && _ctxTx.indexOf("64.3") >= 0, "이 거래 → 지금 화면의 BBP로 답");
+
+  /* ── 판단 경로(1순위) — 검토·기각·선택을 recs 에서 서술. 대성무역(가결제)은 선물환이 접힌다 ── */
+  fillPreset(PRESETS[1]);   // 대성무역 · 가결제
+  var _dp = $("decision-path-body").textContent;
+  ok("판단 경로 선택 표시", _dp.indexOf("선택 ·") >= 0 && _dp.indexOf("경로") >= 0, "1순위 + 검토 개수");
+  ok("판단 경로 기각 사유", _dp.indexOf("접음 ·") >= 0 && (_dp.indexOf("실수요") >= 0 || _dp.indexOf("가결제") >= 0),
+     "가결제 → 선물환 접힌 이유를 말한다");
+
+  /* ── 관제 일지(2순위) — 회사를 옮겨다니면 관찰이 쌓이고, 국면을 바꾸면 '지난 점검 대비'가 뜬다 ── */
+  document.getElementById("jrnl-clear").click();   // 깨끗한 상태에서 시작
+  fillPreset(PRESETS[3]); fillPreset(PRESETS[0]); fillPreset(PRESETS[2]);
+  var _jr = $("journal-body").textContent;
+  ok("관제 일지 관찰 누적", _jr.indexOf("소망전자") >= 0 && _jr.indexOf("한빛정밀") >= 0, "회사별 관찰 이력");
+  // 같은 회사를 국면 바꿔 다시 보면 '지난 점검 대비' 델타가 브리핑에 뜬다
+  fillPreset(PRESETS[3]); setRegime(0); compute();
+  setRegime(3); compute();   // 나래상사를 달러강세 국면으로 재관찰
+  ok("연속성 델타 브리핑", $("agent-briefing-body").textContent.indexOf("지난 점검 대비") >= 0
+     && $("agent-briefing-body").textContent.indexOf("관제 일지에 이어") >= 0, "직전 관찰 대비 변화 보고");
+  document.getElementById("jrnl-clear").click();
+  setRegime(0); fillPreset(PRESETS[3]);
 
   /* 위 추가 테스트들이 감사로그를 늘려 200건 캡에 닿으면, 아래 "재조회 = +1건" 검증이
      캡 때문에 깨진다(길이 불변). 캡 아래로 비워 원래 검증 의미를 유지한다. */
