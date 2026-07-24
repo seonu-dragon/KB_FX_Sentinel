@@ -1186,6 +1186,21 @@
     border-radius:var(--r-pill);padding:0 4px;margin-left:4px;letter-spacing:0}
   /* 무역 약어 용어 툴팁 — 카탈로그 설명의 Usance·Nego·B/L·HS코드 등에 hover 설명을 붙인다(고객 이해 보조) */
   abbr.term{text-decoration:underline dotted;text-underline-offset:2px;cursor:help;text-decoration-thickness:1px}
+  /* 접이식 보조 카드 — 첫 화면 밀도를 낮춘다. 핵심(진단·추천·다음단계)은 펼친 채, 보조는 접어 둔다.
+     details 라 내용은 DOM·textContent 에 그대로 남는다(검사·낭독 불변) — 시각적으로만 접힌다. */
+  details.cardfold>summary{list-style:none;cursor:pointer;position:relative;padding-right:52px}
+  details.cardfold>summary::-webkit-details-marker{display:none}
+  details.cardfold>summary>h3{cursor:pointer}
+  details.cardfold>summary::after{content:"펼치기 ▾";position:absolute;right:0;top:0;
+    font-size:var(--fs-1);font-weight:700;color:var(--ink-faint);letter-spacing:0;text-transform:none}
+  details.cardfold[open]>summary::after{content:"접기 ▴"}
+  details.cardfold>summary:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:var(--r-sm)}
+  details.cardfold[open]>summary{margin-bottom:8px}
+  details.reffold>summary{list-style:none;cursor:pointer;position:relative}
+  details.reffold>summary::-webkit-details-marker{display:none}
+  details.reffold>summary::after{content:"펼치기 ▾";font-size:var(--fs-1);font-weight:700;color:var(--ink-faint);margin-left:10px}
+  details.reffold[open]>summary::after{content:"접기 ▴"}
+  details.reffold>summary:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
   /* 정직 고지 — 청사진 결정 #2 는 "심사 탭에만 있으면 알리바이 → 숫자 옆에서 고지"였다.
      그런데 숫자 옆에 두고 **화면에서 가장 작은 12px + 흐린 색**으로 쓰면 그게 바로 깨알글씨다.
      부풀린 손실로 파생상품 상담을 유도한 것으로 읽히면 불완전판매 리스크인데,
@@ -1646,20 +1661,20 @@
 
   <!-- 에이전트 판단 경로 — "계산했다"를 "추론했다"로. 검토한 경로·접은 이유·고른 이유를 드러낸다.
        근거는 recs(자격·적정성·한도 판정)를 그대로 재사용한다 — 새 주장이 아니라 이미 한 판단의 서술. -->
-  <section class="card" id="decision-path-card" style="margin-top:16px">
-    <h3><span class="agent-n">⋔</span> 에이전트 판단 경로 <span style="margin-left:auto;font-weight:600;color:var(--ink-faint);text-transform:none;letter-spacing:0">검토 · 기각 · 선택</span></h3>
+  <details class="card cardfold" id="decision-path-card" style="margin-top:16px">
+    <summary><h3><span class="agent-n">⋔</span> 에이전트 판단 경로 <span style="font-weight:600;color:var(--ink-faint);text-transform:none;letter-spacing:0">검토 · 기각 · 선택</span></h3></summary>
     <div id="decision-path-body"></div>
-  </section>
+  </details>
 
   <!-- 관제 일지 — 에이전트가 무엇을 언제 관찰했는지 세션·저장소에 남긴다(연속성).
        audit 로그(모든 행위)와 달리 '리스크 관찰'만 의미 단위로 쌓고, 같은 회사를 다시 보면 직전 대비 변화를 말한다. -->
-  <section class="card" id="journal-card" style="margin-top:16px">
-    <h3><span class="agent-n">❏</span> 관제 일지
-      <span class="dbadge internal-only" style="margin-left:6px" title="에이전트가 이 세션·이전 접속에서 관찰한 리스크를 남긴 기록입니다(브라우저 저장). 실서비스는 서버에 영속화해 담당 RM이 인수인계 없이 이어봅니다.">관찰 이력 · 브라우저 저장</span>
-      <button type="button" class="modebtn" id="jrnl-clear" style="margin-left:auto;font-size:var(--fs-1);padding:3px 8px">지우기</button></h3>
+  <details class="card cardfold" id="journal-card" style="margin-top:16px">
+    <summary><h3><span class="agent-n">❏</span> 관제 일지
+      <span class="dbadge internal-only" style="margin-left:6px" title="에이전트가 이 세션·이전 접속에서 관찰한 리스크를 남긴 기록입니다(브라우저 저장). 실서비스는 서버에 영속화해 담당 RM이 인수인계 없이 이어봅니다.">관찰 이력 · 브라우저 저장</span></h3></summary>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:6px"><button type="button" class="modebtn" id="jrnl-clear" style="font-size:var(--fs-1);padding:3px 8px">지우기</button></div>
     <div id="journal-body"></div>
     <div class="guard">※ 지난 진단 시점의 기록입니다 — 예측이 아니라 지나온 관찰입니다.</div>
-  </section>
+  </details>
   <!-- ══════════ 거래국 · 품목 참고 정보 ══════════
        왜 컬럼2에서 빼냈나 — 컬럼2가 "내 환리스크 진단"과 "거래국·품목 배경정보" 두 주제를
        한 통에 담아 2434px(RM)까지 자랐고, 그동안 컬럼1은 1137px에서 끝나 1297px가 빈 채였다.
@@ -1695,7 +1710,6 @@
       </details>
     </section>
   </div>
-
 
 
 
@@ -3920,7 +3934,7 @@ function renderJournal(){
     +'<span><span class="jr-co">'+esc(o.co)+'</span> <span style="color:var(--ink-faint)">· '+esc(o.regime)+(o.alert?' · 경보':'')+'</span></span>'
     +'<span class="jr-b" style="color:'+col(o.bbp)+'">'+o.bbp.toFixed(1)+'%</span></div>').join("")+'</div>';
 }
-{ const _jc=$("jrnl-clear"); if(_jc) _jc.addEventListener("click",()=>{ try{localStorage.removeItem(JRNL_KEY);}catch(e){} _jrnlSig=null; renderJournal(); logAudit("관제 일지 초기화",""); }); }
+{ const _jc=$("jrnl-clear"); if(_jc) _jc.addEventListener("click",(e)=>{ e.stopPropagation(); try{localStorage.removeItem(JRNL_KEY);}catch(e){} _jrnlSig=null; renderJournal(); logAudit("관제 일지 초기화",""); }); }
 
 // '권유보류'(F1 적정성)는 '차단'(법규·자격)과 색을 나눈다 — 원인이 다르면 색도 달라야 한다.
 // '권유보류'(F1 적정성)는 '차단'(법규·자격)과 색을 나눈다 — 원인이 다르면 색도 달라야 한다.
