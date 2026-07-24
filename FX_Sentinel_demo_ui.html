@@ -1329,10 +1329,24 @@
   .ar-sum .ar-sum-v b{color:var(--ink)}
   .ar-sum .pick{color:var(--good);font-weight:800}
   .ar-sum .rej{color:var(--ink-faint)}
+  /* 에이전트 실행 — 행동 버튼(조언에 그치지 않고 대신 행동한다) */
+  .agentrun .ar-do{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+  .ar-do .ar-do-k{font-size:var(--fs-1);font-weight:800;color:var(--ink-faint);white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+  .ar-do .ar-do-k::before{content:"\2726";color:var(--brand)}
+  .ar-do .ar-do-btns{display:flex;gap:8px;flex-wrap:wrap}
+  .ar-act-btn{font-family:inherit;font-size:var(--fs-1);font-weight:700;color:var(--ink);background:var(--panel);border:1px solid var(--line-solid);
+    border-radius:var(--r-pill,999px);padding:7px 14px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;transition:background .15s,border-color .15s,color .15s}
+  .ar-act-btn::before{content:"\25B8";color:var(--brand);font-weight:800}
+  .ar-act-btn:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .ar-act-btn:hover::before{color:var(--gold)}
+  .ar-act-btn:disabled{cursor:default}
+  .ar-act-btn.done{background:color-mix(in srgb,var(--good) 12%,transparent);border-color:var(--good);color:var(--good)}
+  .ar-act-btn.done::before{content:"\2713";color:var(--good)}
   @media(max-width:720px){
     .agentflow{grid-template-columns:1fr 1fr;gap:22px 24px}
     .agentflow .af:nth-child(2)::after{content:none}
     .agentrun .ar-foot{grid-template-columns:1fr}
+    .agentrun .ar-do{align-items:flex-start}
   }
   /* 에이전트 브리핑 · 질문 · 위임 카드 공용 소품 */
   .brief-li{display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:var(--fs-2);color:var(--ink-mut);line-height:1.6}
@@ -1444,6 +1458,16 @@
     <div class="ar-foot">
       <div class="ar-sum"><span class="ar-sum-k">⋔ 판단 경로</span><span class="ar-sum-v" id="ar-dpath-v">–</span></div>
       <div class="ar-sum"><span class="ar-sum-k">❏ 관제 일지</span><span class="ar-sum-v" id="ar-jrnl-v">–</span></div>
+    </div>
+    <!-- 행동 버튼 — 에이전트가 조언에 그치지 않고 대신 행동한다(전부 감사로그에 기록). 데모는 화면 안에서
+         수행하고, 실서비스는 RM 업무함·상담예약·알림 규칙엔진으로 연결된다(로드맵 ⑨·⑮). -->
+    <div class="ar-do">
+      <span class="ar-do-k">에이전트 실행</span>
+      <div class="ar-do-btns">
+        <button type="button" class="ar-act-btn" id="ar-act-ticket">헤지 티켓 생성</button>
+        <button type="button" class="ar-act-btn" id="ar-act-recheck">재점검 예약</button>
+        <button type="button" class="ar-act-btn" id="ar-act-handoff">RM에 전달</button>
+      </div>
     </div>
   </section>
 
@@ -5105,6 +5129,34 @@ $("book").addEventListener("click",()=>{
   b.textContent="✓ RM 티켓 생성됨 — 아래 확인"; b.disabled=true; b.style.opacity=.75;
   setTimeout(()=>{b.textContent="영업점 상담 예약 요청 · RM 티켓 생성"; b.disabled=false; b.style.opacity=1;},2600); });
 
+/* ══════════ 에이전트 실행 — 행동 버튼 ══════════
+   에이전트다움의 마지막 한 걸음 = '조언'이 아니라 '대신 행동'. 셋 다 실제 동작으로 잇는다:
+   티켓 생성(기존 상담·티켓 흐름 재사용) · 재점검 예약(위험 감시 위임 등록) · RM 전달(업무함 큐).
+   전부 감사로그에 남긴다. 데모는 화면 안에서 수행, 실서비스는 업무함·상담예약·알림엔진 연결(로드맵 ⑨·⑮). */
+function _arDone(btn,label){ if(!btn) return; btn.dataset.lb=btn.textContent; btn.classList.add("done"); btn.disabled=true; btn.textContent=label;
+  clearTimeout(btn._t); btn._t=setTimeout(()=>{ btn.classList.remove("done"); btn.disabled=false; btn.textContent=btn.dataset.lb; },2600); }
+(function initAgentActions(){
+  const cust=()=>document.documentElement.getAttribute("data-mode")==="customer";
+  const nm=()=>(typeof _ticket!=="undefined"&&_ticket&&_ticket.name)||"현재 거래";
+  const t=$("ar-act-ticket"); if(t) t.addEventListener("click",()=>{
+    if($("book")) $("book").click();           // 기존 티켓 생성·이동 흐름 재사용(모드별 처리 포함)
+    else logAudit("RM 검토 티켓 생성", nm());
+    toast(cust()?"상담 예약 요청을 전송했습니다":"헤지 티켓을 생성했습니다 · 감사로그 기록");
+    _arDone(t, cust()?"요청 전송됨":"티켓 생성됨");
+  });
+  const rc=$("ar-act-recheck"); if(rc) rc.addEventListener("click",()=>{
+    const rk=$("dlg-risk-on"); if(rk && !rk.checked){ rk.checked=true; rk.dispatchEvent(new Event("change",{bubbles:true})); }  // 위험 감시 위임 등록
+    logAudit("재점검 예약", nm());
+    toast("재점검을 예약했습니다 · 초과 가능성이 오르면 먼저 알립니다");
+    _arDone(rc, "예약됨");
+  });
+  const ho=$("ar-act-handoff"); if(ho) ho.addEventListener("click",()=>{
+    logAudit(cust()?"KB 담당자 전달":"RM 업무함 전달", nm());
+    toast(cust()?"KB 담당자에게 전달했습니다":"담당 RM 업무함에 전달했습니다 · 큐에 추가");
+    _arDone(ho, "전달됨");
+  });
+})();
+
 /* ══════════ 데모 → 파일럿 로드맵(운영 게이트) ══════════ */
 /* 파일럿 로드맵 — 전제를 뒤집었다.
    기존: 원장·CRM 연동을 다 뚫어야 파일럿 시작 → 연동 예산이 없으면 파일럿 자체가 성립 안 됨.
@@ -5250,7 +5302,10 @@ function setMode(m){ const r=document.documentElement; r.setAttribute("data-mode
   // §6 CTA는 고객 행동 언어 vs 내부 업무 용어로 전환
   const cust = m==="customer";
   if($("hd-cta")) $("hd-cta").textContent = cust ? "KB 상담 요청하기 →" : "다음 액션: RM 검토 티켓 →";
-  if($("book")) $("book").textContent = cust ? "KB 상담 요청하기" : "영업점 상담 예약 요청 · RM 티켓 생성"; }
+  if($("book")) $("book").textContent = cust ? "KB 상담 요청하기" : "영업점 상담 예약 요청 · RM 티켓 생성";
+  // 에이전트 실행 버튼 — 모드별 언어(setMode 는 재계산을 안 하므로 여기서 직접 갱신)
+  if($("ar-act-ticket")) $("ar-act-ticket").textContent = cust ? "상담 예약 요청" : "헤지 티켓 생성";
+  if($("ar-act-handoff")) $("ar-act-handoff").textContent = cust ? "KB에 전달" : "RM에 전달"; }
 /* ══════════ RBAC — 내부 화면 접근 인가 시뮬레이션 ══════════ */
 let _rmAuthed=false; const RM_PASS="1234";  // 데모 passcode (실서비스는 기업뱅킹 SSO·서버 RBAC)
 function updateRoleBadge(){ const b=$("role-badge"); if(!b)return;
