@@ -1812,8 +1812,8 @@
            이걸 화면이 모르면 같은 신고번호에 헤지가 이중으로 걸린다(외국환거래법 실수요 원칙 위반). -->
       <div class="metaline" id="h-ledger" style="display:none;max-width:44em"></div>
     </div>
-    <div class="guard internal-only">※ <b>선물환율·스왑포인트는 CIP 이론가</b>(원화 3M 금리 상수 기반 산출)이며 <b>KB 고시가 아닙니다</b>. 고객 화면에는 노출하지 않습니다 — 실제 적용 환율은 고시 스왑포인트·대고객 스프레드로 RM이 확인합니다.</div>
-    <div class="guard">※ 관리 금액은 결제 금액 범위 안에서 안내됩니다. <b>적용 환율은 상담 시점의 KB 고시환율로 확정</b>되며 이 화면에서는 안내하지 않습니다.</div>
+    <div class="guard internal-only">※ <span class="hasinfo" data-info="선물환율·스왑포인트는 CIP 이론가(원화 3M 금리 상수 기반 산출)이며 KB 고시가 아닙니다. 고객 화면에는 노출하지 않으며, 실제 적용 환율은 고시 스왑포인트·대고객 스프레드로 RM이 확인합니다."><b>선물환율은 CIP 이론가 · KB 고시 아님</b></span></div>
+    <div class="guard">※ <span class="hasinfo" data-info="관리 금액은 결제 금액 범위 안에서 안내됩니다. 적용 환율은 상담 시점의 KB 고시환율로 확정되며 이 화면에서는 안내하지 않습니다."><b>적용 환율은 상담 시 KB 고시로 확정</b></span></div>
   </section>
 
   <!-- 헤지수단 비교 — 고객·RM 공통(내부 전용 아님). 상품 선택 근거는 고객에게도 유용하다. -->
@@ -1840,7 +1840,7 @@
       <span class="dbadge" style="margin-left:6px" title="담당 고객·요청 시각은 데모 데이터입니다. 실서비스는 RM 업무함(CRM)과 연동해 실제 담당 건이 올라옵니다.">데모 큐 · CRM 연동 로드맵</span>
       <span style="margin-left:auto;font-weight:600;color:var(--ink-faint);text-transform:none;letter-spacing:0">위험도·경과시간 순 · 행 클릭으로 전환</span></h3>
     <div class="dwrap"><table class="spectable" id="rmq-table" aria-label="RM 담당 고객 큐"></table></div>
-    <div class="guard">※ BBP·상태는 <b>현재 선택된 시장 국면 기준 실계산</b>입니다 — 국면 스트레스를 바꾸면 큐 전체가 다시 줄을 섭니다. 응답기한(SLA)은 데모 설계값입니다.</div>
+    <div class="guard">※ <span class="hasinfo" data-info="BBP·상태는 현재 선택된 시장 국면 기준 실계산입니다. 국면 스트레스를 바꾸면 큐 전체가 다시 줄을 섭니다. 응답기한(SLA)은 데모 설계값입니다."><b>국면 기준 실계산</b> · SLA는 데모값</span></div>
   </section>
 
   <section class="hero-decision" id="decision-hero">
@@ -2074,7 +2074,7 @@
   <section class="card">
     <h3><span class="agent-n">▸</span> KB 내부 기대효과 <span style="margin-left:auto;font-weight:600;color:var(--ink-faint);text-transform:none;letter-spacing:0">파일럿 KPI 목표 · 확정 성과 아님</span></h3>
     <div class="kpi" id="kb-kpi"></div>
-    <div class="guard">※ <b>*표시(−40%)는 검증되지 않은 가설</b>이며 실측 성과가 아닙니다. <b>측정식·데이터 소스는 '실서비스 설계' 탭의 파일럿 KPI 측정 설계</b>에서 before/after로 실측 예정입니다. 서류 누락·상품 후보 수는 현재 입력 기준 실측값입니다.</div>
+    <div class="guard">※ <span class="hasinfo" data-info="*표시(−40%)는 검증되지 않은 가설이며 실측 성과가 아닙니다. 측정식·데이터 소스는 '실서비스 설계' 탭의 파일럿 KPI 측정 설계에서 before/after로 실측 예정입니다. 서류 누락·상품 후보 수는 현재 입력 기준 실측값입니다."><b>*표시(−40%)는 미검증 가설</b> · 실측 아님</span></div>
   </section>
 
 
@@ -2092,7 +2092,7 @@
       <span class="dbadge" style="margin-left:6px" title="실서비스에서 전체 감사로그 열람·추출은 준법·AML 역할 권한입니다. RM 실무 화면(③ 준법·데이터)에는 '이 상담 건 처리 이력'만 읽기 전용으로 노출됩니다.">준법·AML 권한 — RM 화면 아님</span>
       <button type="button" class="modebtn" id="audit-export" style="margin-left:auto">⬇ CSV 내보내기</button></h3>
     <div class="audit" id="audit-log"></div>
-    <div class="guard">※ 데모는 브라우저에 저장해 서버 보존을 시뮬레이션합니다(최근 20건 표시·최대 200건). 실서비스는 서버 DB에 위변조 방지·보존기간과 함께 저장됩니다.</div>
+    <div class="guard">※ <span class="hasinfo" data-info="데모는 브라우저에 저장해 서버 보존을 시뮬레이션합니다(최근 20건 표시·최대 200건). 실서비스는 서버 DB에 위변조 방지·보존기간과 함께 저장됩니다."><b>데모는 브라우저 저장</b> · 실서비스는 서버 DB</span></div>
   </section>
 
   <div class="roadmap">
@@ -2108,7 +2108,7 @@
       </div>
       <div class="pp-note">※ <b>P1·P2에서 못 재는 것</b>도 명시합니다 — 상담 전환율(CRM 필요)·RM 준비시간 자동 측정(업무로그 필요)·자동 데이터 채움 효과(원장 필요). 이 셋은 <b>연동 후에만</b> 실측 가능하므로 파일럿 성공 기준에서 제외했습니다.</div>
     </div>
-    <div class="cap">아래 표가 <b>데모의 경계</b>입니다. <b>파일럿 전·P1·P2</b>는 연동 없이 수행하고, <b>연동 후</b> 항목은 파일럿 실측으로 예산을 확보한 뒤 착수합니다.</div>
+    <div class="cap"><span class="hasinfo" data-info="아래 표가 데모의 경계입니다. 파일럿 전·P1·P2는 연동 없이 수행하고, 연동 후 항목은 파일럿 실측으로 예산을 확보한 뒤 착수합니다."><b>아래 표가 데모의 경계</b> — 연동은 결과물</span></div>
     <div class="rt"><table aria-label="준법 게이트 · 파일럿 단계별 계획">
       <thead><tr><th scope="col">게이트</th><th scope="col">지금</th><th scope="col">연동 없이 파일럿에서 하는 것</th><th scope="col">담당 · 단계</th></tr></thead>
       <tbody id="roadmap-body"></tbody>
