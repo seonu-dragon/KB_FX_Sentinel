@@ -847,7 +847,7 @@
   /* 셸: 사이드바 + 워크스페이스 */
   .shell{display:grid;grid-template-columns:236px 1fr;align-items:stretch}
   .sidenav{background:var(--navy);color:#dbe3f0;padding:16px 12px;display:flex;flex-direction:column;gap:4px;
-    position:sticky;top:53px;align-self:start;height:calc(100vh - 53px);overflow-y:auto}
+    position:sticky;top:var(--appbar-h,53px);align-self:start;height:calc(100vh - var(--appbar-h,53px));overflow-y:auto}
   .nav{display:flex;flex-direction:column;gap:3px}
   .nav-i{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:var(--r-sm);font-size:var(--fs-2);font-weight:600;
     color:#b9c5da;cursor:pointer;text-decoration:none;border-left:3px solid transparent}
@@ -6149,6 +6149,26 @@ function renderSupport(){
   }
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
+})();
+</script>
+<script>
+/* 사이드바 고정 정렬 — 앱바 높이를 실측해 --appbar-h 로 노출한다.
+   앱바 top:0 sticky 높이가 테마 전환·줄바꿈·리사이즈로 53px→81px 등으로 달라지는데,
+   사이드바 sticky top 을 고정값(53px)으로 두면 스크롤 시 앱바 밑으로 파고들어 어긋났다.
+   실측값을 CSS 변수로 물려 어떤 폭에서도 앱바 바로 밑에 붙게 한다. */
+(function(){
+  var ab=document.querySelector('.appbar'); if(!ab) return;
+  var root=document.documentElement, raf=0;
+  function sync(){
+    raf=0;
+    var h=Math.round(ab.getBoundingClientRect().height);
+    if(h>0) root.style.setProperty('--appbar-h', h+'px');
+  }
+  function schedule(){ if(!raf) raf=requestAnimationFrame(sync); }
+  sync();
+  if('ResizeObserver' in window){ new ResizeObserver(schedule).observe(ab); }
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('load', schedule);
 })();
 </script>
 
