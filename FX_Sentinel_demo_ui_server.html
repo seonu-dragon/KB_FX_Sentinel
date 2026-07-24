@@ -1186,6 +1186,20 @@
     border-radius:var(--r-pill);padding:0 4px;margin-left:4px;letter-spacing:0}
   /* 무역 약어 용어 툴팁 — 카탈로그 설명의 Usance·Nego·B/L·HS코드 등에 hover 설명을 붙인다(고객 이해 보조) */
   abbr.term{text-decoration:underline dotted;text-underline-offset:2px;cursor:help;text-decoration-thickness:1px}
+  /* ── ⓘ 정보 팝오버 — 인라인 설명을 '눌러서 보기'로. 화면에 늘어놓던 부가설명을 걷어내고
+     hover title 의 모바일·키보드 한계를 없앤다. .hasinfo(용어 래퍼)·배지(title→data-info)에 붙는다. */
+  .dbadge[data-info], .dbadge[title], .hasinfo{cursor:pointer}
+  .dbadge[data-info]::after, .dbadge[title]::after{content:"ⓘ";color:var(--ink-faint);font-weight:700;font-size:.92em;margin-left:1px}
+  .hasinfo{text-decoration:underline dotted var(--line-solid);text-underline-offset:3px;text-decoration-thickness:1px;font-weight:inherit}
+  .hasinfo::after{content:"ⓘ";color:var(--ink-faint);font-weight:700;font-size:.72em;vertical-align:super;margin-left:2px}
+  .dbadge[data-info]:hover::after, .dbadge[title]:hover::after, .hasinfo:hover::after,
+  .dbadge[aria-expanded="true"]::after, .hasinfo[aria-expanded="true"]::after{color:var(--brand)}
+  .infopop{position:fixed;z-index:95;max-width:300px;background:var(--panel);color:var(--ink);
+    border:1px solid var(--line-solid);border-radius:10px;box-shadow:0 10px 30px rgba(15,22,34,.20);
+    padding:10px 12px;font-size:var(--fs-1);font-weight:500;line-height:1.6;letter-spacing:normal;
+    text-transform:none;white-space:normal;font-family:inherit}
+  .infopop b{color:var(--ink);font-weight:700}
+  :root[data-theme="dark"] .infopop{box-shadow:0 10px 30px rgba(0,0,0,.55)}
   /* 접이식 보조 카드 — 첫 화면 밀도를 낮춘다. 핵심(진단·추천·다음단계)은 펼친 채, 보조는 접어 둔다.
      details 라 내용은 DOM·textContent 에 그대로 남는다(검사·낭독 불변) — 시각적으로만 접힌다. */
   details.cardfold>summary{list-style:none;cursor:pointer;position:relative;padding-right:52px}
@@ -3374,8 +3388,8 @@ function compute(){
   // 사실만 남긴다: ①상한이라는 것과 배수 ②방향별 오차. 부장 지적(부풀린 손실로 헤지 유도)의 방어라 삭제 불가.
   // 핵심 고지(상한)는 상시 노출, 방향별 오차 등 부가 유의는 점진적 공개(밀도 완화). 삭제는 하지 않는다.
   $("bbp-honesty").innerHTML=
-    '<div class="hn"><b>부담액은 보수적 상한</b> — 실측 평균의 약 <b>'+ES_BIAS.ratio.toFixed(1)
-      +'배</b>(실제는 이보다 작을 수 있음).</div>'
+    '<div class="hn"><span class="hasinfo" data-info="실측 평균의 약 <b>'+ES_BIAS.ratio.toFixed(1)
+      +'배</b>로 안전하게 잡은 값입니다. 실제 부담액은 이보다 작을 수 있습니다."><b>부담액은 보수적 상한</b></span></div>'
     +'<details class="hn-more"><summary>방향별 오차 · 참고 유의</summary><div class="hn hn-sub">'+(impK
       ? '<b>수입 건은 오차가 큽니다</b> — 원화 약세 추세로 실제 초과 빈도 <b>'+(CALIB_DIR.importRate*100).toFixed(1)
         +'%</b>(수입·수출을 나눠 보면 오차가 평균의 4배). 참고 지표로만 보십시오.'
@@ -4181,9 +4195,8 @@ function renderLimit(lm,fallback,f){
     else
       h+='<div class="metaline rm"><b>대안 없음</b> 수입 결제 건은 K-SURE(수출 전용) 대상이 아닙니다 — 여신 한도·담보 협의가 선행돼야 합니다</div>';
   }
-  h+='<div class="vnote" style="margin-top:8px">파생상품은 <b>명목 전액이 아니라 신용환산액</b>만큼 한도를 사용합니다'
-    +'(만기가 길수록 환산율이 큽니다). 금리·수수료 등 최종 조건은 KB 영업점에서 확정합니다.'
-    +'<span class="internal-only"> 한도액·기사용액은 <b>고객 자기신고</b>이며 KB 원장 조회값이 아닙니다. 환산율은 참고 설계값입니다.</span></div>';
+  h+='<div class="vnote" style="margin-top:8px"><span class="hasinfo" data-info="파생상품은 명목 전액이 아니라 <b>신용환산액</b>만큼 한도를 사용합니다. 만기가 길수록 환산율이 큽니다. 금리·수수료 등 최종 조건은 KB 영업점에서 확정합니다.'
+    +'<span class=&quot;internal-only&quot;> 한도액·기사용액은 <b>고객 자기신고</b>이며 KB 원장 조회값이 아닙니다.</span>">한도는 명목이 아닌 <b>신용환산액</b> 기준</span></div>';
   box.innerHTML=h;
 }
 /* 적정성 판정 렌더 (F1).
@@ -6312,6 +6325,44 @@ function renderSupport(){
   if('ResizeObserver' in window){ new ResizeObserver(schedule).observe(ab); }
   window.addEventListener('resize', schedule, {passive:true});
   window.addEventListener('load', schedule);
+})();
+</script>
+<script>
+/* ══════════ ⓘ 정보 팝오버 ══════════
+   인라인으로 늘어놓던 부가설명을 '눌러서 보기'로 옮긴다. 배지의 title 은 data-info 로 승격해
+   네이티브 툴팁을 없애고 우리 팝오버로 일원화하고, .hasinfo(용어 래퍼)·무역용어(abbr.term)도 클릭·Enter 로 연다. */
+(function(){
+  function upgrade(root){
+    (root||document).querySelectorAll('.dbadge[title]').forEach(el=>{
+      el.dataset.info=el.getAttribute('title'); el.removeAttribute('title');
+      el.tabIndex=0; el.setAttribute('role','button'); if(!el.getAttribute('aria-label')) el.setAttribute('aria-label','설명 보기'); });
+    (root||document).querySelectorAll('.hasinfo:not([tabindex])').forEach(el=>{ el.tabIndex=0; el.setAttribute('role','button'); });
+  }
+  upgrade(document);
+  window._upgradeInfo=upgrade;
+  let pop=null, cur=null;
+  const SEL='[data-info],.dbadge[title],.hasinfo,abbr.term';
+  const info=el=>el.dataset.info||el.getAttribute('title')||'';
+  function close(){ if(pop){pop.remove();pop=null;} if(cur){cur.setAttribute('aria-expanded','false');cur=null;} }
+  function open(el){ close(); const txt=info(el); if(!txt) return;
+    pop=document.createElement('div'); pop.className='infopop'; pop.setAttribute('role','tooltip'); pop.innerHTML=txt;
+    document.body.appendChild(pop);
+    const r=el.getBoundingClientRect(), pw=pop.offsetWidth, ph=pop.offsetHeight;
+    const x=Math.min(Math.max(8, r.left), window.innerWidth-pw-8);
+    let y=r.bottom+7; if(y+ph>window.innerHeight-8) y=Math.max(8, r.top-ph-7);
+    pop.style.left=x+'px'; pop.style.top=y+'px'; el.setAttribute('aria-expanded','true'); cur=el; }
+  function hit(t){ return t&&t.closest?t.closest(SEL):null; }
+  document.addEventListener('click', e=>{
+    const el=hit(e.target);
+    if(el){ e.preventDefault(); e.stopPropagation(); (cur===el)?close():open(el); return; }
+    if(pop && !e.target.closest('.infopop')) close();
+  });
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape'){ close(); return; }
+    if((e.key==='Enter'||e.key===' ') && hit(e.target)){ e.preventDefault(); const el=hit(e.target); (cur===el)?close():open(el); }
+  });
+  window.addEventListener('scroll', close, {passive:true, capture:true});
+  window.addEventListener('resize', close, {passive:true});
 })();
 </script>
 
