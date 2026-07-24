@@ -1291,22 +1291,49 @@
   .vnote-more .vnote-body{margin-top:4px;line-height:1.6;color:var(--ink-mut)}
   /* 권고 pill — 알람색 없이 중립 태그로(위험 신호는 게이지 하나) */
   .statechip{border:1px solid var(--line-solid)}
-  /* ── 에이전트 파이프라인 스트립 — 예전에 지운 '컬럼 헤드 복창'과 다르다:
-       각 단계가 이번 계산의 실제 산출값(경보·원인·근거·제안)을 담는다. 값이 없으면 이 스트립도 없다. */
-  .agentflow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 12px}
-  .agentflow .af{border:1px solid var(--line-solid);border-radius:10px;padding:8px 10px;background:var(--panel);min-width:0}
-  .agentflow .af .af-n{font-size:var(--fs-1);font-weight:800;color:var(--ink-faint);letter-spacing:.02em;display:flex;align-items:center;gap:6px}
-  .agentflow .af .af-n .af-dot{width:7px;height:7px;border-radius:50%;background:var(--good);flex:0 0 auto}
-  .agentflow .af .af-v{font-size:var(--fs-1);color:var(--ink-mut);margin-top:3px;line-height:1.5;overflow-wrap:anywhere}
+  /* ── 에이전트 실행 흐름(히어로) — 4개 에이전트가 순차로 '추론'하는 과정을 그대로 비춘다.
+       각 노드는 이번 compute 의 실제 산출값(경보·원인·근거·제안)만 담고, 노드 사이 hand-off 화살표로
+       오케스트레이션을 드러낸다. '폼'이 아니라 '일하는 에이전트'가 첫인상이 되게 한다. */
+  .agentrun{margin:0 0 12px}
+  .agentrun .ar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+  .agentrun .ar-head h3{margin:0}
+  .ar-status{display:inline-flex;align-items:center;gap:7px;font-size:var(--fs-1);font-weight:800;color:var(--ink-mut);white-space:nowrap}
+  .ar-status .ar-live{width:8px;height:8px;border-radius:50%;background:var(--good);flex:0 0 auto}
+  .ar-status.run{color:var(--brand)}
+  .ar-status.run .ar-live{background:var(--brand)}
+  @media(prefers-reduced-motion:no-preference){ .ar-status.run .ar-live{animation:arPulse 1s ease-out infinite} }
+  @keyframes arPulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--brand) 55%,transparent)}70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
+
+  .agentflow{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin:0;position:relative}
+  .agentflow .af{position:relative;border:1px solid var(--line-solid);border-radius:12px;padding:11px 13px;background:var(--panel);min-width:0}
+  .agentflow .af:not(:last-child)::after{content:"\203A";position:absolute;right:-18px;top:50%;transform:translateY(-50%);
+    font-size:20px;font-weight:800;color:var(--ink-faint);line-height:1;pointer-events:none}
+  .agentflow .af .af-n{font-size:var(--fs-2);font-weight:800;color:var(--ink);letter-spacing:.01em;display:flex;align-items:center;gap:7px}
+  .agentflow .af .af-n .af-dot{width:9px;height:9px;border-radius:50%;background:var(--good);flex:0 0 auto}
+  .agentflow .af .af-role{font-size:var(--fs-1);color:var(--ink-faint);margin-top:3px;letter-spacing:.01em}
+  .agentflow .af .af-v{font-size:var(--fs-1);color:var(--ink-mut);margin-top:7px;line-height:1.5;overflow-wrap:anywhere}
   .agentflow .af .af-v b{color:var(--ink)}
+  .agentflow .af .af-act{font-size:var(--fs-1);color:var(--ink-mut);margin-top:6px;display:flex;gap:5px;align-items:baseline}
+  .agentflow .af .af-act::before{content:"\25B8";color:var(--brand);font-weight:800;flex:0 0 auto}
+  /* 스트리밍 리빌 — 노드가 순차로 켜진다(회사가 바뀔 때만). 켜지기 전엔 흐릿하게 대기. */
   @media(prefers-reduced-motion:no-preference){
-    .agentflow.run .af{opacity:0;animation:afIn .35s ease forwards}
-    .agentflow.run .af:nth-child(2){animation-delay:.15s}
-    .agentflow.run .af:nth-child(3){animation-delay:.3s}
-    .agentflow.run .af:nth-child(4){animation-delay:.45s}
-    @keyframes afIn{to{opacity:1}}
+    .agentflow.run .af{opacity:.32;filter:saturate(.35);transition:opacity .3s ease,filter .3s ease}
+    .agentflow.run .af.on{opacity:1;filter:none}
+    .agentflow.run .af.on .af-dot{animation:afDot .55s ease}
+    @keyframes afDot{0%{box-shadow:0 0 0 0 var(--brand)}65%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
   }
-  @media(max-width:720px){.agentflow{grid-template-columns:1fr 1fr}}
+  .agentrun .ar-foot{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;margin-top:13px;padding-top:12px;border-top:1px solid var(--line)}
+  .ar-sum{display:flex;gap:9px;align-items:baseline;font-size:var(--fs-1);min-width:0}
+  .ar-sum .ar-sum-k{flex:0 0 auto;font-weight:800;color:var(--ink-faint);white-space:nowrap}
+  .ar-sum .ar-sum-v{color:var(--ink-mut);line-height:1.55;overflow-wrap:anywhere;min-width:0}
+  .ar-sum .ar-sum-v b{color:var(--ink)}
+  .ar-sum .pick{color:var(--good);font-weight:800}
+  .ar-sum .rej{color:var(--ink-faint)}
+  @media(max-width:720px){
+    .agentflow{grid-template-columns:1fr 1fr;gap:22px 24px}
+    .agentflow .af:nth-child(2)::after{content:none}
+    .agentrun .ar-foot{grid-template-columns:1fr}
+  }
   /* 에이전트 브리핑 · 질문 · 위임 카드 공용 소품 */
   .brief-li{display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:var(--fs-2);color:var(--ink-mut);line-height:1.6}
   .brief-li .bl-ic{flex:0 0 auto;font-weight:800}
@@ -1403,9 +1430,22 @@
     <div id="agent-briefing-body"></div>
   </section>
 
-  <!-- 에이전트 처리 단계 — 이번 진단에서 4개 에이전트가 실제로 산출한 값을 단계별로 보여준다.
-       (예전에 지운 4-스텝 스트립은 컬럼 헤드 '이름 복창'이라 삭제했다 — 이건 산출값을 담으므로 다르다) -->
-  <div class="agentflow" id="agent-flow" role="list" aria-label="에이전트 처리 단계"></div>
+  <!-- ══════════ 에이전트 실행 흐름 (히어로) ══════════
+       파일을 열면 4개 에이전트가 순차로 추론하는 과정을 그대로 비춘다. 각 노드는 이번 compute 의
+       실제 산출값만 담고, hand-off 화살표로 오케스트레이션을 드러낸다. 판단 경로·관제 일지 요약을
+       같은 카드에 붙여 '묻기를 기다리는 도구'가 아니라 '이미 일한 에이전트'가 첫인상이 되게 한다. -->
+  <section class="card agentrun" id="agent-run" aria-label="에이전트 실행 흐름">
+    <div class="ar-head">
+      <h3><span class="agent-n">✦</span> 에이전트 실행 흐름
+        <span class="dbadge" style="margin-left:6px" title="4개 에이전트(Sentinel·Analyst·Advisor·Hedge)가 순차로 이번 거래를 처리한 결과입니다. 각 노드는 실제 계산 산출값만 담습니다(장식 없음).">4-에이전트 오케스트레이션</span></h3>
+      <span class="ar-status" id="ar-status" role="status" aria-live="polite"><span class="ar-live" aria-hidden="true"></span> 대기</span>
+    </div>
+    <div class="agentflow" id="agent-flow" role="list" aria-label="에이전트 처리 단계"></div>
+    <div class="ar-foot">
+      <div class="ar-sum"><span class="ar-sum-k">⋔ 판단 경로</span><span class="ar-sum-v" id="ar-dpath-v">–</span></div>
+      <div class="ar-sum"><span class="ar-sum-k">❏ 관제 일지</span><span class="ar-sum-v" id="ar-jrnl-v">–</span></div>
+    </div>
+  </section>
 
   <div class="customer-note">본 결과는 <b>참고 지표</b>이며 투자권유가 아닙니다. 최종 상품 조건·계약은 KB 영업점 상담에서 확정됩니다.</div>
 
@@ -3642,26 +3682,74 @@ function renderAgentFlow(f,ctx){
   const host=$("agent-flow"); if(!host) return;
   const pp=primaryProduct(ctx.recs,f.biz);
   const sh=ctx.m.shares||{V:0,J:0,C:0};
+  const cust=document.documentElement.getAttribute("data-mode")==="customer";
+  // 각 노드 = {이름, 역할, 산출값(v), 행동(act), 색}. v/act 는 이번 compute 의 실제 값만.
   const steps=[
-    ["① Sentinel · 감시", ctx.alert?('<b>경보 발동</b> — 초과 가능성 <b>'+ctx.bbp.toFixed(1)+'%</b>')
-                                   :('모니터링 — 초과 가능성 <b>'+ctx.bbp.toFixed(1)+'%</b>'), ctx.alert?"var(--crit)":"var(--good)"],
-    ["② Analyst · 원인", '국면 <b>'+esc(ctx.m.regimeName||"현재")+'</b> · '
-                        // 고객에겐 성분 약어(V/J/C) 대신 주요 원인을 평이하게. RM·심사에는 성분값 유지.
-                        +(document.documentElement.getAttribute("data-mode")!=="customer"
-                            ? '성분 V'+sh.V+'·J'+sh.J+'·C'+sh.C
-                            : '주요 원인 <b>'+(sh.V>=sh.J&&sh.V>=sh.C?'변동성 확대':(sh.J>=sh.C?'급변 위험':'변동성 지속'))+'</b>')
-                        +(ctx.m.iz?' · <b>개입 감쇠 적용</b>':''), "var(--gold-ink)"],
-    ["③ Advisor · 정보", '후보 <b>'+ctx.recs.length+'건</b> 검토 → 1순위 <b>'+esc(pp?pp.t.split("(")[0].trim():"—")+'</b>', "var(--brand)"],
-    ["④ Hedge · 제안", ctx.hr>0?('부분 <b>'+Math.round(ctx.hr*100)+'%</b> '+esc(ctx.inst)+' 참고 · RM 티켓 준비')
-                              :'지금은 관리 불필요 — 급변 시 재제안', "var(--elev)"]
+    {n:"Sentinel", role:"감시 · 경보",
+     v: ctx.alert?('초과 가능성 <b style="color:var(--crit)">'+ctx.bbp.toFixed(1)+'%</b>')
+                 :('초과 가능성 <b>'+ctx.bbp.toFixed(1)+'%</b>'),
+     act: ctx.alert?"경보 발동":"모니터링 유지", col: ctx.alert?"var(--crit)":"var(--good)"},
+    {n:"Analyst", role:"원인 분석 · XAI",
+     v: '국면 <b>'+esc(ctx.m.regimeName||"현재")+'</b>'
+        // 고객에겐 성분 약어(V/J/C) 대신 평이한 주요 원인. RM·심사에는 성분값 유지.
+        +(cust?'':' · V'+sh.V+'·J'+sh.J+'·C'+sh.C),
+     act: (sh.V>=sh.J&&sh.V>=sh.C?'변동성 확대':(sh.J>=sh.C?'급변 위험':'변동성 지속'))+(ctx.m.iz?' · 개입 감쇠':''),
+     col:"var(--gold-ink)"},
+    {n:"Advisor", role:"상품 라우팅",
+     v: '후보 <b>'+ctx.recs.length+'건</b> → 1순위 <b>'+esc(pp?pp.t.split("(")[0].trim():"—")+'</b>',
+     act: pp?"상담 후보 준비":"적합 상품 없음", col:"var(--brand)"},
+    {n:"Hedge", role:"대응 설계",
+     v: ctx.hr>0?('부분 <b>'+Math.round(ctx.hr*100)+'%</b> '+esc(String(ctx.inst).split(" / ")[0])):'관리 불필요',
+     act: ctx.hr>0?"RM 티켓 준비":"급변 시 재제안", col:"var(--elev)"}
   ];
   // 점등 애니메이션은 회사가 바뀔 때만 — 입력 타이핑 재계산마다 깜빡이면 소음이다
   const replay=(_afLastCo!==f.name); _afLastCo=f.name;
+  const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
   host.classList.remove("run");
-  host.innerHTML=steps.map(s=>'<div class="af" role="listitem"><div class="af-n"><span class="af-dot" style="background:'+s[2]+'"></span>'+s[0]+'</div><div class="af-v">'+s[1]+'</div></div>').join("");
-  if(replay){ void host.offsetWidth; host.classList.add("run"); }
+  host.innerHTML=steps.map((s,i)=>'<div class="af'+((replay&&!reduce)?'':' on')+'" role="listitem">'
+    +'<div class="af-n"><span class="af-dot" style="background:'+s.col+';color:'+s.col+'"></span>'+(i+1)+'. '+s.n+'</div>'
+    +'<div class="af-role">'+s.role+'</div>'
+    +'<div class="af-v">'+s.v+'</div>'
+    +'<div class="af-act">'+esc(s.act)+'</div></div>').join("");
+  // 스트리밍 리빌 — 노드가 순차로 켜지며 상태 pill 이 '추론 중 → 완료'로 바뀐다(에이전트가 지금 일하는 느낌).
+  const stat=$("ar-status");
+  const done=()=>{ if(stat){ stat.classList.remove("run"); stat.innerHTML='<span class="ar-live" aria-hidden="true"></span> 완료 · 4단계'; } };
+  if(replay && !reduce){
+    void host.offsetWidth; host.classList.add("run");
+    if(stat){ stat.classList.add("run"); stat.innerHTML='<span class="ar-live" aria-hidden="true"></span> 추론 중…'; }
+    const nodes=host.querySelectorAll(".af");
+    nodes.forEach((el,i)=>setTimeout(()=>{
+      el.classList.add("on");
+      if(i===nodes.length-1) setTimeout(()=>{ host.classList.remove("run"); done(); }, 340);
+    }, 260*(i+1)));
+  } else { done(); }
+  renderRunSummary(f,ctx);
 }
 let _afLastCo=null;
+
+/* 히어로 요약 — 판단 경로(선택·기각)와 관제 일지(최근 관찰)를 한 줄로 압축해 실행 흐름 카드 밑에 붙인다.
+   근거는 각각 recs(자격·적정성 판정)와 _jrnlLoad(관찰 이력)로, 아래 상세 카드와 같은 소스라 갈라지지 않는다. */
+function renderRunSummary(f,ctx){
+  const dv=$("ar-dpath-v");
+  if(dv){
+    const recs=ctx.recs||[], pp=primaryProduct(recs,f.biz), rej=recs.filter(r=>_DP_REJECT[r.st]);
+    let s='';
+    if(pp) s+='<span class="pick">✓ '+esc(pp.t.split("(")[0].trim())+'</span>';
+    const rn=rej.slice(0,2).map(r=>'<span class="rej">✕ '+esc(r.t.split("(")[0].trim())+'</span>');
+    if(rn.length) s+=(s?' · ':'')+rn.join(' · ');
+    if(rej.length>2) s+=' <span class="rej">외 '+(rej.length-2)+'건</span>';
+    if(!s) s='<span class="rej">접은 경로 없음 — 검토 상품 전부 자격 충족</span>';
+    dv.innerHTML=s;
+  }
+  const jv=$("ar-jrnl-v");
+  if(jv){
+    const arr=(typeof _jrnlLoad==="function"?_jrnlLoad():[]), seen={}, rows=[];
+    arr.forEach(o=>{ if(!seen[o.co]){ seen[o.co]=1; rows.push(o); } });
+    jv.innerHTML = rows.length
+      ? rows.slice(0,3).map(o=>esc(o.tm)+' <b>'+esc(o.co)+'</b> '+o.bbp.toFixed(0)+'%'+(o.alert?' 경보':'')).join(' · ')
+      : '<span class="rej">첫 관찰 기록 중…</span>';
+  }
+}
 
 /* ══════════ 에이전트 점검 브리핑 ══════════
    열자마자 "이미 해둔 일"을 1인칭으로 보고한다. 고객 모드=내 회사만, RM 모드=담당 전체 요약(internal-only). */
