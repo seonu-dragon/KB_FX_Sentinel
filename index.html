@@ -1806,7 +1806,7 @@
   <section class="card" id="hedge-compare" style="margin-top:16px"></section>
 
   <!-- ══════════ 심화 분석 · 심사 자료 ══════════ -->
-  <div class="deep-h internal-only"><h2>심화 분석 · 심사 자료</h2><span class="tag">RM · 심사위원용</span><p>결정 근거 · 정직 검증 · 거버넌스 · 실서비스 로드맵</p></div>
+  <div class="deep-h internal-only"><h2>심화 분석 · 검증·거버넌스</h2><span class="tag">RM · 내부 검토용</span><p>결정 근거 · 정직 검증 · 거버넌스 · 실서비스 로드맵</p></div>
 
   <div class="internal-only">
 
@@ -1814,7 +1814,7 @@
     <button type="button" class="deeptab on" data-dp="dp-a">① 결과·근거</button>
     <button type="button" class="deeptab" data-dp="dp-c">② 상담·진행</button>
     <button type="button" class="deeptab" data-dp="dp-e">③ 준법·데이터</button>
-    <button type="button" class="deeptab dt-judge" data-dp="dp-judge">④ 심사 자료</button>
+    <button type="button" class="deeptab dt-judge" data-dp="dp-judge">④ 검증·거버넌스</button>
   </div>
 
   <div class="deeppane active" id="dp-a">
@@ -1963,7 +1963,7 @@
   <div class="deeppane" id="dp-judge">
   <!-- 심사 자료 탭은 6,400px(7화면)에 대섹션 4개다 — 점프 없이 스크롤로만 두면 심사위원이 못 본다.
        (청사진에 '§12 점프네비'가 기록돼 있었는데 정리 패스 중 사라져 있었다) -->
-  <nav class="jumpnav" aria-label="심사 자료 바로가기">
+  <nav class="jumpnav" aria-label="검증·거버넌스 바로가기">
     <span class="jn-lb">바로가기</span>
     <a href="#sec-verify">모델 검증</a>
     <a href="#sec-compliance">준법 매핑</a>
@@ -1971,10 +1971,10 @@
     <a href="#sec-deploy">실서비스 전환</a>
   </nav>
   <div class="judge-note">
-    <span class="jn-ic">⚠</span>
-    <div><b>이 탭은 대회 심사·발표용 자료입니다 — 실서비스 RM 화면이 아닙니다.</b><br>
-    모델 검증·정직성 근거·거버넌스 매핑·데모→파일럿 로드맵·실서비스 전환 설계를 한곳에 모았습니다.
-    실무 화면은 <b>①결과·근거 / ②상담·진행 / ③준법·데이터</b> 3개 탭입니다.</div>
+    <span class="jn-ic">ⓘ</span>
+    <div><b>내부 모델 검증·거버넌스 자료입니다 — 고객 화면이 아닙니다.</b><br>
+    모델 검증·정직성 근거·거버넌스 매핑·실서비스 전환 설계를 한곳에 모았습니다.
+    고객·RM 실무 화면은 <b>①결과·근거 / ②상담·진행 / ③준법·데이터</b> 3개 탭입니다.</div>
   </div>
 
   <div class="trust-strip">
@@ -1988,7 +1988,7 @@
 
   <div class="sec-h" id="sec-verify" style="margin-bottom:6px;margin-top:8px"><span class="bn bn-ok">✓</span><div><h2>모델 검증 (정직)</h2><p>USD/KRW 2018–2026 실데이터 무누수 백테스트. 좋은 결과와 한계를 함께 공개합니다.</p></div></div>
   <section class="card judgecard">
-    <h3><span class="agent-n">✓</span> 심사위원용 한 장 요약 <span style="margin-left:auto;font-weight:600;color:var(--ink-faint);text-transform:none;letter-spacing:0">왜 안전한 AI인가</span></h3>
+    <h3><span class="agent-n">✓</span> 모델 신뢰성 한 장 요약 <span style="margin-left:auto;font-weight:600;color:var(--ink-faint);text-transform:none;letter-spacing:0">왜 안전한 AI인가</span></h3>
     <div class="judge-qa">
       <div class="q"><div class="qk">환율을 예측하나?</div><div class="qv">아니오 — 예측 알파는 walk-forward(OOS)에서 스스로 기각</div></div>
       <div class="q"><div class="qk">무엇을 계산하나?</div><div class="qv">예산환율 이탈확률(BBP)·기대손실·부분헤지 참고치</div></div>
@@ -5110,9 +5110,9 @@ $("ai-gen").addEventListener("click",generateAdvisorBrief);
     +" (무정보 "+(CALIB.base*(1-CALIB.base)).toFixed(2)+"↓) · 십분위 전 구간 예측≈실제 (BBP "+pc(b1[0])+"→실제 "+pc(b1[1])+", "+pc(b2[0])+"→"+pc(b2[1])+")";
   $("ts-ece").innerHTML="BBP 캘리브레이션 <b>ECE "+CALIB.ece.toFixed(3)+"</b> · 예측≈실제";
   $("qa-verify").textContent="ECE "+CALIB.ece.toFixed(3)+" · Brier "+CALIB.brier.toFixed(3)+" · PBO 0.20 (과최적화 아님)";
-  // ① 결과·근거 탭에는 "이 확률을 믿어도 되나"에 답하는 한 줄만 — 심화 검증표는 ④ 심사 자료로
+  // ① 결과·근거 탭에는 "이 확률을 믿어도 되나"에 답하는 한 줄만 — 심화 검증표는 ④ 검증·거버넌스로
   $("calib-lite").innerHTML="<b>BBP 신뢰도</b> · ECE <b>"+CALIB.ece.toFixed(3)+"</b> ("+CALIB.n.toLocaleString()
-    +"건 무누수 백테스트 · 예: BBP "+pc(b1[0])+" → 실제 "+pc(b1[1])+") · 상세는 <b>④ 심사 자료</b>";
+    +"건 무누수 백테스트 · 예: BBP "+pc(b1[0])+" → 실제 "+pc(b1[1])+") · 상세는 <b>④ 검증·거버넌스</b>";
 })();
 $("book").addEventListener("click",()=>{
   const b=$("book"), cust=document.documentElement.getAttribute("data-mode")==="customer";
