@@ -1505,7 +1505,7 @@
     </div>
   </section>
 
-  <div class="customer-note">본 결과는 <b>참고 지표</b>이며 투자권유가 아닙니다. 최종 상품 조건·계약은 KB 영업점 상담에서 확정됩니다.</div>
+  <div class="customer-note"><span class="hasinfo" data-info="본 결과는 참고 지표이며 투자권유가 아닙니다. 최종 상품 조건·계약은 KB 영업점 상담에서 확정됩니다."><b>참고 지표</b> · 투자권유 아님</span></div>
 
   <!-- ══════════ 3컬럼 코어 ══════════ -->
   <div class="app3">
@@ -1541,7 +1541,7 @@
         <!-- 자연어 거래 입력 — "말을 알아듣는 에이전트"의 최소 실물. 규칙 파서(행내)라 외부 전송이 없고,
              파싱 결과를 그대로 고지한다(못 알아들은 항목은 기존 값 유지라고 말한다 — 없는 이해를 주장하지 않는다). -->
         <div class="f wide" style="margin-bottom:10px">
-          <label for="nl-input">문장으로 입력 <span style="font-weight:400;color:var(--ink-faint)">예: "베트남에서 40만 불 수입, 63영업일 뒤 결제"</span></label>
+          <label for="nl-input">문장으로 입력 <span class="hasinfo" style="font-weight:400" data-info="예: &quot;베트남에서 40만 불 수입, 63영업일 뒤 결제&quot; 처럼 적으면 금액·거래국·만기·결제방식을 자동으로 채웁니다.">예시</span></label>
           <div style="display:flex;gap:6px">
             <input id="nl-input" placeholder="거래를 문장으로 적으면 에이전트가 항목을 채웁니다" autocomplete="off" style="flex:1;min-width:0">
             <button type="button" class="modebtn" id="nl-go">해석</button>
@@ -4893,7 +4893,7 @@ function applyGate(){
     $("gate-note").innerHTML='실수요('+esc(ev.legal)+')가 확인되어 환리스크 관리 상담이 열렸습니다.';
   } else if(_docUploaded){
     gh.textContent="🔒 가결제 거래 — 확정 후 헤지 상담 가능"; gc.classList.remove("ok");
-    $("gate-note").innerHTML='서류는 확인했지만 <b>가결제(취소 가능)</b> 거래입니다 — 외국환거래법상 선물환은 확정 거래에만 가능합니다. 취소돼도 손실이 한정되는 <b>옵션형</b>은 지금도 검토할 수 있습니다.';
+    $("gate-note").innerHTML='<span class="hasinfo" data-info="외국환거래법상 선물환은 확정 거래에만 가능합니다. 취소돼도 손실이 한정되는 <b>옵션형</b>은 지금도 검토할 수 있습니다.">서류는 확인됐지만 <b>가결제(취소 가능)</b> 거래 — 헤지 수단이 제한됩니다</span>';
   } else {
     gh.textContent="🔒 서류 확인 전 — 환리스크 관리 상담 잠금"; gc.classList.remove("ok");
     $("gate-note").innerHTML='서류('+esc(ev.legal)+')를 올리면 실수요가 확인되어 환리스크 관리 상담이 열립니다.';
