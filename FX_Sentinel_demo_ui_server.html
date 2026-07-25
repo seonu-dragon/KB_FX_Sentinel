@@ -1388,42 +1388,46 @@
   .ask-q{align-self:flex-end;background:color-mix(in srgb,var(--brand) 8%,transparent);border-radius:10px 10px 2px 10px;padding:7px 10px;font-size:var(--fs-2);max-width:90%}
   .ask-a{align-self:flex-start;border:1px solid var(--line-solid);border-radius:10px 10px 10px 2px;padding:8px 10px;font-size:var(--fs-2);color:var(--ink-mut);line-height:1.65;max-width:95%}
   .ask-a .ask-src{display:block;margin-top:5px;font-size:var(--fs-1);color:var(--ink-faint)}
-  /* ══════════ AI 모드 페이지 ══════════ */
-  .aimode{max-width:880px;margin:0 auto;padding:6px 0 48px}
-  .ai-hero h1{font-size:var(--fs-6,26px);font-weight:800;color:var(--ink);display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0}
-  .ai-hero h1 .agent-n{color:var(--brand)}
-  .ai-hero .ai-sub{color:var(--ink-mut);margin:10px 0 0;line-height:1.65;max-width:54em}
-  .ai-ctx{margin-top:16px;padding:11px 15px;border:1px solid var(--line-solid);border-left:3px solid var(--brand);border-radius:10px;background:var(--panel);font-size:var(--fs-1);color:var(--ink-mut);line-height:1.6}
-  .ai-ctx b{color:var(--ink)}
-  .ai-chips{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 4px}
-  .ai-chip{font-family:inherit;font-size:var(--fs-1);color:var(--ink);background:var(--panel);border:1px solid var(--line-solid);border-radius:var(--r-pill,999px);padding:8px 14px;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
-  .ai-chip::before{content:"\2727";color:var(--brand);margin-right:6px}
-  .ai-chip:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
-  .ai-chip:hover::before{color:var(--gold)}
-  /* 기업 선택 바 */
-  .ai-firmbar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:18px 0 2px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--brand) 3%,transparent)}
-  .ai-firm-k{font-size:var(--fs-1);font-weight:800;color:var(--ink-faint);white-space:nowrap}
-  .ai-firms{display:flex;flex-wrap:wrap;gap:7px}
-  .ai-firm{font-family:inherit;font-size:var(--fs-1);color:var(--ink);background:var(--panel);border:1px solid var(--line-solid);border-radius:var(--r-pill,999px);padding:7px 13px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;transition:background .15s,border-color .15s,color .15s}
-  .ai-firm::before{content:"\25C8";color:var(--ink-faint);font-size:.9em}
-  .ai-firm:hover{border-color:var(--brand);color:var(--brand)}
-  .ai-firm.on{background:var(--navy);color:#fff;border-color:var(--navy)}
-  .ai-firm.on::before{content:"\2713";color:var(--gold)}
-  .ai-firm .fp{opacity:.7;font-weight:600}
-  .ai-firm.on .fp{opacity:.85}
-  .ai-firm-hint{font-size:var(--fs-1);color:var(--ink-faint);flex:1 1 100%;line-height:1.5}
-  .ai-log{min-height:110px;margin-top:8px}
-  .ai-log .ask-q,.ai-log .ask-a{max-width:82%;font-size:var(--fs-2)}
+  /* ══════════ AI 모드 — 채팅 중심 패널 ══════════ */
+  .aimode{max-width:940px;margin:0 auto;display:flex;flex-direction:column;
+    height:calc(100vh - var(--appbar-h,84px) - 76px);min-height:440px;max-height:860px}
+  /* 상단 한 줄 — 제목 · 기업 드롭다운 · 현재 지표 */
+  .ai-head{flex:0 0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:0 2px 13px;border-bottom:1px solid var(--line)}
+  .ai-head-title{font-size:var(--fs-4,20px);font-weight:800;color:var(--ink);display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+  .ai-head-title .agent-n{color:var(--brand)}
+  .ai-head-firm{display:inline-flex;align-items:center;gap:7px}
+  .ai-head-firm label{font-size:var(--fs-1);font-weight:800;color:var(--ink-faint)}
+  .ai-head-firm select{font-family:inherit;font-size:var(--fs-1);font-weight:700;color:var(--ink);background:var(--panel);
+    border:1px solid var(--line-solid);border-radius:var(--r-pill,999px);padding:6px 30px 6px 13px;cursor:pointer;
+    appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23888' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+  .ai-head-ctx{margin-left:auto;font-size:var(--fs-1);color:var(--ink-mut);white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
+  .ai-head-ctx b{color:var(--ink)}
+  /* 대화영역 — 스크롤 주인공 */
+  .ai-log{flex:1 1 auto;overflow-y:auto;min-height:0;padding:18px 4px 10px;margin:0;gap:12px}
+  .ai-log .ask-q,.ai-log .ask-a{max-width:80%;font-size:var(--fs-2)}
   .ai-log .ask-a b{color:var(--ink)}
   .ai-think{color:var(--ink-faint);display:inline-flex;align-items:center;gap:7px}
-  .ai-inputbar{display:flex;gap:8px;margin-top:16px}
+  /* 입력영역 — 하단 고정, 예시칩은 입력 위 */
+  .ai-inputwrap{flex:0 0 auto;padding-top:13px;border-top:1px solid var(--line)}
+  .ai-chips{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 11px}
+  .ai-chip{font-family:inherit;font-size:var(--fs-1);color:var(--ink-mut);background:var(--panel);border:1px solid var(--line-solid);border-radius:var(--r-pill,999px);padding:6px 12px;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
+  .ai-chip::before{content:"\2727";color:var(--brand);margin-right:5px}
+  .ai-chip:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .ai-chip:hover::before{color:var(--gold)}
+  .ai-inputbar{display:flex;gap:8px}
   .ai-inputbar input{flex:1 1 auto;min-width:0}
-  .ai-send{flex:0 0 auto;width:auto;white-space:nowrap;margin-top:0;padding:0 24px}
+  .ai-send{flex:0 0 auto;width:auto;white-space:nowrap;margin-top:0;padding:0 22px}
+  .ai-guard{font-size:var(--fs-1);color:var(--ink-faint);margin-top:9px;line-height:1.5}
   @media(prefers-reduced-motion:no-preference){
     .ai-think::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--brand);animation:arPulse 1s ease-in-out infinite}
     .ai-log .ask-a.ai-in{animation:briefIn .4s ease both}
   }
-  @media(max-width:720px){ .ai-inputbar{flex-wrap:wrap} .ai-inputbar input{flex:1 1 100%} .ai-send{flex:1 1 100%} }
+  @media(max-width:720px){
+    .aimode{height:auto;max-height:none;min-height:0}
+    .ai-log{max-height:56vh}
+    .ai-head-ctx{margin-left:0;flex:1 1 100%}
+    .ai-inputbar{flex-wrap:wrap} .ai-inputbar input{flex:1 1 100%} .ai-send{flex:1 1 100%}
+  }
   .dlg-rule{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:var(--fs-2);color:var(--ink-mut)}
   .dlg-rule:first-of-type{border-top:0}
   .dlg-rule input[type=number]{width:76px;min-width:0}
@@ -2341,23 +2345,20 @@
        답변은 현재 진단 계산값(_ctxNow) + 행내 지식베이스(ASK_KB)에서만 만든다 — 없는 수치는 지어내지 않는다. -->
   <div id="view-ai" class="view">
     <div class="aimode">
-      <div class="ai-hero">
-        <h1><span class="agent-n">✧</span> AI 모드 <span class="ai-tag">현재 진단 기준 · 행내 지식 · 외부 미전송</span></h1>
-        <p class="ai-sub">지금 <b>AI 코파일럿</b>이 계산한 이 거래의 진단을 질문으로 물어보세요. 예산환율 초과 가능성·시장 위험·추천 상품·예상 부담액까지 <b>화면의 실제 계산값</b>으로 답합니다.</p>
-        <div class="ai-ctx" id="ai-ctx">진단을 불러오는 중…</div>
+      <div class="ai-head">
+        <span class="ai-head-title"><span class="agent-n">✧</span> AI 모드</span>
+        <span class="ai-head-firm"><label for="ai-firm-sel">기업</label><select id="ai-firm-sel" aria-label="기업 선택"></select></span>
+        <span class="ai-head-ctx" id="ai-ctx">진단을 불러오는 중…</span>
       </div>
-      <div class="ai-firmbar">
-        <span class="ai-firm-k">기업 선택</span>
-        <div class="ai-firms" id="ai-firms"></div>
-        <span class="ai-firm-hint">기업을 고르거나, 질문에 <b>기업명</b>을 적어도 됩니다 — 예: "한빛정밀 설명해줘". <b>AI 모드 안에서만</b> 바뀌고 코파일럿 화면은 그대로입니다.</span>
-      </div>
-      <div class="ai-chips" id="ai-chips"></div>
       <div class="ask-log ai-log" id="ai-log"></div>
-      <div class="ai-inputbar">
-        <input id="ai-input" placeholder="예: 예산환율 초과 가능성에 대해 알려줘" autocomplete="off" aria-label="AI 모드 질문 입력">
-        <button type="button" class="go ai-send" id="ai-send">질문 →</button>
+      <div class="ai-inputwrap">
+        <div class="ai-chips" id="ai-chips"></div>
+        <div class="ai-inputbar">
+          <input id="ai-input" placeholder="예: 예산환율 초과 가능성에 대해 알려줘" autocomplete="off" aria-label="AI 모드 질문 입력">
+          <button type="button" class="go ai-send" id="ai-send">질문 →</button>
+        </div>
+        <div class="ai-guard">현재 진단 계산값·행내 지식베이스에서만 답합니다 · 모르는 질문은 지어내지 않고 KB 상담 안내 · 외부 전송 없음. 질문에 <b>기업명</b>을 적어도 전환되며, 코파일럿 화면은 그대로입니다.</div>
       </div>
-      <div class="guard">※ 답변은 <b>현재 진단 계산값</b>과 <b>행내 지식베이스</b>에서만 만듭니다 — 모르는 질문은 지어내지 않고 KB 상담으로 안내합니다. 값을 바꾸려면 <b>AI 코파일럿</b> 화면에서 거래 정보를 수정하세요.</div>
     </div>
   </div>
   <div id="view-dashboard" class="view"></div>
@@ -4247,8 +4248,8 @@ function updateAiCtx(){
   const el=$("ai-ctx"); if(!el) return;
   const c=_aiC();
   if(!c.name){ el.textContent='진단을 불러오는 중…'; return; }
-  el.innerHTML='지금 보고 있는 거래 · <b>'+esc(c.name)+'</b> '+(c.pos==="export"?"수출":"수입")+' '+Number(c.amount).toLocaleString()+' '+esc(c.cur)
-    +' · 초과 가능성 <b style="color:'+_aiCol(c.bbp)+'">'+c.bbp.toFixed(1)+'%</b> · 시장 '+Math.round(c.ewi)+'·'+esc(c.regime);
+  el.innerHTML=(c.pos==="export"?"수출":"수입")+' '+Number(c.amount).toLocaleString()+' '+esc(c.cur)
+    +' · 초과 <b style="color:'+_aiCol(c.bbp)+'">'+c.bbp.toFixed(1)+'%</b> · 시장 '+Math.round(c.ewi)+'·'+esc(c.regime);
 }
 /* AI 모드의 '보고 있는 기업' — 코파일럿 폼을 건드리지 않고 그 기업 진단만 순수 계산한다.
    _deal·_recsOf·triage 는 코파일럿 compute() 와 같은 엔진·같은 규칙(드리프트 없음). 폼·_ctxNow 불변. */
@@ -4274,15 +4275,16 @@ function firmCtxOf(p){
 // AI 모드가 답할 때 참조하는 문맥 — 고른 기업이 있으면 그 순수 진단, 없으면 코파일럿 현재 진단
 function _aiC(){ return _aiFirmIdx>=0 ? firmCtxOf(PRESETS[_aiFirmIdx]) : (_ctxNow||{}); }
 let _aiGreeted=false, _aiChipsBuilt=false, _aiFirmsBuilt=false;
-function _aiSyncFirmChips(){
+function _aiSyncFirm(){
+  const sel=$("ai-firm-sel"); if(!sel) return;
   const nm=(_aiC().name)||"";
-  document.querySelectorAll("#ai-firms .ai-firm").forEach(b=>b.classList.toggle("on", b.dataset.name===nm));
+  if(sel.value!==nm) sel.value=nm;
 }
 // 기업 선택 — AI 모드 포커스만 그 기업으로(코파일럿 폼·_ctxNow 불변), 프로필 개요를 답한다
 function selectAiFirm(i){
   const p=PRESETS[i]; if(!p) return;
   _aiFirmIdx=i;                       // 순수 계산 포커스만 이동 — fillPreset 호출 없음
-  updateAiCtx(); _aiSyncFirmChips();
+  updateAiCtx(); _aiSyncFirm();
   const log=$("ai-log");
   if(log){
     const o=aiFirmOverview(_aiC());
@@ -4296,14 +4298,14 @@ function renderAiMode(){
   if((!_ctxNow||!_ctxNow.name) && typeof compute==="function") compute();
   updateAiCtx();
   if(!_aiFirmsBuilt){
-    const fb=$("ai-firms");
-    if(fb){
-      fb.innerHTML=PRESETS.map((p,i)=>'<button type="button" class="ai-firm" data-i="'+i+'" data-name="'+esc(p.name)+'">'+esc(p.name)+' <span class="fp">'+(p.pos==="export"?"수출":"수입")+'</span></button>').join("");
-      fb.querySelectorAll(".ai-firm").forEach(b=>b.addEventListener("click",()=>selectAiFirm(+b.dataset.i)));
+    const sel=$("ai-firm-sel");
+    if(sel){
+      sel.innerHTML=PRESETS.map((p,i)=>'<option value="'+esc(p.name)+'" data-i="'+i+'">'+esc(p.name)+' · '+(p.pos==="export"?"수출":"수입")+'</option>').join("");
+      sel.addEventListener("change",()=>{ const o=sel.options[sel.selectedIndex]; if(o) selectAiFirm(+o.getAttribute("data-i")); });
     }
     _aiFirmsBuilt=true;
   }
-  _aiSyncFirmChips();
+  _aiSyncFirm();
   if(!_aiChipsBuilt){
     const host=$("ai-chips");
     if(host){
@@ -4314,7 +4316,7 @@ function renderAiMode(){
   }
   if(!_aiGreeted){
     const log=$("ai-log"), c=_aiC();
-    if(log) log.insertAdjacentHTML("beforeend",'<div class="ask-a ai-in">안녕하세요 — 지금 진단 중인 <b>'+esc(c.name||"이 거래")+'</b>에 대해 무엇이든 물어보세요. 다른 기업이 궁금하면 위에서 <b>기업 선택</b>을 누르거나 질문에 기업명을 적으세요.<span class="ask-src">현재 진단 기준 · 외부 미전송</span></div>');
+    if(log) log.insertAdjacentHTML("beforeend",'<div class="ask-a ai-in">안녕하세요 — <b>'+esc(c.name||"이 거래")+'</b> 진단을 무엇이든 물어보세요. 위 <b>기업</b> 드롭다운을 바꾸거나 질문에 기업명을 적으면 그 기업으로 답합니다.<span class="ask-src">현재 진단 기준 · 외부 미전송</span></div>');
     _aiGreeted=true;
   }
 }
@@ -4327,7 +4329,7 @@ function aiSubmit(){
   const fi=_aiFindFirm(q); let switchNote="";
   if(fi>=0){
     if(PRESETS[fi].name!==(_aiC().name||"")) switchNote='<b>'+esc(PRESETS[fi].name)+'</b>(으)로 전환했습니다. ';
-    _aiFirmIdx=fi; updateAiCtx(); _aiSyncFirmChips();
+    _aiFirmIdx=fi; updateAiCtx(); _aiSyncFirm();
   }
   // ② 라우팅 — 기업 소개 질문(이름만/설명류)이고 구체 지표 키워드가 없으면 프로필 개요, 아니면 일반 답변
   const hasMetric=AI_INTENTS.some(it=>it.k.some(k=>q.toLowerCase().indexOf(k)>=0));
