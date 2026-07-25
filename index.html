@@ -1356,6 +1356,25 @@
   .ar-act-btn:disabled{cursor:default}
   .ar-act-btn.done{background:color-mix(in srgb,var(--good) 12%,transparent);border-color:var(--good);color:var(--good)}
   .ar-act-btn.done::before{content:"\2713";color:var(--good)}
+  /* 자가 반박 — "이 판단이 틀릴 경우"를 스스로 대는 줄(실행흐름 푸터, 양 칼럼 폭 전체) */
+  .ar-sum.ar-sum-full{grid-column:1 / -1}
+  .ar-sum .rebut-k{color:var(--elev)}
+  .ar-sum .ar-sum-v.rebut b{color:var(--ink)}
+  /* 자연어 해석 — 에이전트가 항목을 채우는 동안의 '생각 중' 표시 */
+  .nl-think{color:var(--brand);font-weight:700;display:inline-flex;align-items:center;gap:6px}
+  .nl-think::before{content:"\2726";color:var(--brand)}
+  @media(prefers-reduced-motion:no-preference){
+    /* 폼 자동채움 리빌 — 인식한 필드가 하나씩 파란 링과 함께 채워진다(에이전트가 대신 적는 순간) */
+    .f.filling>input,.f.filling>select{animation:fFill .85s ease}
+    .f.filling>label{color:var(--brand);transition:color .2s ease}
+    @keyframes fFill{0%{box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 34%,transparent)}100%{box-shadow:0 0 0 3px transparent}}
+    .nl-think::after{content:"";width:5px;height:5px;border-radius:50%;background:var(--brand);animation:arPulse 1s ease-in-out infinite}
+    /* 브리핑 리빌 — 방금 점검한 듯 항목이 순차로 떠오른다 */
+    #agent-briefing-body.reveal .brief-li{animation:briefIn .5s ease both}
+    #agent-briefing-body.reveal .brief-li:nth-child(2){animation-delay:.12s}
+    #agent-briefing-body.reveal .brief-li:nth-child(3){animation-delay:.24s}
+    @keyframes briefIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+  }
   @media(max-width:720px){
     .agentflow{grid-template-columns:1fr 1fr;gap:22px 24px}
     .agentflow .af:nth-child(2)::after{content:none}
@@ -1369,6 +1388,42 @@
   .ask-q{align-self:flex-end;background:color-mix(in srgb,var(--brand) 8%,transparent);border-radius:10px 10px 2px 10px;padding:7px 10px;font-size:var(--fs-2);max-width:90%}
   .ask-a{align-self:flex-start;border:1px solid var(--line-solid);border-radius:10px 10px 10px 2px;padding:8px 10px;font-size:var(--fs-2);color:var(--ink-mut);line-height:1.65;max-width:95%}
   .ask-a .ask-src{display:block;margin-top:5px;font-size:var(--fs-1);color:var(--ink-faint)}
+  /* ══════════ AI 모드 페이지 ══════════ */
+  .aimode{max-width:880px;margin:0 auto;padding:6px 0 48px}
+  .ai-hero h1{font-size:var(--fs-6,26px);font-weight:800;color:var(--ink);display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0}
+  .ai-hero h1 .agent-n{color:var(--brand)}
+  .ai-hero .ai-sub{color:var(--ink-mut);margin:10px 0 0;line-height:1.65;max-width:54em}
+  .ai-ctx{margin-top:16px;padding:11px 15px;border:1px solid var(--line-solid);border-left:3px solid var(--brand);border-radius:10px;background:var(--panel);font-size:var(--fs-1);color:var(--ink-mut);line-height:1.6}
+  .ai-ctx b{color:var(--ink)}
+  .ai-chips{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 4px}
+  .ai-chip{font-family:inherit;font-size:var(--fs-1);color:var(--ink);background:var(--panel);border:1px solid var(--line-solid);border-radius:var(--r-pill,999px);padding:8px 14px;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
+  .ai-chip::before{content:"\2727";color:var(--brand);margin-right:6px}
+  .ai-chip:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .ai-chip:hover::before{color:var(--gold)}
+  /* 기업 선택 바 */
+  .ai-firmbar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:18px 0 2px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--brand) 3%,transparent)}
+  .ai-firm-k{font-size:var(--fs-1);font-weight:800;color:var(--ink-faint);white-space:nowrap}
+  .ai-firms{display:flex;flex-wrap:wrap;gap:7px}
+  .ai-firm{font-family:inherit;font-size:var(--fs-1);color:var(--ink);background:var(--panel);border:1px solid var(--line-solid);border-radius:var(--r-pill,999px);padding:7px 13px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;transition:background .15s,border-color .15s,color .15s}
+  .ai-firm::before{content:"\25C8";color:var(--ink-faint);font-size:.9em}
+  .ai-firm:hover{border-color:var(--brand);color:var(--brand)}
+  .ai-firm.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .ai-firm.on::before{content:"\2713";color:var(--gold)}
+  .ai-firm .fp{opacity:.7;font-weight:600}
+  .ai-firm.on .fp{opacity:.85}
+  .ai-firm-hint{font-size:var(--fs-1);color:var(--ink-faint);flex:1 1 100%;line-height:1.5}
+  .ai-log{min-height:110px;margin-top:8px}
+  .ai-log .ask-q,.ai-log .ask-a{max-width:82%;font-size:var(--fs-2)}
+  .ai-log .ask-a b{color:var(--ink)}
+  .ai-think{color:var(--ink-faint);display:inline-flex;align-items:center;gap:7px}
+  .ai-inputbar{display:flex;gap:8px;margin-top:16px}
+  .ai-inputbar input{flex:1 1 auto;min-width:0}
+  .ai-send{flex:0 0 auto;width:auto;white-space:nowrap;margin-top:0;padding:0 24px}
+  @media(prefers-reduced-motion:no-preference){
+    .ai-think::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--brand);animation:arPulse 1s ease-in-out infinite}
+    .ai-log .ask-a.ai-in{animation:briefIn .4s ease both}
+  }
+  @media(max-width:720px){ .ai-inputbar{flex-wrap:wrap} .ai-inputbar input{flex:1 1 100%} .ai-send{flex:1 1 100%} }
   .dlg-rule{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:var(--fs-2);color:var(--ink-mut)}
   .dlg-rule:first-of-type{border-top:0}
   .dlg-rule input[type=number]{width:76px;min-width:0}
@@ -1425,6 +1480,7 @@
   <aside class="sidenav">
     <nav class="nav" aria-label="주 메뉴">
       <a class="nav-i active" data-view="copilot"><span class="ni">✦</span> AI 코파일럿</a>
+      <a class="nav-i" data-view="ai"><span class="ni">✧</span> AI 모드</a>
       <a class="nav-i" data-view="dashboard"><span class="ni">▦</span> 대시보드</a>
       <a class="nav-i" data-view="trades"><span class="ni">⌕</span> 거래 조회</a>
       <a class="nav-i" data-view="products"><span class="ni">▤</span> 금융상품</a>
@@ -1472,6 +1528,7 @@
     <div class="ar-foot">
       <div class="ar-sum"><span class="ar-sum-k">⋔ 판단 경로</span><span class="ar-sum-v" id="ar-dpath-v">–</span></div>
       <div class="ar-sum"><span class="ar-sum-k">❏ 관제 일지</span><span class="ar-sum-v" id="ar-jrnl-v">–</span></div>
+      <div class="ar-sum ar-sum-full"><span class="ar-sum-k rebut-k" title="에이전트가 자기 추천을 스스로 반박해 본 결과입니다 — 반대 시나리오와, 그래서 왜 이 수준으로 제안하는지.">⊘ 자가 반박</span><span class="ar-sum-v rebut" id="ar-rebut">–</span></div>
     </div>
     <!-- 행동 버튼 — 에이전트가 조언에 그치지 않고 대신 행동한다(전부 감사로그에 기록). 데모는 화면 안에서
          수행하고, 실서비스는 RM 업무함·상담예약·알림 규칙엔진으로 연결된다(로드맵 ⑨·⑮). -->
@@ -2224,6 +2281,30 @@
 
   </div><!-- /view-copilot -->
 
+  <!-- ══════════ AI 모드 — 현재 진단을 질문·답변으로 설명 ══════════
+       코파일럿이 계산한 이 거래의 지표(BBP·EWI·헤지·부담액·추천상품)를 자연어 질문으로 되묻는 페이지.
+       답변은 현재 진단 계산값(_ctxNow) + 행내 지식베이스(ASK_KB)에서만 만든다 — 없는 수치는 지어내지 않는다. -->
+  <div id="view-ai" class="view">
+    <div class="aimode">
+      <div class="ai-hero">
+        <h1><span class="agent-n">✧</span> AI 모드 <span class="ai-tag">현재 진단 기준 · 행내 지식 · 외부 미전송</span></h1>
+        <p class="ai-sub">지금 <b>AI 코파일럿</b>이 계산한 이 거래의 진단을 질문으로 물어보세요. 예산환율 초과 가능성·시장 위험·추천 상품·예상 부담액까지 <b>화면의 실제 계산값</b>으로 답합니다.</p>
+        <div class="ai-ctx" id="ai-ctx">진단을 불러오는 중…</div>
+      </div>
+      <div class="ai-firmbar">
+        <span class="ai-firm-k">기업 선택</span>
+        <div class="ai-firms" id="ai-firms"></div>
+        <span class="ai-firm-hint">기업을 고르거나, 질문에 <b>기업명</b>을 적어도 됩니다 — 예: "한빛정밀 설명해줘". <b>AI 모드 안에서만</b> 바뀌고 코파일럿 화면은 그대로입니다.</span>
+      </div>
+      <div class="ai-chips" id="ai-chips"></div>
+      <div class="ask-log ai-log" id="ai-log"></div>
+      <div class="ai-inputbar">
+        <input id="ai-input" placeholder="예: 예산환율 초과 가능성에 대해 알려줘" autocomplete="off" aria-label="AI 모드 질문 입력">
+        <button type="button" class="go ai-send" id="ai-send">질문 →</button>
+      </div>
+      <div class="guard">※ 답변은 <b>현재 진단 계산값</b>과 <b>행내 지식베이스</b>에서만 만듭니다 — 모르는 질문은 지어내지 않고 KB 상담으로 안내합니다. 값을 바꾸려면 <b>AI 코파일럿</b> 화면에서 거래 정보를 수정하세요.</div>
+    </div>
+  </div>
   <div id="view-dashboard" class="view"></div>
   <div id="view-trades" class="view"></div>
   <div id="view-products" class="view"></div>
@@ -3613,7 +3694,11 @@ function compute(){
   renderScreening(f);
   renderRmQueue(f);
   // 현재 진단 문맥 — Advisor 다중턴 질문("이 거래 헤지해야 하나요?")이 되짚을 값
-  _ctxNow={name:f.name, pos:f.pos, bbp:bbp, alert:alert, primary:(primaryProduct(recs,f.biz)||{}).t, budget:f.budget, cur:f.currency, amount:f.amount};
+  _ctxNow={name:f.name, pos:f.pos, bbp:bbp, alert:alert, primary:(primaryProduct(recs,f.biz)||{}).t, budget:f.budget, cur:f.currency, amount:f.amount,
+    ewi:m.ewi, ewiGrade:gradeOf(m.ewi), regime:m.regimeName, hr:hr, inst:inst, es:esTotal, horizon:f.horizon, spot:m.spot,
+    country:f.country, pay:f.pay, biz:f.biz,
+    recCount:recs.length, recNames:recs.slice(0,3).map(r=>String(r.t).split("(")[0].trim())};
+  if(typeof updateAiCtx==="function") updateAiCtx();   // AI 모드 화면이 열려 있으면 컨텍스트 배너 갱신
   const _obsDelta=recordObservation(f,{bbp:bbp,alert:alert,m:m});   // 관제 일지에 관찰 기록 + 직전 대비 변화
   renderAgentFlow(f,{bbp:bbp,alert:alert,recs:recs,m:m,hr:hr,inst:inst});
   renderAgentBriefing(f,{bbp:bbp,alert:alert,delta:_obsDelta,regime:m.regimeName});
@@ -3621,6 +3706,7 @@ function compute(){
   renderJournal();
   evalDelegate(f,{bbp:bbp,m:m});
   applyGate();
+  _afForce=false;   // 스트리밍 재생 플래그 소비 — 흐름·브리핑이 모두 읽은 뒤 여기서만 내린다
 }
 let _ctxNow={};
 
@@ -3740,8 +3826,9 @@ function renderAgentFlow(f,ctx){
      v: ctx.hr>0?('부분 <b>'+Math.round(ctx.hr*100)+'%</b> '+esc(String(ctx.inst).split(" / ")[0])):'관리 불필요',
      act: ctx.hr>0?"RM 티켓 준비":"급변 시 재제안", col:"var(--elev)"}
   ];
-  // 점등 애니메이션은 회사가 바뀔 때만 — 입력 타이핑 재계산마다 깜빡이면 소음이다
-  const replay=(_afLastCo!==f.name); _afLastCo=f.name;
+  // 점등 애니메이션은 회사가 바뀔 때 OR 사용자가 주 액션(진단 버튼·자연어 해석)을 눌렀을 때.
+  // 입력 타이핑 재계산마다 깜빡이면 소음이라 그때는 재생하지 않는다(_afForce=false).
+  const replay=(_afLastCo!==f.name) || _afForce; _afLastCo=f.name;
   const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
   host.classList.remove("run");
   host.innerHTML=steps.map((s,i)=>'<div class="af'+((replay&&!reduce)?'':' on')+'" role="listitem">'
@@ -3764,6 +3851,9 @@ function renderAgentFlow(f,ctx){
   renderRunSummary(f,ctx);
 }
 let _afLastCo=null;
+// 주 액션에서 스트리밍 재생을 강제하는 플래그. compute() 끝에서 리셋한다(단일 소유권).
+let _afForce=false;
+let _briefLastCo=null;
 
 /* 히어로 요약 — 판단 경로(선택·기각)와 관제 일지(최근 관찰)를 한 줄로 압축해 실행 흐름 카드 밑에 붙인다.
    근거는 각각 recs(자격·적정성 판정)와 _jrnlLoad(관찰 이력)로, 아래 상세 카드와 같은 소스라 갈라지지 않는다. */
@@ -3786,6 +3876,15 @@ function renderRunSummary(f,ctx){
     jv.innerHTML = rows.length
       ? rows.slice(0,3).map(o=>esc(o.tm)+' <b>'+esc(o.co)+'</b> '+o.bbp.toFixed(0)+'%'+(o.alert?' 경보':'')).join(' · ')
       : '<span class="rej">첫 관찰 기록 중…</span>';
+  }
+  // 자가 반박 — 에이전트가 자기 추천을 스스로 반박한다: "이게 틀리면?"과 "그래서 왜 이 수준인가".
+  // 새 계산 없이 이번 compute 의 bbp·hedgeRatio 만 쓴다(있는 값의 재해석 — 없는 근거를 지어내지 않는다).
+  const rv=$("ar-rebut");
+  if(rv){
+    const hrp=Math.round((ctx.hr||0)*100), bp=ctx.bbp||0;
+    rv.innerHTML = hrp>0
+      ? '환율이 <b>유리하게</b> 움직이면 헤지 비용이 되레 손실입니다. 그래서 100%가 아니라 초과 가능성('+bp.toFixed(0)+'%)에 맞춘 <b>부분 '+hrp+'%</b>만 제안하고, 남은 <b>'+(100-hrp)+'%</b>는 시장을 열어 둡니다.'
+      : '지금은 <b>관리 불필요</b>로 판단했지만 이 판단이 틀릴 수 있습니다 — 초과 가능성이 <b>40%</b>를 넘기면 스스로 재제안하도록 감시를 이어갑니다.';
   }
 }
 
@@ -3819,6 +3918,10 @@ function renderAgentBriefing(f,ctx){
   }
   h+='<div class="brief-li internal-only"><span class="bl-ic" style="color:var(--elev)">≡</span><div><b>담당 전체(5사)</b> — 경보 <b>'+alerts+'건</b> · 다음 회차 선제 경보 <b>'+recurs+'건</b> · 응답기한 임박 <b>'+dueSoon+'건</b>. 우선순위는 아래 <b>RM 워크벤치 큐</b>에 세워 두었습니다.</div></div>';
   host.innerHTML=h;
+  // 방금 점검한 듯한 리빌 — 회사가 바뀌거나 주 액션을 눌렀을 때만(타이핑 재계산마다는 소음).
+  const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+  const reveal=(_afForce||_briefLastCo!==f.name); _briefLastCo=f.name;
+  if(reveal && !reduce){ host.classList.remove("reveal"); void host.offsetWidth; host.classList.add("reveal"); }
 }
 
 /* ══════════ 자연어 거래 입력 ══════════
@@ -3869,17 +3972,33 @@ function nlApply(){
     return;
   }
   const o=r.fields;
-  if(o.pos && $("in-pos")) $("in-pos").value=o.pos;
-  if(o.amount && $("in-amount")) $("in-amount").value=o.amount;
-  if(o.country && $("in-country")) $("in-country").value=o.country;
-  if(o.horizon && $("in-horizon")) $("in-horizon").value=o.horizon;
-  if(o.cur && $("in-cur") && CUR[o.cur]){ $("in-cur").value=o.cur; renderRegimeChips(); renderCurNote(); }
-  if(o.pay && $("in-pay")) $("in-pay").value=o.pay;
-  if(o.cert && $("in-cert")) $("in-cert").value=o.cert;
-  compute();
-  note.style.display="";
-  note.innerHTML='<b>이렇게 이해했습니다</b> — '+r.got.map(esc).join(" · ")+' <b style="color:var(--good)">(진단에 반영됨)</b>. 문장에 없던 항목은 기존 값을 유지했습니다.';
-  logAudit("자연어 거래 입력 해석", r.got.join(", "));
+  // 채울 항목을 순서대로 모은다 — 에이전트가 폼을 '하나씩' 채우는 리빌을 위해.
+  const acts=[];
+  const push=(id,fn)=>{ if($(id)) acts.push({id:id,fn:fn}); };
+  if(o.pos)     push("in-pos",     ()=>$("in-pos").value=o.pos);
+  if(o.amount)  push("in-amount",  ()=>$("in-amount").value=o.amount);
+  if(o.country) push("in-country", ()=>$("in-country").value=o.country);
+  if(o.horizon) push("in-horizon", ()=>$("in-horizon").value=o.horizon);
+  if(o.cur && CUR[o.cur]) push("in-cur", ()=>{ $("in-cur").value=o.cur; renderRegimeChips(); renderCurNote(); });
+  if(o.pay)     push("in-pay",     ()=>$("in-pay").value=o.pay);
+  if(o.cert)    push("in-cert",    ()=>$("in-cert").value=o.cert);
+  // 마무리 — 값이 다 들어간 뒤 강제 스트리밍으로 진단을 재생하고 결과를 고지한다.
+  const finish=()=>{
+    _afForce=true; compute();
+    note.style.display="";
+    note.innerHTML='<b>이렇게 이해했습니다</b> — '+r.got.map(esc).join(" · ")+' <b style="color:var(--good)">(진단에 반영됨)</b>. 문장에 없던 항목은 기존 값을 유지했습니다.';
+    logAudit("자연어 거래 입력 해석", r.got.join(", "));
+  };
+  const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+  if(reduce || acts.length===0){ acts.forEach(a=>a.fn()); finish(); return; }
+  // '이해하고 채우는 중' 표시 후, 필드마다 파란 링을 켜며 순차로 채운다.
+  note.style.display=""; note.innerHTML='<span class="nl-think">문장을 이해하고 항목을 채우는 중</span>';
+  acts.forEach((a,i)=>setTimeout(()=>{
+    a.fn();
+    const box=$(a.id) && $(a.id).closest(".f");
+    if(box){ box.classList.add("filling"); setTimeout(()=>box.classList.remove("filling"),850); }
+    if(i===acts.length-1) setTimeout(finish,260);
+  }, 220*i));
 }
 { const _ng=$("nl-go"), _ni=$("nl-input");
   if(_ng) _ng.addEventListener("click",nlApply);
@@ -3997,6 +4116,178 @@ function askSubmit(){
 { const _ag=$("ask-go"), _ai=$("ask-input");
   if(_ag) _ag.addEventListener("click",askSubmit);
   if(_ai) _ai.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); askSubmit(); } }); }
+
+/* ══════════ AI 모드 (현재 진단을 질문·답변으로 설명) ══════════
+   Advisor 지식베이스(ASK_KB)를 재사용하되, '지금 이 거래'의 지표는 현재 진단 계산값(_ctxNow)으로 답한다.
+   우선순위: ① 현재 진단 지표(라이브) → ② 문맥 질문(진단 되짚기) → ③ 행내 지식베이스 → ④ 범위 밖(지어내지 않고 RM 안내).
+   원칙은 Advisor 와 같다 — 없는 수치는 만들지 않고, 외부 전송 0. */
+function _aiBand(b){ return b>=60?'매우 높음':b>=40?'경보':b>=25?'주의':'안정'; }
+function _aiCol(b){ return b>=40?'var(--crit)':b>=25?'var(--warn)':'var(--good)'; }
+function _aiPrim(c){ return esc(c.primary?String(c.primary).split("(")[0].trim():"—"); }
+function _aiHrPct(c){ return Math.round((c.hr||0)*100); }
+const AI_INTENTS=[
+  {k:["초과 가능성","초과가능성","예산환율","기준환율","bbp","이탈","넘을 확률","깨질","넘길"],
+   f:c=>({a:'<b>'+esc(c.name)+'</b>의 예산환율 초과 가능성(BBP)은 지금 <b style="color:'+_aiCol(c.bbp)+'">'+c.bbp.toFixed(1)+'%</b> — <b>'+_aiBand(c.bbp)+'</b> 구간입니다. 결제일(D+'+c.horizon+'영업일)에 회사 기준환율 <b>'+Number(c.budget).toLocaleString()+'원</b>이 깨질 확률을 회사별로 계산한 값이고, 환율 방향을 예측하는 지표가 아닙니다. '+(c.bbp>=40?'경보 기준(40%)을 넘어 <b>부분 헤지</b> 검토를 권합니다.':'안정 구간이라 지금 서둘러 헤지할 필요는 낮고 <b>급변 시 알림</b>을 걸어두는 편이 낫습니다.'), s:'현재 진단 · BBP 엔진(bbp.py)'})},
+  {k:["시장 위험","시장위험","위험게이지","위험 게이지","ewi","위험도"],
+   f:c=>({a:'지금 시장 위험게이지(EWI)는 <b>'+Math.round(c.ewi)+'점 · '+esc(c.ewiGrade)+'</b>이고 국면은 <b>'+esc(c.regime)+'</b>입니다. EWI가 60점 이상이거나 BBP가 40% 이상이면 경보가 발동합니다 — 현재는 '+(c.alert?'<b style="color:var(--crit)">경보 발동</b> 상태':'<b style="color:var(--good)">경보 미발동</b>')+'입니다.', s:'현재 진단 · 시장 국면표'})},
+  {k:["국면","변동성","레짐","regime"],
+   f:c=>({a:'현재 시장 국면은 <b>'+esc(c.regime)+'</b>, 시장 위험게이지(EWI)는 <b>'+Math.round(c.ewi)+'점('+esc(c.ewiGrade)+')</b>입니다. 국면은 그 통화가 그 시점에 실제로 보인 변동성(σ̂)으로 판정하며, 국면이 격해질수록 같은 만기라도 초과 가능성이 커집니다.', s:'현재 진단 · 국면 σ̂'})},
+  {k:["헤지","헤징","부분 헤지","헤지 비율","선물환 얼마","hedge"],
+   f:c=>({a: _aiHrPct(c)>0
+     ? '현재 진단은 <b>부분 '+_aiHrPct(c)+'%</b> 헤지를 권합니다(수단: <b>'+esc(String(c.inst).split(" / ")[0])+'</b>). 실수요 범위 안에서 결제 금액의 '+_aiHrPct(c)+'%만 확정하고 나머지 '+(100-_aiHrPct(c))+'%는 시장을 열어 두는 구조입니다. 요율·밴드가는 KB RM 견적에서 확정됩니다.'
+     : '지금은 <b>관리 불필요</b>로 판단했습니다 — 초과 가능성 '+c.bbp.toFixed(1)+'%가 낮아 헤지보다 <b>감시</b>가 낫습니다. 급변해 40%를 넘기면 스스로 재제안합니다.', s:'현재 진단 · 헤지 설계'})},
+  {k:["부담액","손실","얼마 손해","최대 손실","손해","얼마나 잃","리스크 금액"],
+   f:c=>({a:'환율이 불리하게 움직였을 때 이 거래의 예상 <b>부담액(보수적 상한)</b>은 <b>'+won(c.es)+'</b> 수준입니다. 최악에 가까운 시나리오의 참고 상한이고, 실제 손익은 결제일 환율에 따라 달라집니다.', s:'현재 진단 · Expected Shortfall'})},
+  {k:["추천 상품","추천상품","상품","금융지원","뭐가 좋","어떤 상품","추천"],
+   f:c=>({a:'현재 조건 기준 후보는 <b>'+c.recCount+'건</b>이고 1순위는 <b>'+_aiPrim(c)+'</b>입니다.'+(c.recNames&&c.recNames.length?' (후보: '+c.recNames.map(esc).join(" · ")+')':'')+' 자격 판정(ELIG)을 통과한 상품만 제시하며, 최종 조건은 KB 영업점에서 확정됩니다.', s:'현재 진단 · 상품 라우팅(ELIG)'})},
+  {k:["만기","결제일","언제 결제","며칠","기간이"],
+   f:c=>({a:'이 거래의 결제 만기는 <b>D+'+c.horizon+'영업일</b>입니다. 만기가 멀수록 환율이 움직일 여지가 커져 초과 가능성도 함께 커집니다.', s:'현재 진단 · 거래 정보'})},
+  {k:["종합","요약","정리","한눈에","전체","현황","브리핑"],
+   f:c=>({a:'<b>'+esc(c.name)+'</b> · '+(c.pos==="export"?"수출":"수입")+' '+Number(c.amount).toLocaleString()+' '+esc(c.cur)+' / 만기 D+'+c.horizon+'. 초과 가능성 <b>'+c.bbp.toFixed(1)+'%('+_aiBand(c.bbp)+')</b>, 시장 위험 '+Math.round(c.ewi)+'·'+esc(c.regime)+'. 대응: '+(_aiHrPct(c)>0?'부분 '+_aiHrPct(c)+'% 헤지('+esc(String(c.inst).split(" / ")[0])+')':'관리 불필요·감시 유지')+'. 1순위 후보 <b>'+_aiPrim(c)+'</b>. 더 자세히는 항목별로 물어보세요 — 예: "부담액이 얼마야?"', s:'현재 진단 종합'})},
+  {k:["뭐 해야","무엇을","다음에","어떻게 해야","할 일","조치","무슨"],
+   f:c=>({a: c.alert
+     ? '지금 할 일: ① <b>부분 '+_aiHrPct(c)+'% 헤지</b> 티켓 준비 ② <b>'+_aiPrim(c)+'</b> 상담 예약 ③ <b>급변 시 알림</b>. 우측 상단 <b>KB 상담 연결</b>로 RM에 넘길 수 있습니다.'
+     : '지금은 급한 대응이 필요 없습니다 — <b>급변 시 알림</b>만 걸어두면 됩니다. 조건이 바뀌면 <b>AI 코파일럿</b> 화면에서 다시 진단하세요.', s:'현재 진단 · 다음 조치'})}
+];
+function aiResolve(q){
+  const ql=q.toLowerCase(), c=_aiC();
+  // ① 현재 진단 지표 질문 — 라이브 값
+  let best=null,score=0;
+  AI_INTENTS.forEach(it=>{ const s=it.k.filter(k=>ql.indexOf(k)>=0).length; if(s>score){score=s;best=it;} });
+  if(best && c.name){ const r=best.f(c); return {inner:r.a, src:r.s, log:'라이브·'+r.s}; }
+  // ② 문맥 질문("이 거래 괜찮아?") — 현재 진단 되짚기
+  if(CTX_REF.test(q) && c.name && askAnswerScore(q)<2){
+    const verdict=c.bbp>=40
+      ? '초과 가능성이 <b>'+c.bbp.toFixed(1)+'%</b>로 경보 구간입니다 — 실수요 범위 안에서 <b>부분 헤지</b>와 <b>'+_aiPrim(c)+'</b> 검토를 권합니다.'
+      : '초과 가능성이 <b>'+c.bbp.toFixed(1)+'%</b>로 안정 구간입니다 — 지금 서둘러 헤지할 필요는 낮고, <b>급변 시 알림</b>을 걸어두는 편이 낫습니다. 1순위 후보는 '+_aiPrim(c)+'입니다.';
+    return {inner:'<b>'+esc(c.name)+'</b> 현재 진단 기준으로, '+verdict+' 최종 조건·계약은 KB 영업점에서 확정됩니다.', src:'현재 진단 결과(BBP·룰엔진 계산값)', log:'문맥·'+c.name};
+  }
+  // ③ 행내 지식베이스
+  const hit=askAnswer(q);
+  if(hit) return {inner:hit.a, src:hit.s, log:'지식·'+hit.s};
+  // ④ 범위 밖 — 지어내지 않는다
+  return {inner:'이 질문은 <b>현재 진단·행내 지식베이스</b> 범위 밖입니다 — 답을 지어내지 않습니다. 우측 상단 <b>KB 상담 연결</b>이나 RM 티켓으로 물어보시면 담당자가 정확히 답합니다.', src:'범위 밖 · RM 안내', log:'범위밖'};
+}
+const AI_SUGGEST=["예산환율 초과 가능성 알려줘","지금 헤지해야 하나요?","추천 상품이 뭐야?","시장 위험은 어때?","예상 부담액이 얼마야?","이 거래 종합해줘"];
+const PAY_LBL={TT:"T/T 송금",LC:"L/C 신용장",DA:"D/A 인수도",DP:"D/P 지급도",OA:"O/A 무신용장 외상"};
+// 질문에서 기업명 찾기 — PRESETS 이름이 문장에 있으면 그 인덱스(없으면 -1)
+function _aiFindFirm(q){ for(let i=0;i<PRESETS.length;i++){ if(String(q).indexOf(PRESETS[i].name)>=0) return i; } return -1; }
+// 기업 소개 질문인가 — 설명/소개/어떤 회사 류이거나, 이름만 입력했을 때
+function _aiIsOverviewQ(q,fi){
+  if(fi<0) return false;
+  if(/설명|소개|알려|어떤\s*(회사|기업|거래)|누구|정보|프로필|대해|어때|현황|상황|브리핑/.test(q)) return true;
+  const rest=String(q).replace(PRESETS[fi].name,"").replace(/[\s은는이가을를에대해요?.!,·]/g,"");
+  return rest.length<=1;   // 이름을 빼면 남는 게 없으면 = 이름만 입력
+}
+// 기업 소개 — 현재 진단(_ctxNow)으로 정체성 + 진단 + 대응을 한 번에
+function aiFirmOverview(c){
+  const payL=PAY_LBL[c.pay]||c.pay||"—";
+  return {inner:'<b>'+esc(c.name)+'</b>은(는) <b>'+esc(c.country)+'</b> 대상 <b>'+(c.pos==="export"?"수출":"수입")+'</b> 기업입니다. 이번 거래는 '+Number(c.amount).toLocaleString()+' '+esc(c.cur)+' · 결제 '+esc(payL)+' · 만기 D+'+c.horizon+'영업일 · 회사 기준환율 '+Number(c.budget).toLocaleString()+'원.'
+    +'<br>· <b>현재 진단</b> — 예산환율 초과 가능성 <b style="color:'+_aiCol(c.bbp)+'">'+c.bbp.toFixed(1)+'%('+_aiBand(c.bbp)+')</b>, 시장 위험 '+Math.round(c.ewi)+'·'+esc(c.regime)+'.'
+    +'<br>· <b>대응</b> — '+(_aiHrPct(c)>0?'부분 <b>'+_aiHrPct(c)+'%</b> 헤지('+esc(String(c.inst).split(" / ")[0])+')':'<b>관리 불필요</b>·감시 유지')+', 1순위 후보 <b>'+_aiPrim(c)+'</b>, 예상 부담액 <b>'+won(c.es)+'</b>.'
+    +'<br>더 물어보세요 — 예: "헤지 어때?" · "부담액이 얼마야?"', src:'현재 진단 · 기업 프로필'};
+}
+function _aiScroll(){ const l=$("ai-log"); if(l) l.scrollTop=l.scrollHeight; }
+function updateAiCtx(){
+  const el=$("ai-ctx"); if(!el) return;
+  const c=_aiC();
+  if(!c.name){ el.textContent='진단을 불러오는 중…'; return; }
+  el.innerHTML='지금 보고 있는 거래 · <b>'+esc(c.name)+'</b> '+(c.pos==="export"?"수출":"수입")+' '+Number(c.amount).toLocaleString()+' '+esc(c.cur)
+    +' · 초과 가능성 <b style="color:'+_aiCol(c.bbp)+'">'+c.bbp.toFixed(1)+'%</b> · 시장 '+Math.round(c.ewi)+'·'+esc(c.regime);
+}
+/* AI 모드의 '보고 있는 기업' — 코파일럿 폼을 건드리지 않고 그 기업 진단만 순수 계산한다.
+   _deal·_recsOf·triage 는 코파일럿 compute() 와 같은 엔진·같은 규칙(드리프트 없음). 폼·_ctxNow 불변. */
+let _aiFirmIdx=-1;   // -1 = 코파일럿 현재 거래를 따름 · >=0 = AI 모드에서 고른 기업
+function _firmF(p){
+  const s=p.suit||{dexp:"none",under:"no",ploss:"no",tol:0,pro:"no",cexec:""};
+  return {name:p.name,pos:p.pos,budget:p.budget,amount:p.amount,horizon:p.horizon,country:p.country,
+    currency:"USD",pay:p.pay,hs:p.hs,cert:p.cert,credit:p.credit,cash:p.cash,biz:p.biz,party:p.party,
+    consumer:{biz:p.biz,cash:p.cash,derivExp:s.dexp,understands:s.under,priorLoss:s.ploss,
+              tolerance:(+s.tol||0)*1e4,proDeclared:s.pro==="yes",
+              execDays:(s.cexec===""||s.cexec==null)?null:+s.cexec},
+    limits:(p.limit||{lim:0,used:0})};
+}
+function firmCtxOf(p){
+  const d=_deal(p), recs=_recsOf(p,d), prim=primaryProduct(recs,p.biz);
+  const rg=REG.USD[regimeIdx]||REG.USD[0];
+  let inst="헤지수단 미정"; try{ const tr=triage(_firmF(p)); if(tr&&tr[0]) inst=tr[0]; }catch(e){}
+  return {name:p.name,pos:p.pos,bbp:d.bbp,alert:d.alert,primary:prim?prim.t:null,
+    budget:p.budget,cur:"USD",amount:p.amount,ewi:rg.ewi,ewiGrade:gradeOf(rg.ewi),regime:rg.key,
+    hr:d.hr,inst:inst,es:d.es,horizon:p.horizon,spot:CUR.USD.spot,country:p.country,pay:p.pay,biz:p.biz,
+    recCount:recs.length,recNames:recs.slice(0,3).map(r=>String(r.t).split("(")[0].trim())};
+}
+// AI 모드가 답할 때 참조하는 문맥 — 고른 기업이 있으면 그 순수 진단, 없으면 코파일럿 현재 진단
+function _aiC(){ return _aiFirmIdx>=0 ? firmCtxOf(PRESETS[_aiFirmIdx]) : (_ctxNow||{}); }
+let _aiGreeted=false, _aiChipsBuilt=false, _aiFirmsBuilt=false;
+function _aiSyncFirmChips(){
+  const nm=(_aiC().name)||"";
+  document.querySelectorAll("#ai-firms .ai-firm").forEach(b=>b.classList.toggle("on", b.dataset.name===nm));
+}
+// 기업 선택 — AI 모드 포커스만 그 기업으로(코파일럿 폼·_ctxNow 불변), 프로필 개요를 답한다
+function selectAiFirm(i){
+  const p=PRESETS[i]; if(!p) return;
+  _aiFirmIdx=i;                       // 순수 계산 포커스만 이동 — fillPreset 호출 없음
+  updateAiCtx(); _aiSyncFirmChips();
+  const log=$("ai-log");
+  if(log){
+    const o=aiFirmOverview(_aiC());
+    log.insertAdjacentHTML("beforeend",'<div class="ask-q">'+esc(p.name)+' 선택</div>');
+    log.insertAdjacentHTML("beforeend",'<div class="ask-a ai-in">'+o.inner+'<span class="ask-src">출처 · '+esc(o.src)+'</span></div>');
+    _aiScroll();
+  }
+  if(typeof logAudit==="function") logAudit("AI 모드 기업 선택",p.name);
+}
+function renderAiMode(){
+  if((!_ctxNow||!_ctxNow.name) && typeof compute==="function") compute();
+  updateAiCtx();
+  if(!_aiFirmsBuilt){
+    const fb=$("ai-firms");
+    if(fb){
+      fb.innerHTML=PRESETS.map((p,i)=>'<button type="button" class="ai-firm" data-i="'+i+'" data-name="'+esc(p.name)+'">'+esc(p.name)+' <span class="fp">'+(p.pos==="export"?"수출":"수입")+'</span></button>').join("");
+      fb.querySelectorAll(".ai-firm").forEach(b=>b.addEventListener("click",()=>selectAiFirm(+b.dataset.i)));
+    }
+    _aiFirmsBuilt=true;
+  }
+  _aiSyncFirmChips();
+  if(!_aiChipsBuilt){
+    const host=$("ai-chips");
+    if(host){
+      host.innerHTML=AI_SUGGEST.map(q=>'<button type="button" class="ai-chip">'+esc(q)+'</button>').join("");
+      host.querySelectorAll(".ai-chip").forEach(b=>b.addEventListener("click",()=>{ const inp=$("ai-input"); if(inp) inp.value=b.textContent; aiSubmit(); }));
+    }
+    _aiChipsBuilt=true;
+  }
+  if(!_aiGreeted){
+    const log=$("ai-log"), c=_aiC();
+    if(log) log.insertAdjacentHTML("beforeend",'<div class="ask-a ai-in">안녕하세요 — 지금 진단 중인 <b>'+esc(c.name||"이 거래")+'</b>에 대해 무엇이든 물어보세요. 다른 기업이 궁금하면 위에서 <b>기업 선택</b>을 누르거나 질문에 기업명을 적으세요.<span class="ask-src">현재 진단 기준 · 외부 미전송</span></div>');
+    _aiGreeted=true;
+  }
+}
+function aiSubmit(){
+  const inp=$("ai-input"), log=$("ai-log"); if(!inp||!log) return;
+  const q=(inp.value||"").trim(); if(!q) return;
+  inp.value="";
+  log.insertAdjacentHTML("beforeend",'<div class="ask-q">'+esc(q)+'</div>');
+  // ① 기업 전환 — 질문에 기업명이 있으면 AI 모드 포커스만 이동(코파일럿 폼·_ctxNow 불변)
+  const fi=_aiFindFirm(q); let switchNote="";
+  if(fi>=0){
+    if(PRESETS[fi].name!==(_aiC().name||"")) switchNote='<b>'+esc(PRESETS[fi].name)+'</b>(으)로 전환했습니다. ';
+    _aiFirmIdx=fi; updateAiCtx(); _aiSyncFirmChips();
+  }
+  // ② 라우팅 — 기업 소개 질문(이름만/설명류)이고 구체 지표 키워드가 없으면 프로필 개요, 아니면 일반 답변
+  const hasMetric=AI_INTENTS.some(it=>it.k.some(k=>q.toLowerCase().indexOf(k)>=0));
+  const r = (_aiIsOverviewQ(q,fi) && !hasMetric) ? aiFirmOverview(_aiC()) : aiResolve(q);
+  const inner = switchNote + r.inner;
+  if(typeof logAudit==="function") logAudit("AI 모드 질문", q+" → "+(r.log||r.src));
+  // '생각 중' 리빌 후 답변 — 에이전트가 지금 답을 만드는 느낌. reduce-motion 이면 즉시.
+  log.insertAdjacentHTML("beforeend",'<div class="ask-a ai-think">현재 진단을 확인하는 중</div>');
+  const th=log.lastElementChild; _aiScroll();
+  const paint=()=>{ if(th) th.outerHTML='<div class="ask-a ai-in">'+inner+'<span class="ask-src">출처 · '+esc(r.src)+'</span></div>'; _aiScroll(); };
+  if(matchMedia("(prefers-reduced-motion:reduce)").matches){ paint(); } else { setTimeout(paint, 480); }
+}
+{ const _s=$("ai-send"), _i=$("ai-input");
+  if(_s) _s.addEventListener("click",aiSubmit);
+  if(_i) _i.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); aiSubmit(); } }); }
 
 /* ══════════ 에이전트 판단 경로 ══════════
    "계산했다"를 "추론했다"로 보이게 — 검토·기각·선택을 드러낸다. 근거는 recs(자격·적정성·한도 판정)를
@@ -5023,7 +5314,7 @@ $("drop").addEventListener("drop",e=>{ e.preventDefault(); $("drop").classList.r
 /* 입력은 이미 250ms 디바운스로 자동 재계산된다 — 예전 라벨 "분석 시작하기"는 누르면
    화면이 그대로라 "안 된 건가?"를 남겼다(이미 끝난 일을 시작하겠다고 말한 셈).
    이 버튼이 실제로 하는 일 = AI 요약 갱신 + 결과 컬럼으로 데려가기(모바일에선 아래로 쌓여 있다). */
-$("go").addEventListener("click",()=>{ compute(); logAudit("진단 결과 보기",readForm().name);
+$("go").addEventListener("click",()=>{ _afForce=true; compute(); logAudit("진단 결과 보기",readForm().name);
   if(typeof generateAdvisorBrief==="function") generateAdvisorBrief();
   const col2=document.querySelectorAll("#view-copilot .appcol")[1];
   if(col2) col2.scrollIntoView({behavior:"smooth",block:"start"});
@@ -5460,6 +5751,7 @@ function showView(name){
   else if(name==="policy")renderPolicy();
   else if(name==="report")renderReport();
   else if(name==="support")renderSupport();
+  else if(name==="ai" && typeof renderAiMode==="function")renderAiMode();
 }
 document.querySelectorAll(".nav-i").forEach(n=>n.addEventListener("click",()=>showView(n.getAttribute("data-view"))));
 
