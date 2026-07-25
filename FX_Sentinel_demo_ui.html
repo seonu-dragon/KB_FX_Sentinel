@@ -1388,44 +1388,62 @@
   .ask-q{align-self:flex-end;background:color-mix(in srgb,var(--brand) 8%,transparent);border-radius:10px 10px 2px 10px;padding:7px 10px;font-size:var(--fs-2);max-width:90%}
   .ask-a{align-self:flex-start;border:1px solid var(--line-solid);border-radius:10px 10px 10px 2px;padding:8px 10px;font-size:var(--fs-2);color:var(--ink-mut);line-height:1.65;max-width:95%}
   .ask-a .ask-src{display:block;margin-top:5px;font-size:var(--fs-1);color:var(--ink-faint)}
-  /* ══════════ AI 모드 — 채팅 중심 패널 ══════════ */
-  .aimode{max-width:940px;margin:0 auto;display:flex;flex-direction:column;
-    height:calc(100vh - var(--appbar-h,84px) - 76px);min-height:440px;max-height:860px}
+  /* ══════════ AI 모드 — 채팅 중심 패널(카드) ══════════ */
+  .aimode{max-width:920px;margin:0 auto;display:flex;flex-direction:column;
+    height:calc(100vh - var(--appbar-h,84px) - 72px);min-height:460px;max-height:840px;
+    background:var(--panel);border:1px solid var(--line-solid);border-radius:18px;overflow:hidden;
+    box-shadow:0 1px 2px rgba(20,32,60,.05),0 16px 38px rgba(20,32,60,.07)}
   /* 상단 한 줄 — 제목 · 기업 드롭다운 · 현재 지표 */
-  .ai-head{flex:0 0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:0 2px 13px;border-bottom:1px solid var(--line)}
-  .ai-head-title{font-size:var(--fs-4,20px);font-weight:800;color:var(--ink);display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+  .ai-head{flex:0 0 auto;display:flex;align-items:center;gap:13px;flex-wrap:wrap;padding:14px 20px;border-bottom:1px solid var(--line)}
+  .ai-head-title{font-size:var(--fs-3,17px);font-weight:800;color:var(--ink);display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
   .ai-head-title .agent-n{color:var(--brand)}
   .ai-head-firm{display:inline-flex;align-items:center;gap:7px}
-  .ai-head-firm label{font-size:var(--fs-1);font-weight:800;color:var(--ink-faint)}
-  .ai-head-firm select{font-family:inherit;font-size:var(--fs-1);font-weight:700;color:var(--ink);background:var(--panel);
+  .ai-head-firm label{font-size:var(--fs-1);font-weight:700;color:var(--ink-faint)}
+  .ai-head-firm select{font-family:inherit;font-size:var(--fs-1);font-weight:700;color:var(--ink);background:var(--panel-2);
     border:1px solid var(--line-solid);border-radius:var(--r-pill,999px);padding:6px 30px 6px 13px;cursor:pointer;
-    appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23888' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
-  .ai-head-ctx{margin-left:auto;font-size:var(--fs-1);color:var(--ink-mut);white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
+    appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23888' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;transition:border-color .15s}
+  .ai-head-firm select:hover{border-color:var(--brand)}
+  .ai-head-ctx{margin-left:auto;font-size:var(--fs-1);color:var(--ink-faint);white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
   .ai-head-ctx b{color:var(--ink)}
   /* 대화영역 — 스크롤 주인공 */
-  .ai-log{flex:1 1 auto;overflow-y:auto;min-height:0;padding:18px 4px 10px;margin:0;gap:12px}
-  .ai-log .ask-q,.ai-log .ask-a{max-width:80%;font-size:var(--fs-2)}
+  .ai-log{flex:1 1 auto;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:14px;margin:0;padding:20px 20px 22px;
+    background:color-mix(in srgb,var(--bg) 70%,var(--panel))}
+  .ai-msg{display:flex;gap:9px;align-items:flex-end;max-width:100%}
+  .ai-msg-a{justify-content:flex-start}
+  .ai-msg-q{justify-content:flex-end}
+  .ai-av{flex:0 0 auto;width:27px;height:27px;border-radius:50%;display:grid;place-items:center;
+    background:color-mix(in srgb,var(--brand) 15%,var(--panel));color:var(--brand);font-size:13px;font-weight:800;margin-bottom:1px}
+  .ai-log .ask-a{max-width:74%;background:var(--panel);border:1px solid var(--line);border-radius:3px 15px 15px 15px;
+    padding:11px 14px;font-size:var(--fs-2);color:var(--ink-mut);line-height:1.66;align-self:auto}
   .ai-log .ask-a b{color:var(--ink)}
+  .ai-log .ask-q{max-width:74%;background:color-mix(in srgb,var(--brand) 13%,var(--panel));border:0;
+    border-radius:15px 15px 3px 15px;padding:10px 14px;font-size:var(--fs-2);color:var(--ink);line-height:1.6;align-self:auto}
+  .ai-log .ask-src{display:block;margin-top:8px;padding-top:7px;border-top:1px solid var(--line);font-size:var(--fs-1);color:var(--ink-faint)}
   .ai-think{color:var(--ink-faint);display:inline-flex;align-items:center;gap:7px}
   /* 입력영역 — 하단 고정, 예시칩은 입력 위 */
-  .ai-inputwrap{flex:0 0 auto;padding-top:13px;border-top:1px solid var(--line)}
+  .ai-inputwrap{flex:0 0 auto;padding:13px 20px 15px;border-top:1px solid var(--line);background:var(--panel)}
   .ai-chips{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 11px}
-  .ai-chip{font-family:inherit;font-size:var(--fs-1);color:var(--ink-mut);background:var(--panel);border:1px solid var(--line-solid);border-radius:var(--r-pill,999px);padding:6px 12px;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
+  .ai-chip{font-family:inherit;font-size:var(--fs-1);color:var(--ink-mut);background:var(--panel-2);border:1px solid transparent;border-radius:var(--r-pill,999px);padding:6px 12px;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
   .ai-chip::before{content:"\2727";color:var(--brand);margin-right:5px}
-  .ai-chip:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
-  .ai-chip:hover::before{color:var(--gold)}
-  .ai-inputbar{display:flex;gap:8px}
-  .ai-inputbar input{flex:1 1 auto;min-width:0}
-  .ai-send{flex:0 0 auto;width:auto;white-space:nowrap;margin-top:0;padding:0 22px}
-  .ai-guard{font-size:var(--fs-1);color:var(--ink-faint);margin-top:9px;line-height:1.5}
+  .ai-chip:hover{background:var(--panel);color:var(--ink);border-color:var(--brand)}
+  .ai-inputbar{display:flex;gap:8px;align-items:stretch}
+  .ai-inputbar input{flex:1 1 auto;min-width:0;font-family:inherit;font-size:var(--fs-2);color:var(--ink);
+    background:var(--panel-2);border:1px solid var(--line-solid);border-radius:var(--r-pill,999px);padding:10px 16px}
+  .ai-inputbar input::placeholder{color:var(--ink-faint)}
+  .ai-inputbar input:focus{outline:none;border-color:var(--brand)}
+  .ai-send{flex:0 0 auto;width:auto;white-space:nowrap;margin-top:0;padding:0 22px;
+    background:var(--brand);color:#fff;border:0;border-radius:var(--r-pill,999px)}
+  .ai-send:hover{background:var(--navy)}
+  .ai-guard{font-size:var(--fs-1);color:var(--ink-faint);margin-top:10px;line-height:1.5}
   @media(prefers-reduced-motion:no-preference){
     .ai-think::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--brand);animation:arPulse 1s ease-in-out infinite}
-    .ai-log .ask-a.ai-in{animation:briefIn .4s ease both}
+    .ai-msg.ai-in{animation:briefIn .4s ease both}
   }
   @media(max-width:720px){
-    .aimode{height:auto;max-height:none;min-height:0}
+    .aimode{height:auto;max-height:none;min-height:0;border-radius:14px}
     .ai-log{max-height:56vh}
     .ai-head-ctx{margin-left:0;flex:1 1 100%}
+    .ai-log .ask-a,.ai-log .ask-q{max-width:84%}
     .ai-inputbar{flex-wrap:wrap} .ai-inputbar input{flex:1 1 100%} .ai-send{flex:1 1 100%}
   }
   .dlg-rule{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:var(--fs-2);color:var(--ink-mut)}
@@ -4225,6 +4243,12 @@ function _aiSyncFirm(){
   const nm=(_aiC().name)||"";
   if(sel.value!==nm) sel.value=nm;
 }
+// 말풍선 — 어시스턴트(아바타+답변), 사용자(오른쪽). srcLine 은 이미 완성된 출처 문구(없으면 생략)
+function _aiBubbleA(inner, srcLine){
+  return '<div class="ai-msg ai-msg-a ai-in"><span class="ai-av" aria-hidden="true">✧</span>'
+    +'<div class="ask-a">'+inner+(srcLine?'<span class="ask-src">'+srcLine+'</span>':'')+'</div></div>';
+}
+function _aiBubbleQ(text){ return '<div class="ai-msg ai-msg-q ai-in"><div class="ask-q">'+esc(text)+'</div></div>'; }
 // 기업 선택 — AI 모드 포커스만 그 기업으로(코파일럿 폼·_ctxNow 불변), 프로필 개요를 답한다
 function selectAiFirm(i){
   const p=PRESETS[i]; if(!p) return;
@@ -4233,8 +4257,8 @@ function selectAiFirm(i){
   const log=$("ai-log");
   if(log){
     const o=aiFirmOverview(_aiC());
-    log.insertAdjacentHTML("beforeend",'<div class="ask-q">'+esc(p.name)+' 선택</div>');
-    log.insertAdjacentHTML("beforeend",'<div class="ask-a ai-in">'+o.inner+'<span class="ask-src">출처 · '+esc(o.src)+'</span></div>');
+    log.insertAdjacentHTML("beforeend", _aiBubbleQ(p.name+' 선택'));
+    log.insertAdjacentHTML("beforeend", _aiBubbleA(o.inner, '출처 · '+esc(o.src)));
     _aiScroll();
   }
   if(typeof logAudit==="function") logAudit("AI 모드 기업 선택",p.name);
@@ -4261,7 +4285,7 @@ function renderAiMode(){
   }
   if(!_aiGreeted){
     const log=$("ai-log"), c=_aiC();
-    if(log) log.insertAdjacentHTML("beforeend",'<div class="ask-a ai-in">안녕하세요 — <b>'+esc(c.name||"이 거래")+'</b> 진단을 무엇이든 물어보세요. 위 <b>기업</b> 드롭다운을 바꾸거나 질문에 기업명을 적으면 그 기업으로 답합니다.<span class="ask-src">현재 진단 기준 · 외부 미전송</span></div>');
+    if(log) log.insertAdjacentHTML("beforeend", _aiBubbleA('안녕하세요 — <b>'+esc(c.name||"이 거래")+'</b> 진단을 무엇이든 물어보세요. 위 <b>기업</b> 드롭다운을 바꾸거나 질문에 기업명을 적으면 그 기업으로 답합니다.', '현재 진단 기준 · 외부 미전송'));
     _aiGreeted=true;
   }
 }
@@ -4269,7 +4293,7 @@ function aiSubmit(){
   const inp=$("ai-input"), log=$("ai-log"); if(!inp||!log) return;
   const q=(inp.value||"").trim(); if(!q) return;
   inp.value="";
-  log.insertAdjacentHTML("beforeend",'<div class="ask-q">'+esc(q)+'</div>');
+  log.insertAdjacentHTML("beforeend", _aiBubbleQ(q));
   // ① 기업 전환 — 질문에 기업명이 있으면 AI 모드 포커스만 이동(코파일럿 폼·_ctxNow 불변)
   const fi=_aiFindFirm(q); let switchNote="";
   if(fi>=0){
@@ -4282,9 +4306,9 @@ function aiSubmit(){
   const inner = switchNote + r.inner;
   if(typeof logAudit==="function") logAudit("AI 모드 질문", q+" → "+(r.log||r.src));
   // '생각 중' 리빌 후 답변 — 에이전트가 지금 답을 만드는 느낌. reduce-motion 이면 즉시.
-  log.insertAdjacentHTML("beforeend",'<div class="ask-a ai-think">현재 진단을 확인하는 중</div>');
+  log.insertAdjacentHTML("beforeend", _aiBubbleA('<span class="ai-think">현재 진단을 확인하는 중</span>', null));
   const th=log.lastElementChild; _aiScroll();
-  const paint=()=>{ if(th) th.outerHTML='<div class="ask-a ai-in">'+inner+'<span class="ask-src">출처 · '+esc(r.src)+'</span></div>'; _aiScroll(); };
+  const paint=()=>{ if(th) th.outerHTML=_aiBubbleA(inner, '출처 · '+esc(r.src)); _aiScroll(); };
   if(matchMedia("(prefers-reduced-motion:reduce)").matches){ paint(); } else { setTimeout(paint, 480); }
 }
 { const _s=$("ai-send"), _i=$("ai-input");
