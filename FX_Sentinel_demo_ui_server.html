@@ -1444,6 +1444,10 @@
     .ai-log{max-height:56vh}
     .ai-head-ctx{margin-left:0;flex:1 1 100%}
     .ai-log .ask-a,.ai-log .ask-q{max-width:84%}
+    /* 예시칩 — 여러 줄 접힘 대신 가로 스크롤 한 줄(입력창을 위로 유지) */
+    .ai-chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    .ai-chips::-webkit-scrollbar{display:none}
+    .ai-chip{flex:0 0 auto}
     .ai-inputbar{flex-wrap:wrap} .ai-inputbar input{flex:1 1 100%} .ai-send{flex:1 1 100%}
   }
   .dlg-rule{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:var(--fs-2);color:var(--ink-mut)}
