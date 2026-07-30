@@ -1747,7 +1747,6 @@
         <h3><span class="agent-n">✦</span> AI 맞춤 요약 <span class="ai-tag">행내 생성 · 외부 미전송</span>
           <button type="button" class="ai-gen" id="ai-gen">AI 요약 보기</button></h3>
         <div class="ai-out" id="ai-out"><div class="ai-empty">위 진단 결과와 추천 상품을 <b>이해하기 쉬운 요약</b>으로 정리해 드립니다. 분석 시작 시 자동 생성됩니다.</div></div>
-        <div class="guard">※ 위 <b>계산값만</b> 근거로 문장을 만듭니다 — 없는 수치를 지어내지 않습니다.</div>
       </section>
 
       <!-- Advisor 질문 — 행내 지식베이스(무역금융·헤지수단·제도) 키워드 검색 + 출처 인용.
@@ -1760,7 +1759,7 @@
           <button type="button" class="modebtn" id="ask-go">질문</button>
         </div>
         <div class="ask-log" id="ask-log"></div>
-        <div class="guard">※ 지식베이스에 없는 질문은 답을 만들지 않고 RM 상담으로 안내합니다.</div>
+        <div class="guard">모르는 질문은 지어내지 않고 RM 상담으로 안내합니다.</div>
       </section>
 
     </section>
@@ -2326,7 +2325,7 @@
           <input id="ai-input" placeholder="예: 예산환율 초과 가능성에 대해 알려줘" autocomplete="off" aria-label="AI 모드 질문 입력">
           <button type="button" class="go ai-send" id="ai-send">질문 →</button>
         </div>
-        <div class="ai-guard">현재 진단 계산값·행내 지식베이스에서만 답합니다 · 모르는 질문은 지어내지 않고 KB 상담 안내 · 외부 전송 없음. 질문에 <b>기업명</b>을 적어도 전환되며, 코파일럿 화면은 그대로입니다.</div>
+        <div class="ai-guard">현재 진단 기준으로만 답합니다 · 모르는 질문은 RM 상담으로 안내 · 외부 전송 없음</div>
       </div>
     </div>
   </div>
@@ -3273,9 +3272,9 @@ function renderHedgeCompare(f){
       +'<td data-label="선납비용">'+esc(r.cost)+'</td><td data-label="상단이익">'+esc(r.up)+'</td><td data-label="여신">'+esc(r.credit)+'</td></tr>';
   });
   h+='</tbody></table></div>';
-  h+='<div class="guard">※ 상단 이익 "일부 유지"는 범위형·칼라의 구조 설명입니다. 실제 밴드가·행사가·요율은 RM 견적이며, 이 표는 예측이 아니라 상품 구조 비교입니다.</div>';
+  h+='<div class="guard internal-only">※ 상단 이익 "일부 유지"는 범위형·칼라의 구조 설명입니다. 실제 밴드가·행사가·요율은 RM 견적이며, 이 표는 예측이 아니라 상품 구조 비교입니다.</div>';
   // 공정가 투명성(TCA-lite) — 참고 중간환율만 표시. 대고객 스프레드는 지어내지 않고 RM 고시값을 체결 시 대조.
-  h+='<div class="metaline" style="max-width:48em"><b>공정가 안내</b> — 참고 중간환율 <b>'+fmtRate(spot)+'원</b>('+(f.currency||"USD")+'/KRW). 대고객 적용환율 = 중간환율 ± <b>KB 고시 스프레드</b>이며, 실제 스프레드는 <b>체결 시 이 화면에서 대조</b>합니다. 실제 스프레드는 KB 고시값으로 체결 시 확정됩니다.</div>';
+  h+='<div class="metaline" style="max-width:48em"><b>공정가 안내</b> — 참고 중간환율 <b>'+fmtRate(spot)+'원</b>('+(f.currency||"USD")+'/KRW) · 대고객 환율은 <b>KB 고시 스프레드</b>로 체결 시 확정됩니다.</div>';
   // 위험회피회계(K-IFRS) 지정문서 초안 (C3) — 중견 차별화. 초안일 뿐 회계처리는 감사인 협의.
   const _inst = eligible("기간형선물환",f)?"기간형 선물환": eligible("선물환",f)?"선물환": eligible("범위선물환",f)?"범위선물환": eligible("환변동보험",f)?"환변동보험(K-SURE)":"헤지수단 미정";
   h+='<details class="advform" style="margin-top:12px"><summary>▦ 위험회피회계(K-IFRS 제1109호) 지정문서 초안 <span class="dbadge" title="문서 초안 생성입니다. 지정·유효성·회계처리는 감사인·회계법인 협의 사항입니다.">초안 · 회계처리는 감사인 협의</span></summary>'
@@ -3683,7 +3682,7 @@ function compute(){
   const tImpact = f.pos==="import"
     ? (ts.yoy[1]==="up"?"수입수요 견조하나 환율 변동성 상존 — 결제원가 방어 우선":"수입수요 둔화 — 물량·환율 동반 점검")
     : (ts.yoy[1]==="up"?"수출수요 증가 — 대금 조기화(매입)·환헤지 병행 유리":"수출수요 둔화 — 보수적 헤지·보험 병행");
-  $("tradestat-note").innerHTML='<b>영향:</b> '+ts.name+' 품목 수요 '+ts.yoy[0]+', 한국 점유율 '+ts.share[0]+'. '+tImpact+'. <span style="color:var(--ink-faint)">품목(HS) 단위 통계로 거래국별 수치가 아닙니다 · 출처: '+ts.src+'</span>';
+  $("tradestat-note").innerHTML='<b>'+ts.name+'</b> — '+tImpact+'. <span style="color:var(--ink-faint)">품목(HS) 단위 · 거래국별 수치가 아닙니다 · 출처: '+ts.src+'</span>';
 
   // ── 관세·통관 (수입=관세 원가·환율연동, 수출=환급·원산지)
   const tf=TARIFF[f.hs]||TARIFF.ETC, fta=FTA[f.country]||FTA["기타"];
@@ -3907,8 +3906,8 @@ function renderRunSummary(f,ctx){
   if(rv){
     const hrp=Math.round((ctx.hr||0)*100), bp=ctx.bbp||0;
     rv.innerHTML = hrp>0
-      ? '환율이 <b>유리하게</b> 움직이면 헤지 비용이 되레 손실입니다. 그래서 100%가 아니라 초과 가능성('+bp.toFixed(0)+'%)에 맞춘 <b>부분 '+hrp+'%</b>만 제안하고, 남은 <b>'+(100-hrp)+'%</b>는 시장을 열어 둡니다.'
-      : '지금은 <b>관리 불필요</b>로 판단했지만 이 판단이 틀릴 수 있습니다 — 초과 가능성이 <b>40%</b>를 넘기면 스스로 재제안하도록 감시를 이어갑니다.';
+      ? '환율이 <b>유리하게</b> 가면 헤지 비용이 되레 손실 — 그래서 전액이 아닌 <b>부분 '+hrp+'%</b>만 제안합니다.'
+      : '지금은 <b>관리 불필요</b> 판단 — 초과 가능성이 <b>40%</b>를 넘으면 다시 제안합니다.';
   }
 }
 
@@ -4506,8 +4505,8 @@ function renderSuit(sg,f){
     h+='<div class="blockbox" style="border-color:color-mix(in srgb,var(--elev) 45%,transparent)"><b>⚠ 구속성 판매(꺾기) 점검</b><br>'
       +sg.kickback.map(esc).join("<br>")+'</div>';
   }
-  h+='<div class="vnote" style="margin-top:8px">감내 필요액은 이 거래의 <b>선물환 1σ 불리 시나리오</b>('+won(s.needKrw)
-    +')를 기준으로 합니다 — 거래 규모에 따라 달라집니다. 문항·임계는 참고 설계값이며 KB 승인 평가표가 아닙니다.</div>';
+  h+='<div class="vnote" style="margin-top:8px"><span class="hasinfo" data-info="감내 필요액은 이 거래의 선물환 1σ 불리 시나리오('+won(s.needKrw)
+    +') 기준입니다 — 거래 규모에 따라 달라집니다.">감내 필요액 산출 기준</span><span class="internal-only"> · 문항·임계는 참고 설계값이며 KB 승인 평가표가 아닙니다</span></div>';
   box.innerHTML=h;
 }
 function renderAdvisor(recs,f){
@@ -5163,7 +5162,7 @@ function applyGate(){
     $("gate-note").innerHTML='<span class="hasinfo" data-info="외국환거래법상 실수요 원칙 — 취소돼도 손실이 한정되는 <b>옵션형</b>은 지금도 검토할 수 있습니다.">서류는 확인됐지만 <b>가결제(취소 가능)</b> 거래 — 선물환 등 확정 헤지는 <b>확정 거래에만</b> 가능합니다</span>';
   } else {
     gh.textContent="🔒 서류 확인 전 — 환리스크 관리 상담 잠금"; gc.classList.remove("ok");
-    $("gate-note").innerHTML='서류('+esc(ev.legal)+')를 올리면 실수요가 확인되어 환리스크 관리 상담이 열립니다.';
+    $("gate-note").innerHTML='서류를 올리면 실수요가 확인되어 상담이 열립니다.';
   }
 }
 
@@ -5384,8 +5383,8 @@ function localBrief(p){
 function showLocalBrief(reason, mode){
   const policy = (mode==="policy");
   const meta = policy
-    ? '행내 생성 요약 · <b>고객 거래정보 외부 미전송</b> — 룰엔진 BBP·상품 후보(FACTS)를 브라우저 안에서 문장화'
-    : '행내 요약 · 외부 AI 미사용 — 위 룰엔진 BBP·상품 후보(FACTS)를 그대로 문장화 · '+esc(reason);
+    ? '<span class="hasinfo" data-info="룰엔진이 산출한 계산값(FACTS)만 브라우저 안에서 문장화합니다 — 없는 수치를 지어내지 않으며, 거래정보는 브라우저 밖으로 나가지 않습니다.">행내 생성 · <b>외부 미전송</b></span>'
+    : '행내 요약 · 외부 AI 미사용 · '+esc(reason);
   $("ai-out").innerHTML='<div class="ai-reply">'+localBrief(_advisorPayload)+'</div>'
     +'<div class="ai-meta">'+meta+' · '+new Date().toLocaleTimeString("ko-KR",{hour12:false})+'</div>';
   logAudit(policy?"AI 요약 행내 생성(외부 전송 차단)":"AI 요약 행내 생성(외부 미사용)", reason);
