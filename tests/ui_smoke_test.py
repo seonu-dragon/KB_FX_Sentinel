@@ -1464,9 +1464,15 @@ PROBE = r"""
     ok("실무탭 " + id + " 발표물 없음", el && hit.length === 0, hit.length ? "누출: " + hit.join(",") : "없음");
   });
   var jd = document.getElementById("dp-judge");
-  ok("심사 자료 탭 존재 + 경고", jd && jd.textContent.indexOf("실서비스 RM 화면이 아닙니다") >= 0, "명시");
-  ok("심사물은 심사탭에 집결",
-     jd && PITCH.filter(function(w){ return jd.textContent.indexOf(w) < 0; }).length === 0, "전부 포함");
+  /* f3e0d21 실서비스 관점 정리 — 탭 명칭이 '④ 심사 자료' → '④ 검증·거버넌스'로 바뀌고
+     경고 문구도 "내부 모델 검증·거버넌스 자료 — 고객 화면이 아닙니다"로 재작성됐다.
+     '왜 KB국민은행인가'·'심사위원용' 두 표제는 심사위원 참조 제거 방침으로 화면에서 빠졌으므로
+     집결 검사 대상에서 제외한다(실무탭 누출 검사(PITCH)는 그대로 — 없으면 트리비얼 통과). */
+  ok("검증·거버넌스 탭 존재 + 경고", jd && jd.textContent.indexOf("고객 화면이 아닙니다") >= 0, "명시");
+  var JUDGE_ONLY = PITCH.filter(function(w){
+    return w !== "왜 KB국민은행인가" && w !== "심사위원용"; });
+  ok("검증물은 검증·거버넌스 탭에 집결",
+     jd && JUDGE_ONLY.filter(function(w){ return jd.textContent.indexOf(w) < 0; }).length === 0, "전부 포함");
   /* RM 핵심 동선: 결정요약 CTA → 상담·진행 탭(티켓) */
   showDeep("dp-a");
   document.getElementById("hd-cta").click();
