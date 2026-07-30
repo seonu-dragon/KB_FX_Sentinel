@@ -1195,11 +1195,10 @@
   .dbadge[data-info]:hover::after, .dbadge[title]:hover::after, .hasinfo:hover::after,
   .dbadge[aria-expanded="true"]::after, .hasinfo[aria-expanded="true"]::after{color:var(--brand)}
   .infopop{position:fixed;z-index:95;max-width:300px;background:var(--panel);color:var(--ink);
-    border:1px solid var(--line-solid);border-radius:10px;box-shadow:0 10px 30px rgba(15,22,34,.20);
+    border:1px solid var(--line-solid);border-radius:10px;box-shadow:var(--sh-3);
     padding:10px 12px;font-size:var(--fs-1);font-weight:500;line-height:1.6;letter-spacing:normal;
     text-transform:none;white-space:normal;font-family:inherit}
   .infopop b{color:var(--ink);font-weight:700}
-  :root[data-theme="dark"] .infopop{box-shadow:0 10px 30px rgba(0,0,0,.55)}
   /* 접이식 보조 카드 — 첫 화면 밀도를 낮춘다. 핵심(진단·추천·다음단계)은 펼친 채, 보조는 접어 둔다.
      details 라 내용은 DOM·textContent 에 그대로 남는다(검사·낭독 불변) — 시각적으로만 접힌다. */
   details.cardfold>summary{list-style:none;cursor:pointer;position:relative;padding-right:52px}
@@ -1359,6 +1358,9 @@
   /* 자가 반박 — "이 판단이 틀릴 경우"를 스스로 대는 줄(실행흐름 푸터, 양 칼럼 폭 전체) */
   .ar-sum.ar-sum-full{grid-column:1 / -1}
   .ar-sum .rebut-k{color:var(--elev)}
+  /* 한 줄 70자 초과 방지(가독 규율) — 자가 반박은 전폭 행이라 넓은 화면에서 줄이 너무 길어진다.
+     '가' 글리프 폭이 약 0.87em이라 58em ≈ 66자. */
+  .ar-sum .ar-sum-v.rebut{max-width:58em}
   .ar-sum .ar-sum-v.rebut b{color:var(--ink)}
   /* 자연어 해석 — 에이전트가 항목을 채우는 동안의 '생각 중' 표시 */
   .nl-think{color:var(--brand);font-weight:700;display:inline-flex;align-items:center;gap:6px}
@@ -1392,7 +1394,7 @@
   .aimode{max-width:920px;margin:0 auto;display:flex;flex-direction:column;
     height:calc(100vh - var(--appbar-h,84px) - 72px);min-height:460px;max-height:840px;
     background:var(--panel);border:1px solid var(--line-solid);border-radius:18px;overflow:hidden;
-    box-shadow:0 1px 2px rgba(20,32,60,.05),0 16px 38px rgba(20,32,60,.07)}
+    box-shadow:var(--sh-2)}
   /* 상단 한 줄 — 제목 · 기업 드롭다운 · 현재 지표 */
   .ai-head{flex:0 0 auto;display:flex;align-items:center;gap:13px;flex-wrap:wrap;padding:14px 20px;border-bottom:1px solid var(--line)}
   .ai-head-title{font-size:var(--fs-3,17px);font-weight:800;color:var(--ink);display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
@@ -3437,8 +3439,7 @@ function compute(){
   // 사실만 남긴다: ①상한이라는 것과 배수 ②방향별 오차. 부장 지적(부풀린 손실로 헤지 유도)의 방어라 삭제 불가.
   // 핵심 고지(상한)는 상시 노출, 방향별 오차 등 부가 유의는 점진적 공개(밀도 완화). 삭제는 하지 않는다.
   $("bbp-honesty").innerHTML=
-    '<div class="hn"><span class="hasinfo" data-info="실측 평균의 약 <b>'+ES_BIAS.ratio.toFixed(1)
-      +'배</b>로 안전하게 잡은 값입니다. 실제 부담액은 이보다 작을 수 있습니다."><b>부담액은 보수적 상한</b></span></div>'
+    '<div class="hn"><span class="hasinfo" data-info="일부러 크게 잡은 안전 마진입니다. 실제 부담액은 이보다 작을 수 있습니다."><b>부담액은 보수적 상한</b></span> — 실측 평균의 '+ES_BIAS.ratio.toFixed(1)+'배로 안전하게 잡은 값</div>'
     +'<details class="hn-more"><summary>방향별 오차 · 참고 유의</summary><div class="hn hn-sub">'+(impK
       ? '<b>수입 건은 오차가 큽니다</b> — 원화 약세 추세로 실제 초과 빈도 <b>'+(CALIB_DIR.importRate*100).toFixed(1)
         +'%</b>(수입·수출을 나눠 보면 오차가 평균의 4배). 참고 지표로만 보십시오.'
@@ -4461,7 +4462,7 @@ function renderLimit(lm,fallback,f){
     else
       h+='<div class="metaline rm"><b>대안 없음</b> 수입 결제 건은 K-SURE(수출 전용) 대상이 아닙니다 — 여신 한도·담보 협의가 선행돼야 합니다</div>';
   }
-  h+='<div class="vnote" style="margin-top:8px"><span class="hasinfo" data-info="파생상품은 명목 전액이 아니라 <b>신용환산액</b>만큼 한도를 사용합니다. 만기가 길수록 환산율이 큽니다. 금리·수수료 등 최종 조건은 KB 영업점에서 확정합니다.'
+  h+='<div class="vnote" style="margin-top:8px"><span class="hasinfo" data-info="파생상품은 명목 전액이 아니라 신용환산액만큼 한도를 사용합니다. 만기가 길수록 환산율이 큽니다. 금리·수수료 등 최종 조건은 KB 영업점에서 확정합니다.'
     +'<span class=&quot;internal-only&quot;> 한도액·기사용액은 <b>고객 자기신고</b>이며 KB 원장 조회값이 아닙니다.</span>">한도는 명목이 아닌 <b>신용환산액</b> 기준</span></div>';
   box.innerHTML=h;
 }
@@ -5159,7 +5160,7 @@ function applyGate(){
     $("gate-note").innerHTML='실수요('+esc(ev.legal)+')가 확인되어 환리스크 관리 상담이 열렸습니다.';
   } else if(_docUploaded){
     gh.textContent="🔒 가결제 거래 — 확정 후 헤지 상담 가능"; gc.classList.remove("ok");
-    $("gate-note").innerHTML='<span class="hasinfo" data-info="외국환거래법상 선물환은 확정 거래에만 가능합니다. 취소돼도 손실이 한정되는 <b>옵션형</b>은 지금도 검토할 수 있습니다.">서류는 확인됐지만 <b>가결제(취소 가능)</b> 거래 — 헤지 수단이 제한됩니다</span>';
+    $("gate-note").innerHTML='<span class="hasinfo" data-info="외국환거래법상 실수요 원칙 — 취소돼도 손실이 한정되는 <b>옵션형</b>은 지금도 검토할 수 있습니다.">서류는 확인됐지만 <b>가결제(취소 가능)</b> 거래 — 선물환 등 확정 헤지는 <b>확정 거래에만</b> 가능합니다</span>';
   } else {
     gh.textContent="🔒 서류 확인 전 — 환리스크 관리 상담 잠금"; gc.classList.remove("ok");
     $("gate-note").innerHTML='서류('+esc(ev.legal)+')를 올리면 실수요가 확인되어 환리스크 관리 상담이 열립니다.';
